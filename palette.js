@@ -90,6 +90,15 @@ function renderIcon(item) {
   return span;
 }
 
+function isOtherWindowTab(item) {
+  return item.kind === "tab" && item.tab.windowId !== ctx.self.windowId;
+}
+
+function kindLabel(item) {
+  if (!isOtherWindowTab(item)) return KIND_LABELS[item.kind];
+  return item.key === selectedKey ? "Enter そのウィンドウへ / Shift+Enter ここへ移動" : "別ウィンドウのタブ";
+}
+
 function renderRow(item) {
   const li = document.createElement("li");
   li.role = "option";
@@ -108,10 +117,10 @@ function renderRow(item) {
 
   const kind = document.createElement("span");
   kind.className = "kind";
-  kind.textContent = KIND_LABELS[item.kind];
+  kind.textContent = kindLabel(item);
 
   li.append(renderIcon(item), text, kind);
-  li.addEventListener("click", () => execute(item));
+  li.addEventListener("click", (event) => execute(item, { moveHere: event.shiftKey }));
   return li;
 }
 
@@ -185,12 +194,18 @@ async function openTab(tab) {
   await leave(tab.windowId === ctx.self.windowId ? tab.id : ctx.target?.id);
 }
 
-function runItem(item) {
+// パレットの位置へ移すので、パレットを閉じた後もその位置に残る。
+async function moveTabHere(tab) {
+  await chrome.tabs.move(tab.id, { windowId: ctx.self.windowId, index: ctx.self.index });
+  await leave(tab.id);
+}
+
+function runItem(item, { moveHere }) {
   switch (item.kind) {
     case "command":
       return item.command.run(ctx);
     case "tab":
-      return openTab(item.tab);
+      return moveHere && isOtherWindowTab(item) ? moveTabHere(item.tab) : openTab(item.tab);
     case "folder":
       return enterFolder(item.folder);
     case "search":
@@ -200,12 +215,12 @@ function runItem(item) {
   }
 }
 
-async function execute(item) {
+async function execute(item, { moveHere = false } = {}) {
   if (busy || !item) return;
   busy = true;
   try {
     await refreshTabs();
-    await runItem(item);
+    await runItem(item, { moveHere });
   } catch (error) {
     toast.textContent = error.message;
   } finally {
@@ -225,7 +240,7 @@ function handleKeydown(event) {
     moveSelection(-1);
   } else if (event.key === "Enter") {
     event.preventDefault();
-    execute(results.find((item) => item.key === selectedKey));
+    execute(results.find((item) => item.key === selectedKey), { moveHere: event.shiftKey });
   } else if (event.key === "Backspace" && !input.value && folderStack.length > 0) {
     event.preventDefault();
     exitFolder();
