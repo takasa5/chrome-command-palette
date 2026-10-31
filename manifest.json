@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Command Palette",
+  "version": "0.1.0",
+  "description": "Cmd+T で開くコマンドパレット。ブラウザ操作、タブ切り替え、履歴・ブックマーク検索をキーボードで行う。",
+  "minimum_chrome_version": "121",
+  "permissions": ["tabs", "history", "bookmarks", "sessions", "search", "favicon", "clipboardWrite"],
+  "chrome_url_overrides": {
+    "newtab": "palette.html"
+  }
+}

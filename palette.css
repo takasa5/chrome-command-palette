@@ -1,0 +1,145 @@
+:root {
+  --bg: #f3f3f5;
+  --panel: #ffffff;
+  --text: #1c1c1f;
+  --muted: #6e6e76;
+  --border: #dedee3;
+  --selected: #e8eefc;
+  --accent: #2f5fd0;
+  --error: #b3261e;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18181b;
+    --panel: #242428;
+    --text: #ececf0;
+    --muted: #a0a0a9;
+    --border: #3a3a40;
+    --selected: #33394a;
+    --accent: #8fb0ff;
+    --error: #ff8a80;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 16vh 16px 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+}
+
+.palette {
+  width: min(640px, 100%);
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+}
+
+#breadcrumb {
+  padding: 10px 18px 0;
+  overflow: hidden;
+  color: var(--accent);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#query {
+  width: 100%;
+  padding: 16px 18px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  outline: 0;
+  color: inherit;
+  font: inherit;
+  font-size: 18px;
+}
+
+#results {
+  max-height: 52vh;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+#results li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#results li[aria-selected="true"] {
+  background: var(--selected);
+}
+
+.icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.title,
+.subtitle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.kind {
+  flex: none;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+footer {
+  display: flex;
+  gap: 14px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+kbd {
+  margin-right: 2px;
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+}
+
+#toast {
+  margin-left: auto;
+  color: var(--error);
+}

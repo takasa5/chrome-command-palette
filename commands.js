@@ -1,0 +1,265 @@
+// パレットから実行できるブラウザ操作。
+// needsTarget のコマンドは、パレットを開く直前に見ていたタブ（ctx.target）を操作する。
+
+const chromePage = (id, title, ja, keywords, url, featured = false) => ({
+  id,
+  title,
+  ja,
+  keywords,
+  featured,
+  run: (ctx) => ctx.navigate(url),
+});
+
+async function zoomBy(ctx, factor) {
+  const zoom = await chrome.tabs.getZoom(ctx.target.id);
+  await chrome.tabs.setZoom(ctx.target.id, zoom * factor);
+  await ctx.leave();
+}
+
+export const COMMANDS = [
+  {
+    id: "new-window",
+    title: "New Window",
+    ja: "新しいウィンドウ",
+    keywords: ["window", "新規ウィンドウ"],
+    featured: true,
+    run: async (ctx) => {
+      await chrome.windows.create();
+      await ctx.leave();
+    },
+  },
+  {
+    id: "incognito",
+    title: "New Incognito Window",
+    ja: "シークレットウィンドウ",
+    keywords: ["incognito", "private", "secret", "シークレット"],
+    featured: true,
+    run: async (ctx) => {
+      await chrome.windows.create({ incognito: true });
+      await ctx.leave();
+    },
+  },
+  {
+    id: "new-tab",
+    title: "New Tab",
+    ja: "標準の新しいタブページ",
+    keywords: ["blank", "新規タブ"],
+    run: (ctx) => ctx.navigate("chrome://new-tab-page"),
+  },
+  {
+    id: "reopen-tab",
+    title: "Reopen Closed Tab",
+    ja: "閉じたタブを開き直す",
+    keywords: ["restore", "undo", "復元", "元に戻す"],
+    featured: true,
+    run: async (ctx) => {
+      // パレット自身も「閉じたタブ」に記録されるので読み飛ばす。
+      const closed = await chrome.sessions.getRecentlyClosed();
+      const entry = closed.find((c) => !c.tab || !ctx.isPalette(c.tab));
+      if (!entry) throw new Error("閉じたタブはありません");
+      await chrome.sessions.restore((entry.tab ?? entry.window).sessionId);
+      await ctx.leave(null);
+    },
+  },
+  {
+    id: "close-tab",
+    title: "Close Tab",
+    ja: "タブを閉じる",
+    keywords: ["閉じる"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.remove(ctx.target.id);
+      await ctx.leave(ctx.nextTarget?.id);
+    },
+  },
+  {
+    id: "close-other-tabs",
+    title: "Close Other Tabs",
+    ja: "他のタブを閉じる",
+    keywords: ["others"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.remove(ctx.windowTabs.filter((t) => t.id !== ctx.target.id && !t.pinned).map((t) => t.id));
+      await ctx.leave();
+    },
+  },
+  {
+    id: "close-right-tabs",
+    title: "Close Tabs to the Right",
+    ja: "右側のタブを閉じる",
+    keywords: ["right"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.remove(ctx.windowTabs.filter((t) => t.index > ctx.target.index && !t.pinned).map((t) => t.id));
+      await ctx.leave();
+    },
+  },
+  {
+    id: "close-window",
+    title: "Close Window",
+    ja: "ウィンドウを閉じる",
+    keywords: ["quit"],
+    run: (ctx) => chrome.windows.remove(ctx.self.windowId),
+  },
+  {
+    id: "reload",
+    title: "Reload",
+    ja: "再読み込み",
+    keywords: ["refresh", "更新", "リロード"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.reload(ctx.target.id);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "hard-reload",
+    title: "Hard Reload",
+    ja: "キャッシュを無視して再読み込み",
+    keywords: ["refresh", "cache", "スーパーリロード"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.reload(ctx.target.id, { bypassCache: true });
+      await ctx.leave();
+    },
+  },
+  {
+    id: "back",
+    title: "Go Back",
+    ja: "前のページへ戻る",
+    keywords: ["戻る"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.goBack(ctx.target.id);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "forward",
+    title: "Go Forward",
+    ja: "次のページへ進む",
+    keywords: ["進む"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.goForward(ctx.target.id);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "duplicate",
+    title: "Duplicate Tab",
+    ja: "タブを複製",
+    keywords: ["copy tab", "複製"],
+    needsTarget: true,
+    run: async (ctx) => {
+      const tab = await chrome.tabs.duplicate(ctx.target.id);
+      await ctx.leave(tab.id);
+    },
+  },
+  {
+    id: "pin",
+    title: "Pin / Unpin Tab",
+    ja: "タブの固定を切り替え",
+    keywords: ["固定", "ピン留め"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.update(ctx.target.id, { pinned: !ctx.target.pinned });
+      await ctx.leave();
+    },
+  },
+  {
+    id: "mute",
+    title: "Mute / Unmute Tab",
+    ja: "タブのミュートを切り替え",
+    keywords: ["sound", "音", "消音"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.update(ctx.target.id, { muted: !ctx.target.mutedInfo?.muted });
+      await ctx.leave();
+    },
+  },
+  {
+    id: "move-to-window",
+    title: "Move Tab to New Window",
+    ja: "タブを新しいウィンドウへ移動",
+    keywords: ["detach", "移動"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.windows.create({ tabId: ctx.target.id });
+      await ctx.leave(ctx.nextTarget?.id);
+    },
+  },
+  {
+    id: "copy-url",
+    title: "Copy URL",
+    ja: "URL をコピー",
+    keywords: ["link", "コピー"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await navigator.clipboard.writeText(ctx.target.url);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "bookmark",
+    title: "Bookmark This Page",
+    ja: "このページをブックマーク",
+    keywords: ["add bookmark", "保存", "追加"],
+    needsTarget: true,
+    run: async (ctx) => {
+      const existing = await chrome.bookmarks.search({ url: ctx.target.url });
+      if (existing.length === 0) {
+        await chrome.bookmarks.create({ title: ctx.target.title, url: ctx.target.url });
+      }
+      await ctx.leave();
+    },
+  },
+  {
+    id: "zoom-in",
+    title: "Zoom In",
+    ja: "拡大",
+    keywords: ["ズーム"],
+    needsTarget: true,
+    run: (ctx) => zoomBy(ctx, 1.1),
+  },
+  {
+    id: "zoom-out",
+    title: "Zoom Out",
+    ja: "縮小",
+    keywords: ["ズーム"],
+    needsTarget: true,
+    run: (ctx) => zoomBy(ctx, 1 / 1.1),
+  },
+  {
+    id: "zoom-reset",
+    title: "Reset Zoom",
+    ja: "ズームをリセット",
+    keywords: ["100%"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.setZoom(ctx.target.id, 0);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "fullscreen",
+    title: "Toggle Fullscreen",
+    ja: "フルスクリーンを切り替え",
+    keywords: ["全画面"],
+    needsTarget: true,
+    run: async (ctx) => {
+      const win = await chrome.windows.get(ctx.self.windowId);
+      await chrome.windows.update(win.id, { state: win.state === "fullscreen" ? "normal" : "fullscreen" });
+      await ctx.leave();
+    },
+  },
+  chromePage("history", "History", "履歴", ["りれき"], "chrome://history", true),
+  chromePage("bookmarks", "Bookmarks", "ブックマークマネージャ", ["favorites", "お気に入り"], "chrome://bookmarks", true),
+  chromePage("downloads", "Downloads", "ダウンロード", ["dl"], "chrome://downloads", true),
+  chromePage("settings", "Settings", "設定", ["preferences", "options"], "chrome://settings", true),
+  chromePage("extensions", "Extensions", "拡張機能", ["addons"], "chrome://extensions"),
+  chromePage("shortcuts", "Extension Shortcuts", "拡張機能のショートカット", ["keyboard", "keybinding"], "chrome://extensions/shortcuts"),
+  chromePage("clear-data", "Clear Browsing Data", "閲覧履歴データの削除", ["cache", "cookie", "delete history"], "chrome://settings/clearBrowserData"),
+  chromePage("passwords", "Passwords", "パスワードマネージャ", ["password"], "chrome://password-manager"),
+  chromePage("flags", "Chrome Flags", "試験運用機能", ["experiments"], "chrome://flags"),
+];
