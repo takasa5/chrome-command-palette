@@ -1,6 +1,8 @@
 // パレットから実行できるブラウザ操作。
 // needsTarget のコマンドは、パレットを開く直前に見ていたタブ（ctx.target）を操作する。
 
+import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
+
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   id,
   title,
@@ -93,6 +95,26 @@ export const COMMANDS = [
       await chrome.tabs.remove(ctx.windowTabs.filter((t) => t.index > ctx.target.index && !t.pinned).map((t) => t.id));
       await ctx.leave();
     },
+  },
+  {
+    id: "archive-stale-tabs",
+    title: "Archive Stale Tabs",
+    ja: "しばらく見ていないタブを閉じる",
+    keywords: ["cleanup", "close", "old", "アーカイブ", "掃除", "整理", "古いタブ", "放置"],
+    run: async (ctx) => {
+      const [tabs, hours, leftAt] = await Promise.all([chrome.tabs.query({}), getStaleHours(), chrome.storage.session.get(null)]);
+      const stale = findStaleTabs(tabs, { now: Date.now(), hours, leftAt, keepTabId: ctx.target?.id });
+      if (stale.length === 0) throw new Error(`${hours} 時間以上見ていないタブはありません`);
+      await chrome.tabs.remove(stale.map((tab) => tab.id));
+      await ctx.leave();
+    },
+  },
+  {
+    id: "stale-tabs-settings",
+    title: "Stale Tabs Settings",
+    ja: "タブを閉じるまでの時間を設定",
+    keywords: ["options", "preferences", "cleanup", "掃除", "設定", "オプション"],
+    run: (ctx) => ctx.navigate(chrome.runtime.getURL("options.html")),
   },
   {
     id: "close-window",

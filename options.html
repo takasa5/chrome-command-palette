@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>コマンドパレットの設定</title>
+    <link rel="stylesheet" href="palette.css" />
+    <script type="module" src="options.js"></script>
+  </head>
+  <body>
+    <main class="palette options">
+      <label for="stale-hours">Archive Stale Tabs で閉じるタブ</label>
+      <div>
+        <input id="stale-hours" type="number" min="0" step="any" required />
+        時間以上見ていないタブ
+      </div>
+      <output id="toast"></output>
+    </main>
+  </body>
+</html>

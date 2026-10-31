@@ -143,3 +143,19 @@ kbd {
   margin-left: auto;
   color: var(--error);
 }
+
+.options {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+}
+
+#stale-hours {
+  width: 80px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+}

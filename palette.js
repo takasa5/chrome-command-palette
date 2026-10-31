@@ -10,14 +10,14 @@ const input = document.getElementById("query");
 const list = document.getElementById("results");
 const toast = document.getElementById("toast");
 const breadcrumb = document.getElementById("breadcrumb");
-const paletteOrigin = chrome.runtime.getURL("");
+const paletteUrl = chrome.runtime.getURL("palette.html");
 
 const ctx = {
   self: null,
   windowTabs: [],
   target: null,
   nextTarget: null,
-  isPalette: (tab) => (tab.url ?? tab.pendingUrl ?? "").startsWith(paletteOrigin),
+  isPalette: (tab) => (tab.url ?? tab.pendingUrl ?? "").startsWith(paletteUrl),
   navigate: (url) => chrome.tabs.update(ctx.self.id, { url }),
   leave,
 };
@@ -171,7 +171,7 @@ async function update() {
   results = rankResults(query, {
     ...sources,
     bookmarks: flattenBookmarks(bookmarkTree),
-    history: history.filter((page) => !page.url.startsWith(paletteOrigin)),
+    history: history.filter((page) => !page.url.startsWith(paletteUrl)),
   });
   render();
 }
