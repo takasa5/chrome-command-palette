@@ -1,10 +1,13 @@
 import { COMMANDS } from "./commands.js";
-import { flattenBookmarks, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { flattenBookmarks, normalize, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { xScope } from "./x-accounts.js";
 
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索" };
+const KIND_LABELS = { command: "コマンド", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", account: "アカウント" };
+// キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
+const SCOPES = [xScope];
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -30,6 +33,7 @@ let searchSeq = 0;
 let busy = false;
 // 開いているフォルダの階層。query は入る前の入力で、戻るときに復元する。
 let folderStack = [];
+let activeScope = null;
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
 // ウィンドウ最後のタブなら、閉じるとウィンドウごと消えるので開いたままにする。
@@ -38,6 +42,7 @@ async function leave(focusTabId = ctx.target?.id) {
   if (tabs.length <= 1) {
     input.value = "";
     folderStack = [];
+    activeScope = null;
     await refreshTabs();
     update();
     return;
@@ -86,7 +91,7 @@ function renderIcon(item) {
   }
   const span = document.createElement("span");
   span.className = "icon";
-  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕" }[item.kind];
+  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", account: "@" }[item.kind];
   return span;
 }
 
@@ -144,8 +149,15 @@ async function update() {
   const seq = ++searchSeq;
   toast.textContent = "";
   selectionMoved = false;
-  breadcrumb.textContent = folderStack.map(({ folder }) => folder.title).join(" / ");
-  breadcrumb.hidden = folderStack.length === 0;
+  breadcrumb.textContent = activeScope?.title ?? scopeForInput()?.hint ?? folderStack.map(({ folder }) => folder.title).join(" / ");
+  breadcrumb.hidden = !breadcrumb.textContent;
+  if (activeScope) {
+    const scoped = await activeScope.search(query);
+    if (seq !== searchSeq) return;
+    results = scoped;
+    render();
+    return;
+  }
   if (folderStack.length > 0) {
     results = rankFolderContents(query, folderStack.at(-1).folder);
     render();
@@ -174,6 +186,23 @@ async function update() {
     history: history.filter((page) => !page.url.startsWith(paletteUrl)),
   });
   render();
+}
+
+function scopeForInput() {
+  if (activeScope || folderStack.length > 0) return null;
+  return SCOPES.find((scope) => scope.keyword === normalize(input.value)) ?? null;
+}
+
+function enterScope(scope) {
+  activeScope = scope;
+  input.value = "";
+  update();
+}
+
+function exitScope() {
+  input.value = activeScope.keyword;
+  activeScope = null;
+  update();
 }
 
 function enterFolder(folder) {
@@ -208,6 +237,8 @@ function runItem(item, { moveHere }) {
       return moveHere && isOtherWindowTab(item) ? moveTabHere(item.tab) : openTab(item.tab);
     case "folder":
       return enterFolder(item.folder);
+    case "account":
+      return item.run(ctx);
     case "search":
       return chrome.search.query({ text: item.text, tabId: ctx.self.id });
     default:
@@ -241,6 +272,12 @@ function handleKeydown(event) {
   } else if (event.key === "Enter") {
     event.preventDefault();
     execute(results.find((item) => item.key === selectedKey), { moveHere: event.shiftKey });
+  } else if (event.key === "Tab" && !event.shiftKey && scopeForInput()) {
+    event.preventDefault();
+    enterScope(scopeForInput());
+  } else if (event.key === "Backspace" && !input.value && activeScope) {
+    event.preventDefault();
+    exitScope();
   } else if (event.key === "Backspace" && !input.value && folderStack.length > 0) {
     event.preventDefault();
     exitFolder();

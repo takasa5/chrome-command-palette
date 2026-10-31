@@ -110,10 +110,10 @@ export const COMMANDS = [
     },
   },
   {
-    id: "stale-tabs-settings",
-    title: "Stale Tabs Settings",
-    ja: "タブを閉じるまでの時間を設定",
-    keywords: ["options", "preferences", "cleanup", "掃除", "設定", "オプション"],
+    id: "palette-settings",
+    title: "Command Palette Settings",
+    ja: "コマンドパレットの設定",
+    keywords: ["options", "preferences", "stale", "cleanup", "account", "掃除", "アカウント", "オプション"],
     run: (ctx) => ctx.navigate(chrome.runtime.getURL("options.html")),
   },
   {
