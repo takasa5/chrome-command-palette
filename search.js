@@ -64,6 +64,14 @@ export function stripUrl(url) {
   return (url ?? "").replace(/^[a-z-]+:\/\/(www\.)?/i, "");
 }
 
+// file: や data: はオリジンが null になるので、URL の一致で比べる。
+export function isSameOrigin(a, b) {
+  if (a === b) return true;
+  if (!URL.canParse(a) || !URL.canParse(b)) return false;
+  const origin = new URL(a).origin;
+  return origin !== "null" && origin === new URL(b).origin;
+}
+
 function pageFields(item) {
   return [
     { text: item.title, weight: 1 },

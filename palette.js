@@ -1,5 +1,5 @@
 import { COMMANDS } from "./commands.js";
-import { flattenBookmarks, normalize, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { xScope } from "./x-accounts.js";
 
 const DEBOUNCE_MS = 80;
@@ -23,6 +23,7 @@ const ctx = {
   isPalette: (tab) => (tab.url ?? tab.pendingUrl ?? "").startsWith(paletteUrl),
   navigate: (url) => chrome.tabs.update(ctx.self.id, { url }),
   leave,
+  openTab,
 };
 
 let allTabs = [];
@@ -101,7 +102,8 @@ function isOtherWindowTab(item) {
 
 function kindLabel(item) {
   if (!isOtherWindowTab(item)) return KIND_LABELS[item.kind];
-  return item.key === selectedKey ? "Enter そのウィンドウへ / Shift+Enter ここへ移動" : "別ウィンドウのタブ";
+  if (item.key !== selectedKey) return "別ウィンドウのタブ";
+  return `Enter そのウィンドウへ / Shift+Enter ${item.tab.pinned ? "ここで開く" : "ここへ移動"}`;
 }
 
 function renderRow(item) {
@@ -224,7 +226,25 @@ async function openTab(tab) {
 }
 
 // パレットの位置へ移すので、パレットを閉じた後もその位置に残る。
+// ピンのタブは移動せず、このウィンドウで開く。同じオリジンのピンがあれば増やさず、そこで開く。
+// 元のピンはオリジンのトップへ戻し、同じ動画が 2 つのウィンドウで再生されないようにする。
+async function showInPinHere(tab) {
+  const pins = ctx.windowTabs.filter((other) => other.pinned && isSameOrigin(other.url, tab.url));
+  const samePage = pins.find((pin) => pin.url === tab.url);
+  if (samePage) return samePage;
+  if (pins.length > 0) return chrome.tabs.update(pins[0].id, { url: tab.url });
+  return chrome.tabs.create({ url: tab.url, windowId: ctx.self.windowId, pinned: true, active: false });
+}
+
+async function openPinnedHere(tab) {
+  const here = await showInPinHere(tab);
+  const { origin } = new URL(tab.url);
+  if (origin !== "null") await chrome.tabs.update(tab.id, { url: origin });
+  await leave(here.id);
+}
+
 async function moveTabHere(tab) {
+  if (tab.pinned) return openPinnedHere(tab);
   await chrome.tabs.move(tab.id, { windowId: ctx.self.windowId, index: ctx.self.index });
   await leave(tab.id);
 }

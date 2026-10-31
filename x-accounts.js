@@ -8,6 +8,12 @@ export function parseAccounts(text) {
   return [...new Set(text.split(/[\s,]+/).map((line) => line.replace(/^@/, "")).filter(Boolean))];
 }
 
+// 今のウィンドウのタブを優先する。/homeboy のようなプロフィールは含めない。
+export function pickHomeTab(tabs, windowId) {
+  const homeTabs = tabs.filter((tab) => new URL(tab.url).pathname === "/home");
+  return homeTabs.find((tab) => tab.windowId === windowId) ?? homeTabs[0] ?? null;
+}
+
 export function filterAccounts(query, accounts) {
   if (!normalize(query)) return accounts;
   return accounts.filter((handle) => scoreFields(query, [{ text: handle }], { fuzzy: true }) > 0);
@@ -54,10 +60,12 @@ function waitForXPage(tabId) {
   });
 }
 
-export async function switchAccount(tabId, handle) {
-  const loaded = waitForXPage(tabId);
-  await chrome.tabs.update(tabId, { url: HOME_URL });
-  await loaded;
+export async function switchAccount(tabId, handle, { openHome }) {
+  if (openHome) {
+    const loaded = waitForXPage(tabId);
+    await chrome.tabs.update(tabId, { url: HOME_URL });
+    await loaded;
+  }
   await chrome.scripting.executeScript({ target: { tabId }, func: useAccountMenu, args: [handle] });
 }
 
@@ -89,8 +97,12 @@ export const xScope = {
       key: `account:${handle}`,
       title: `@${handle}`,
       subtitle: "このアカウントのホームを開く",
-      // パレットのタブは遷移で消えるので、切り替えは background.js に任せる。
-      run: (ctx) => chrome.runtime.sendMessage({ type: "switch-x-account", tabId: ctx.self.id, handle }),
+      // パレットのタブは遷移や移動で消えるので、切り替えは background.js に任せる。
+      run: async (ctx) => {
+        const homeTab = pickHomeTab(await chrome.tabs.query({ url: `${HOME_URL}*`, discarded: false }), ctx.self.windowId);
+        await chrome.runtime.sendMessage({ type: "switch-x-account", tabId: homeTab?.id ?? ctx.self.id, handle, openHome: !homeTab });
+        if (homeTab) await ctx.openTab(homeTab);
+      },
     }));
   },
 };

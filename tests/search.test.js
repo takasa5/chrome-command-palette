@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { COMMANDS } from "../commands.js";
-import { flattenBookmarks, normalize, rankFolderContents, rankResults, scoreFields, toUrl } from "../search.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankFolderContents, rankResults, scoreFields, toUrl } from "../search.js";
 
 const top = (query, sources = {}) => rankResults(query, { commands: COMMANDS, ...sources })[0];
 
@@ -171,4 +171,22 @@ test("一致しない入力は検索にフォールバックする", () => {
   const result = top("zzzqqq");
   assert.equal(result.kind, "search");
   assert.equal(result.text, "zzzqqq");
+});
+
+test("isSameOrigin はパスが違っても同じオリジンなら true を返す", () => {
+  assert.equal(isSameOrigin("https://mail.google.com/a#inbox", "https://mail.google.com/b"), true);
+});
+
+test("isSameOrigin はサブドメインやスキームが違えば false を返す", () => {
+  assert.equal(isSameOrigin("https://docs.google.com/", "https://mail.google.com/"), false);
+  assert.equal(isSameOrigin("http://example.com/", "https://example.com/"), false);
+});
+
+test("isSameOrigin はオリジンが null の URL を完全一致で比べる", () => {
+  assert.equal(isSameOrigin("file:///a.html", "file:///b.html"), false);
+  assert.equal(isSameOrigin("file:///a.html", "file:///a.html"), true);
+});
+
+test("isSameOrigin は読み込み前の空の URL で失敗しない", () => {
+  assert.equal(isSameOrigin("", "https://example.com/"), false);
 });
