@@ -180,8 +180,9 @@ function exitFolder() {
 
 async function openTab(tab) {
   await chrome.tabs.update(tab.id, { active: true });
-  await leave(tab.windowId === ctx.self.windowId ? tab.id : ctx.target?.id);
+  // leave で元のタブへ戻るとパレットが閉じるので、別ウィンドウへのフォーカスは先に済ませる。
   if (tab.windowId !== ctx.self.windowId) await chrome.windows.update(tab.windowId, { focused: true });
+  await leave(tab.windowId === ctx.self.windowId ? tab.id : ctx.target?.id);
 }
 
 function runItem(item) {
@@ -240,8 +241,18 @@ async function reactivate() {
   if (!input.value.trim()) update();
 }
 
+// 同じウィンドウで別のタブへ移ったら閉じて、放置したパレットが増えないようにする。
+async function closeWhenLeft({ tabId, windowId }) {
+  // タブが別ウィンドウへ移されていることがあるので、最新の状態で判定する。
+  const self = await chrome.tabs.getCurrent();
+  if (windowId !== self.windowId || tabId === self.id) return;
+  // leave が同時に閉じていることがあるので、失敗は無視する。
+  await chrome.tabs.remove(self.id).catch(() => {});
+}
+
 async function init() {
   await refreshTabs();
+  chrome.tabs.onActivated.addListener(closeWhenLeft);
   input.addEventListener("input", update);
   input.addEventListener("keydown", handleKeydown);
   window.addEventListener("focus", reactivate);
