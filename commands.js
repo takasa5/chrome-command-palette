@@ -26,7 +26,12 @@ export const COMMANDS = [
     keywords: ["window", "新規ウィンドウ"],
     featured: true,
     run: async (ctx) => {
-      await chrome.windows.create();
+      const { id: windowId } = await chrome.windows.create();
+      // 並び順を保つため、1 つずつ開く。file: などオリジンを持たないページはそのまま開く。
+      for (const pin of ctx.windowTabs.filter((t) => t.pinned)) {
+        const { origin } = new URL(pin.url);
+        await chrome.tabs.create({ windowId, url: origin === "null" ? pin.url : origin, pinned: true, active: false });
+      }
       await ctx.leave();
     },
   },
