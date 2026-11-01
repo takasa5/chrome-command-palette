@@ -4,7 +4,7 @@ import { findStaleTabs } from "../stale-tabs.js";
 
 const HOUR = 60 * 60 * 1000;
 const now = 100 * HOUR;
-const tab = (id, hoursAgo, extra = {}) => ({ id, lastAccessed: now - hoursAgo * HOUR, active: false, pinned: false, audible: false, ...extra });
+const tab = (id, hoursAgo, extra = {}) => ({ id, lastAccessed: now - hoursAgo * HOUR, active: false, pinned: false, audible: false, groupId: -1, ...extra });
 const ids = (tabs, options = {}) => findStaleTabs(tabs, { now, hours: 6, ...options }).map((t) => t.id);
 
 test("しきい値以上見ていないタブだけを返す", () => {
@@ -13,6 +13,10 @@ test("しきい値以上見ていないタブだけを返す", () => {
 
 test("表示中、固定、音が出ているタブは残す", () => {
   assert.deepEqual(ids([tab(1, 7, { active: true }), tab(2, 7, { pinned: true }), tab(3, 7, { audible: true })]), []);
+});
+
+test("グループに入っているタブは残す", () => {
+  assert.deepEqual(ids([tab(1, 7, { groupId: 42 }), tab(2, 7)]), [2]);
 });
 
 test("パレットを開く前に見ていたタブは残す", () => {
