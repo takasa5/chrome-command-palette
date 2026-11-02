@@ -1,7 +1,9 @@
 // キーワード + Tab で入るサイト内検索。
 // 拡張機能の API ではブラウザのカスタム検索を読み取れないので、設定画面で登録してもらう。
 
-import { normalize } from "./search.js";
+import { isSameOrigin, normalize } from "./search.js";
+
+const VISITED_PAGE_LIMIT = 100;
 
 export function buildSearchUrl(template, query) {
   return template.replaceAll("%s", () => encodeURIComponent(query.trim()));
@@ -43,6 +45,22 @@ export function formatEngines(engines) {
   return engines.map(({ keyword, name, url }) => `${keyword} ${name} ${url}`).join("\n");
 }
 
+function firstPathSegment(url) {
+  return new URL(url).pathname.split("/")[1];
+}
+
+// favicon は開いたことのある URL でしか引けないので、同じサイトの訪問済みページを探す。
+// www.google.com/maps のように 1 つのオリジンに複数のサービスがあるので、パスの先頭が同じページを優先する。
+export function pickVisitedPage(pages, searchUrl) {
+  const sameOrigin = pages.filter((page) => isSameOrigin(page.url, searchUrl));
+  return (sameOrigin.find((page) => firstPathSegment(page.url) === firstPathSegment(searchUrl)) ?? sameOrigin[0])?.url ?? null;
+}
+
+export async function findVisitedPage(url) {
+  const pages = await chrome.history.search({ text: new URL(url).hostname, startTime: 0, maxResults: VISITED_PAGE_LIMIT });
+  return pickVisitedPage(pages, url);
+}
+
 export async function getEngines() {
   const { siteSearchEngines = [] } = await chrome.storage.sync.get("siteSearchEngines");
   return siteSearchEngines;
@@ -53,6 +71,7 @@ export function siteSearchScope({ keyword, name, url }) {
     keyword,
     title: `${name} を検索`,
     hint: `Tab で ${name} を検索`,
+    findVisitedPage: () => findVisitedPage(buildSearchUrl(url, "test")),
     search: async (query) => {
       if (!query.trim()) return [];
       return [{ kind: "siteSearch", key: `site-search:${keyword}`, title: `「${query.trim()}」を検索`, subtitle: name, url: buildSearchUrl(url, query) }];

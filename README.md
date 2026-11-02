@@ -32,7 +32,7 @@
 * **ピン付きの新規ウィンドウ**: `New Window` で、今のウィンドウのピンをサイトのトップで、同じ順序で開くことができる（元のピンは残る）
 * **放置タブの一括クローズ**: `Archive Stale Tabs` で、最後に見てから 6 時間以上たったタブを全ウィンドウからまとめて閉じることができる（確認なし。固定したタブ、グループに入れたタブ、音が出ているタブ、各ウィンドウで表示中のタブ、パレットを開く前に見ていたタブは残す。時間は `Command Palette Settings` で変更可）
 * **X アカウント切り替え**: `x` + `Tab` で X のアカウントを選んで切り替え、ホームを開くことができる（X のホームのタブがあれば今のウィンドウを優先して再利用する。アカウントは `Command Palette Settings` で登録するか、「X から読み込む」で取り込む）
-* **サイト内検索**: Chrome のカスタム検索のように、登録したキーワード + `Tab` で検索語を入力し、`Enter` でそのサイトの検索結果を開くことができる。`Command Palette Settings` で `gh GitHub https://github.com/search?q=%s` のように 1 行に「キーワード 名前 URL」で登録する（Chrome に登録済みのカスタム検索は拡張機能の API から読み取れないので、`chrome://settings/searchEngines` の URL を写して登録する。`%s` のない URL、http / https 以外の URL、`x` や重複するキーワードの行は保存しない）
+* **サイト内検索**: Chrome のカスタム検索のように、登録したキーワード + `Tab` で検索語を入力し、`Enter` でそのサイトの検索結果を開くことができる。`Command Palette Settings` で `gh GitHub https://github.com/search?q=%s` のように 1 行に「キーワード 名前 URL」で登録する（Chrome に登録済みのカスタム検索は拡張機能の API から読み取れないので、`chrome://settings/searchEngines` の URL を写して登録する。`%s` のない URL、http / https 以外の URL、`x` や重複するキーワードの行は保存しない。そのサイトの履歴があれば検索モードの表示にファビコンを付ける）
 
 ## テスト
 

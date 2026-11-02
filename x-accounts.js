@@ -1,6 +1,7 @@
 // X のアカウント切り替え。X の画面構成への依存はこのファイルに閉じ込める。
 
 import { normalize, scoreFields } from "./search.js";
+import { findVisitedPage } from "./site-search.js";
 
 const HOME_URL = "https://x.com/home";
 
@@ -87,6 +88,7 @@ export const xScope = {
   keyword: "x",
   title: "X のアカウント",
   hint: "Tab で X のアカウントを選ぶ",
+  findVisitedPage: () => findVisitedPage(HOME_URL),
   search: async (query) => {
     const accounts = await getAccounts();
     if (accounts.length === 0) {

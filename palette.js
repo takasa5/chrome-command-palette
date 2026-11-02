@@ -37,6 +37,7 @@ let folderStack = [];
 let activeScope = null;
 // キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
 let scopes = [xScope];
+const scopeIcons = new WeakMap();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
 // ウィンドウ最後のタブなら、閉じるとウィンドウごと消えるので開いたままにする。
@@ -65,6 +66,8 @@ async function refreshTabs() {
 
 async function refreshScopes() {
   scopes = [xScope, ...(await getEngines()).map(siteSearchScope)];
+  // キーワードを打ち終える前に読み込んでおき、ヒントと同時に出せるようにする。
+  scopes.forEach(scopeIcon);
 }
 
 function availableCommands() {
@@ -88,14 +91,16 @@ function faviconUrl(pageUrl) {
   return url.toString();
 }
 
+function renderFavicon(pageUrl) {
+  const img = document.createElement("img");
+  img.className = "icon";
+  img.alt = "";
+  img.src = faviconUrl(pageUrl);
+  return img;
+}
+
 function renderIcon(item) {
-  if (item.url && item.kind !== "url" && item.kind !== "siteSearch") {
-    const img = document.createElement("img");
-    img.className = "icon";
-    img.alt = "";
-    img.src = faviconUrl(item.url);
-    return img;
-  }
+  if (item.url && item.kind !== "url" && item.kind !== "siteSearch") return renderFavicon(item.url);
   const span = document.createElement("span");
   span.className = "icon";
   span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", account: "@" }[item.kind];
@@ -144,6 +149,24 @@ function render() {
   list.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
 }
 
+// 文字の位置がずれないように枠を先に作り、同じ要素を使い回して読み込み直しのちらつきも防ぐ。
+function scopeIcon(scope) {
+  if (!scopeIcons.has(scope)) {
+    const slot = document.createElement("span");
+    slot.className = "icon";
+    scopeIcons.set(scope, slot);
+    scope.findVisitedPage().then((pageUrl) => slot.replaceChildren(pageUrl ? renderFavicon(pageUrl) : "⌕"));
+  }
+  return scopeIcons.get(scope);
+}
+
+function renderBreadcrumb() {
+  const scope = activeScope ?? scopeForInput();
+  const text = activeScope?.title ?? scope?.hint ?? folderStack.map(({ folder }) => folder.title).join(" / ");
+  breadcrumb.replaceChildren(...(scope ? [scopeIcon(scope)] : []), text);
+  breadcrumb.hidden = !text;
+}
+
 function moveSelection(delta) {
   if (results.length === 0) return;
   const index = results.findIndex((item) => item.key === selectedKey);
@@ -157,8 +180,7 @@ async function update() {
   const seq = ++searchSeq;
   toast.textContent = "";
   selectionMoved = false;
-  breadcrumb.textContent = activeScope?.title ?? scopeForInput()?.hint ?? folderStack.map(({ folder }) => folder.title).join(" / ");
-  breadcrumb.hidden = !breadcrumb.textContent;
+  renderBreadcrumb();
   if (activeScope) {
     const scoped = await activeScope.search(query);
     if (seq !== searchSeq) return;

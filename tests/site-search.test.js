@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildSearchUrl, formatEngines, parseEngines, siteSearchScope } from "../site-search.js";
+import { buildSearchUrl, formatEngines, parseEngines, pickVisitedPage, siteSearchScope } from "../site-search.js";
 
 const GITHUB = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };
 
@@ -54,6 +54,19 @@ test("parseEngines は予約済みのキーワードを保存しない", () => {
 test("formatEngines の出力は parseEngines で元に戻る", () => {
   const engines = [GITHUB, { keyword: "mdn", name: "MDN Web Docs", url: "https://developer.mozilla.org/search?q=%s" }];
   assert.deepEqual(parseEngines(formatEngines(engines)), { engines, errors: [] });
+});
+
+test("pickVisitedPage はパスの先頭が同じページを優先する", () => {
+  const pages = [{ url: "https://www.google.com/search?q=a" }, { url: "https://www.google.com/maps/place/b" }];
+  assert.equal(pickVisitedPage(pages, "https://www.google.com/maps/search/test"), "https://www.google.com/maps/place/b");
+});
+
+test("pickVisitedPage はなければ同じオリジンのページを返す", () => {
+  assert.equal(pickVisitedPage([{ url: "https://github.com/foo" }], "https://github.com/search?q=test"), "https://github.com/foo");
+});
+
+test("pickVisitedPage は別オリジンのページを選ばない", () => {
+  assert.equal(pickVisitedPage([{ url: "https://example.com/?u=github.com" }], "https://github.com/search?q=test"), null);
 });
 
 test("siteSearchScope は入力が空なら候補を出さない", async () => {
