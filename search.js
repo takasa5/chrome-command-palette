@@ -138,6 +138,16 @@ function commandFields(command) {
   ];
 }
 
+export function commandItem(command, score) {
+  return { kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command, score };
+}
+
+// コマンドだけに絞っているときの結果。入力が空なら全件を返す。
+export function rankCommands(query, commands) {
+  if (!normalize(query)) return commands.map((command) => commandItem(command));
+  return rankResults(query, { commands }).filter((item) => item.kind === "command");
+}
+
 // URL として開けそうな入力を完全な URL にする。そうでなければ null。
 export function toUrl(input) {
   const text = input.trim();
@@ -169,7 +179,7 @@ export function rankResults(query, { commands = [], services = [], tabs = [], bo
   const entries = [];
   for (const command of commands) {
     const score = scoreFields(query, commandFields(command), { fuzzy: true });
-    if (score > 0) entries.push({ kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command, score });
+    if (score > 0) entries.push(commandItem(command, score));
   }
   for (const service of services) {
     // キーワードも重みを下げず、同じ当たり方のタブやブックマークより上に出す。

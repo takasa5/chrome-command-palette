@@ -1,6 +1,6 @@
 import { COMMANDS } from "./commands.js";
 import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
-import { flattenBookmarks, isSameOrigin, normalize, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
 import { xScope } from "./x-accounts.js";
 
@@ -74,13 +74,20 @@ function availableCommands() {
   return COMMANDS.filter((command) => !command.needsTarget || ctx.target);
 }
 
+// 何も入力せずに Tab を押すと入る。キーワードがないので scopes には入れない。
+const commandScope = {
+  keyword: "",
+  title: "コマンド",
+  search: async (query) => rankCommands(query, availableCommands()),
+};
+
 function emptyQueryResults() {
   const tabs = [...allTabs].sort((a, b) => b.lastAccessed - a.lastAccessed).slice(0, RECENT_TAB_COUNT);
   return [
     ...tabs.map((tab) => ({ kind: "tab", key: `tab:${tab.id}`, title: tab.title || tab.url, subtitle: stripUrl(tab.url), url: tab.url, tab })),
     ...availableCommands()
       .filter((command) => command.featured)
-      .map((command) => ({ kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command })),
+      .map((command) => commandItem(command)),
   ];
 }
 
@@ -163,7 +170,7 @@ function scopeIcon(scope) {
 function renderBreadcrumb() {
   const scope = activeScope ?? scopeForInput();
   const text = activeScope?.title ?? scope?.hint ?? folderStack.map(({ folder }) => folder.title).join(" / ");
-  breadcrumb.replaceChildren(...(scope ? [scopeIcon(scope)] : []), text);
+  breadcrumb.replaceChildren(...(scope?.findVisitedPage ? [scopeIcon(scope)] : []), text);
   breadcrumb.hidden = !text;
 }
 
@@ -221,6 +228,11 @@ async function update() {
 function scopeForInput() {
   if (activeScope || folderStack.length > 0) return null;
   return scopes.find((scope) => scope.keyword === normalize(input.value)) ?? null;
+}
+
+function scopeForTab() {
+  if (activeScope || folderStack.length > 0) return null;
+  return input.value.trim() ? scopeForInput() : commandScope;
 }
 
 function enterScope(scope) {
@@ -324,9 +336,11 @@ function handleKeydown(event) {
   } else if (event.key === "Enter") {
     event.preventDefault();
     execute(results.find((item) => item.key === selectedKey), { moveHere: event.shiftKey });
-  } else if (event.key === "Tab" && !event.shiftKey && scopeForInput()) {
+  } else if (event.key === "Tab") {
+    // 入るところがなくても、入力欄からフォーカスを外さない。
     event.preventDefault();
-    enterScope(scopeForInput());
+    const scope = event.shiftKey ? null : scopeForTab();
+    if (scope) enterScope(scope);
   } else if (event.key === "Backspace" && !input.value && activeScope) {
     event.preventDefault();
     exitScope();

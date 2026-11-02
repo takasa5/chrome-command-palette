@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { COMMANDS } from "../commands.js";
-import { flattenBookmarks, isSameOrigin, normalize, rankFolderContents, rankResults, scoreFields, toUrl } from "../search.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, scoreFields, toUrl } from "../search.js";
 
 const top = (query, sources = {}) => rankResults(query, { commands: COMMANDS, ...sources })[0];
 
@@ -189,4 +189,14 @@ test("isSameOrigin はオリジンが null の URL を完全一致で比べる",
 
 test("isSameOrigin は読み込み前の空の URL で失敗しない", () => {
   assert.equal(isSameOrigin("", "https://example.com/"), false);
+});
+
+test("rankCommands は入力が空なら全コマンドを返す", () => {
+  assert.deepEqual(rankCommands(" ", COMMANDS).map((item) => item.command), COMMANDS);
+});
+
+test("rankCommands はコマンドだけを返し、Web 検索や URL の候補を足さない", () => {
+  const items = rankCommands("example.com", COMMANDS);
+  assert.ok(items.every((item) => item.kind === "command"));
+  assert.ok(rankCommands("New Window", COMMANDS).some((item) => item.title === "New Window"));
 });
