@@ -1,6 +1,6 @@
 // 検索とランキング。Chrome API に依存しない純粋関数だけを置く。
 
-const KIND_BONUS = { command: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
+const KIND_BONUS = { command: 3, service: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
 const SCORE_URL_ITEM = 85;
 const SCORE_API_FLOOR = 10;
 const MAX_RESULTS = 30;
@@ -148,9 +148,9 @@ export function toUrl(input) {
   return null;
 }
 
-// 開いているタブ > ブックマーク > 履歴 の順で同じ URL を 1 つにまとめる。
+// サービス > 開いているタブ > ブックマーク > 履歴 の順で同じ URL を 1 つにまとめる。
 function dedupeByUrl(entries) {
-  const order = ["tab", "bookmark", "history"];
+  const order = ["service", "tab", "bookmark", "history"];
   const seen = new Set();
   const kept = new Set();
   for (const kind of order) {
@@ -165,11 +165,16 @@ function dedupeByUrl(entries) {
 }
 
 // 入力に対して表示する結果を、スコアの高い順に返す。
-export function rankResults(query, { commands = [], tabs = [], bookmarks = [], history = [] }) {
+export function rankResults(query, { commands = [], services = [], tabs = [], bookmarks = [], history = [] }) {
   const entries = [];
   for (const command of commands) {
     const score = scoreFields(query, commandFields(command), { fuzzy: true });
     if (score > 0) entries.push({ kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command, score });
+  }
+  for (const service of services) {
+    // キーワードも重みを下げず、同じ当たり方のタブやブックマークより上に出す。
+    const score = scoreFields(query, [{ text: service.title }, ...service.keywords.map((text) => ({ text }))]);
+    if (score > 0) entries.push({ kind: "service", key: `service:${service.id}`, title: service.title, subtitle: stripUrl(service.url), url: service.url, service, score });
   }
   for (const tab of tabs) {
     const score = scoreFields(query, pageFields(tab));

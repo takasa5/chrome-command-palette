@@ -1,11 +1,12 @@
 import { COMMANDS } from "./commands.js";
+import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { flattenBookmarks, isSameOrigin, normalize, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { xScope } from "./x-accounts.js";
 
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", account: "アカウント" };
+const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", account: "アカウント" };
 // キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
 const SCOPES = [xScope];
 
@@ -171,7 +172,7 @@ async function update() {
     return;
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
-  const sources = { commands: availableCommands(), tabs: allTabs };
+  const sources = { commands: availableCommands(), services: GOOGLE_SERVICES, tabs: allTabs };
   results = rankResults(query, sources);
   render();
 
@@ -253,6 +254,10 @@ function runItem(item, { moveHere }) {
   switch (item.kind) {
     case "command":
       return item.command.run(ctx);
+    case "service": {
+      const tab = findServiceTab(allTabs, item.service, ctx.self.windowId);
+      return tab ? openTab(tab) : ctx.navigate(item.url);
+    }
     case "tab":
       return moveHere && isOtherWindowTab(item) ? moveTabHere(item.tab) : openTab(item.tab);
     case "folder":
