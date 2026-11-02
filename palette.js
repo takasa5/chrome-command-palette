@@ -1,14 +1,13 @@
 import { COMMANDS } from "./commands.js";
 import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { flattenBookmarks, isSameOrigin, normalize, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { getEngines, siteSearchScope } from "./site-search.js";
 import { xScope } from "./x-accounts.js";
 
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", account: "アカウント" };
-// キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
-const SCOPES = [xScope];
+const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", account: "アカウント" };
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -36,6 +35,8 @@ let busy = false;
 // 開いているフォルダの階層。query は入る前の入力で、戻るときに復元する。
 let folderStack = [];
 let activeScope = null;
+// キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
+let scopes = [xScope];
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
 // ウィンドウ最後のタブなら、閉じるとウィンドウごと消えるので開いたままにする。
@@ -62,6 +63,10 @@ async function refreshTabs() {
   ctx.nextTarget = recent[1] ?? null;
 }
 
+async function refreshScopes() {
+  scopes = [xScope, ...(await getEngines()).map(siteSearchScope)];
+}
+
 function availableCommands() {
   return COMMANDS.filter((command) => !command.needsTarget || ctx.target);
 }
@@ -84,7 +89,7 @@ function faviconUrl(pageUrl) {
 }
 
 function renderIcon(item) {
-  if (item.url && item.kind !== "url") {
+  if (item.url && item.kind !== "url" && item.kind !== "siteSearch") {
     const img = document.createElement("img");
     img.className = "icon";
     img.alt = "";
@@ -93,7 +98,7 @@ function renderIcon(item) {
   }
   const span = document.createElement("span");
   span.className = "icon";
-  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", account: "@" }[item.kind];
+  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", account: "@" }[item.kind];
   return span;
 }
 
@@ -193,7 +198,7 @@ async function update() {
 
 function scopeForInput() {
   if (activeScope || folderStack.length > 0) return null;
-  return SCOPES.find((scope) => scope.keyword === normalize(input.value)) ?? null;
+  return scopes.find((scope) => scope.keyword === normalize(input.value)) ?? null;
 }
 
 function enterScope(scope) {
@@ -314,7 +319,7 @@ function handleKeydown(event) {
 
 async function reactivate() {
   input.focus();
-  await refreshTabs();
+  await Promise.all([refreshTabs(), refreshScopes()]);
   if (!input.value.trim()) update();
 }
 
@@ -328,7 +333,7 @@ async function closeWhenLeft({ tabId, windowId }) {
 }
 
 async function init() {
-  await refreshTabs();
+  await Promise.all([refreshTabs(), refreshScopes()]);
   chrome.tabs.onActivated.addListener(closeWhenLeft);
   input.addEventListener("input", update);
   input.addEventListener("keydown", handleKeydown);

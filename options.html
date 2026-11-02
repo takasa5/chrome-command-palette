@@ -17,6 +17,18 @@
       <label for="x-accounts">X のアカウント（1 行に 1 つ）</label>
       <textarea id="x-accounts" rows="4" spellcheck="false"></textarea>
       <div><button id="read-x-accounts" type="button">X から読み込む</button></div>
+      <label for="site-search">サイト内検索（1 行に「キーワード 名前 URL」）</label>
+      <textarea
+        id="site-search"
+        rows="4"
+        spellcheck="false"
+        placeholder="gh GitHub https://github.com/search?q=%s"
+        aria-describedby="site-search-note"
+      ></textarea>
+      <p id="site-search-note">
+        URL の検索語の位置に %s を入れます。Chrome に登録済みのカスタム検索は拡張機能から読み取れないので、ここにも登録してください。不正な行は保存されません。
+      </p>
+      <output id="site-search-errors"></output>
       <output id="toast"></output>
     </main>
   </body>
