@@ -163,8 +163,18 @@ kbd {
 
 .options {
   display: grid;
-  gap: 10px;
+  gap: 16px;
   padding: 18px;
+}
+
+.options section {
+  display: grid;
+  gap: 10px;
+}
+
+.options section + section {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 #site-search-note {
@@ -191,4 +201,8 @@ kbd {
 
 #stale-hours {
   width: 80px;
+}
+
+#new-window-pins {
+  margin-left: 0;
 }

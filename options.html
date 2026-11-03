@@ -9,26 +9,35 @@
   </head>
   <body>
     <main class="palette options">
-      <label for="stale-hours">Archive Stale Tabs で閉じるタブ</label>
-      <div>
-        <input id="stale-hours" type="number" min="0" step="any" required />
-        時間以上見ていないタブ
-      </div>
-      <label for="x-accounts">X のアカウント（1 行に 1 つ）</label>
-      <textarea id="x-accounts" rows="4" spellcheck="false"></textarea>
-      <div><button id="read-x-accounts" type="button">X から読み込む</button></div>
-      <label for="site-search">サイト内検索（1 行に「キーワード 名前 URL」）</label>
-      <textarea
-        id="site-search"
-        rows="4"
-        spellcheck="false"
-        placeholder="gh GitHub https://github.com/search?q=%s"
-        aria-describedby="site-search-note"
-      ></textarea>
-      <p id="site-search-note">
-        URL の検索語の位置に %s を入れます。Chrome に登録済みのカスタム検索は拡張機能から読み取れないので、ここにも登録してください。不正な行は保存されません。
-      </p>
-      <output id="site-search-errors"></output>
+      <section>
+        <label for="stale-hours">Archive Stale Tabs で閉じるタブ</label>
+        <div>
+          <input id="stale-hours" type="number" min="0" step="any" required />
+          時間以上見ていないタブ
+        </div>
+      </section>
+      <section>
+        <label><input id="new-window-pins" type="checkbox" /> New Window で今のウィンドウのピンも開く</label>
+      </section>
+      <section>
+        <label for="x-accounts">X のアカウント（1 行に 1 つ）</label>
+        <textarea id="x-accounts" rows="4" spellcheck="false"></textarea>
+        <div><button id="read-x-accounts" type="button">X から読み込む</button></div>
+      </section>
+      <section>
+        <label for="site-search">サイト内検索（1 行に「キーワード 名前 URL」）</label>
+        <textarea
+          id="site-search"
+          rows="4"
+          spellcheck="false"
+          placeholder="gh GitHub https://github.com/search?q=%s"
+          aria-describedby="site-search-note"
+        ></textarea>
+        <p id="site-search-note">
+          URL の検索語の位置に %s を入れます。Chrome に登録済みのカスタム検索は拡張機能から読み取れないので、ここにも登録してください。不正な行は保存されません。
+        </p>
+        <output id="site-search-errors"></output>
+      </section>
       <output id="toast"></output>
     </main>
   </body>

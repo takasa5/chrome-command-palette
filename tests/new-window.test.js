@@ -4,15 +4,17 @@ import { COMMANDS } from "../commands.js";
 
 const newWindow = COMMANDS.find((command) => command.id === "new-window");
 
-async function run(windowTabs) {
+async function run(windowTabs, stored = {}) {
   const created = [];
+  const windows = [];
   let left = false;
   globalThis.chrome = {
-    windows: { create: async () => ({ id: 2 }) },
+    storage: { sync: { get: async () => stored } },
+    windows: { create: async () => (windows.push(2), { id: 2 }) },
     tabs: { create: async (props) => created.push(props) },
   };
   await newWindow.run({ windowTabs, leave: async () => (left = true) });
-  return { created, left };
+  return { created, windows, left };
 }
 
 test("New Window は今のウィンドウのピンだけをオリジンで順に開き、新しいタブを選択したままにする", async () => {
@@ -36,4 +38,11 @@ test("New Window はオリジンを持たないピンをそのままの URL で�
 test("New Window はピンがなければタブを追加しない", async () => {
   const { created } = await run([{ url: "https://c.example/", pinned: false }]);
   assert.deepEqual(created, []);
+});
+
+test("New Window は設定がオフならピンを開かずにウィンドウだけ開く", async () => {
+  const { created, windows, left } = await run([{ url: "https://a.example/", pinned: true }], { newWindowPins: false });
+  assert.deepEqual(created, []);
+  assert.equal(windows.length, 1);
+  assert.equal(left, true);
 });

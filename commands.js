@@ -12,6 +12,11 @@ const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   run: (ctx) => ctx.navigate(url),
 });
 
+export async function getNewWindowPins() {
+  const { newWindowPins = true } = await chrome.storage.sync.get("newWindowPins");
+  return newWindowPins;
+}
+
 async function zoomBy(ctx, factor) {
   const zoom = await chrome.tabs.getZoom(ctx.target.id);
   await chrome.tabs.setZoom(ctx.target.id, zoom * factor);
@@ -26,9 +31,10 @@ export const COMMANDS = [
     keywords: ["window", "新規ウィンドウ"],
     featured: true,
     run: async (ctx) => {
+      const pins = (await getNewWindowPins()) ? ctx.windowTabs.filter((t) => t.pinned) : [];
       const { id: windowId } = await chrome.windows.create();
       // 並び順を保つため、1 つずつ開く。file: などオリジンを持たないページはそのまま開く。
-      for (const pin of ctx.windowTabs.filter((t) => t.pinned)) {
+      for (const pin of pins) {
         const { origin } = new URL(pin.url);
         await chrome.tabs.create({ windowId, url: origin === "null" ? pin.url : origin, pinned: true, active: false });
       }

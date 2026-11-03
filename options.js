@@ -1,8 +1,10 @@
+import { getNewWindowPins } from "./commands.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
 import { getAccounts, parseAccounts, readAccountsFromX, xScope } from "./x-accounts.js";
 
 const input = document.getElementById("stale-hours");
+const newWindowPins = document.getElementById("new-window-pins");
 const accounts = document.getElementById("x-accounts");
 const readButton = document.getElementById("read-x-accounts");
 const siteSearch = document.getElementById("site-search");
@@ -13,8 +15,11 @@ const savedEngines = await getEngines();
 let savedEnginesJson = JSON.stringify(savedEngines);
 
 input.value = await getStaleHours();
+newWindowPins.checked = await getNewWindowPins();
 accounts.value = (await getAccounts()).join("\n");
 siteSearch.value = formatEngines(savedEngines);
+
+newWindowPins.addEventListener("change", () => chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
 
 accounts.addEventListener("input", () => chrome.storage.sync.set({ xAccounts: parseAccounts(accounts.value) }));
 
