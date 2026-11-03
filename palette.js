@@ -1,6 +1,7 @@
 import { COMMANDS } from "./commands.js";
 import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
 import { xScope } from "./x-accounts.js";
 
@@ -14,6 +15,11 @@ const list = document.getElementById("results");
 const toast = document.getElementById("toast");
 const breadcrumb = document.getElementById("breadcrumb");
 const paletteUrl = chrome.runtime.getURL("palette.html");
+const params = new URLSearchParams(location.search);
+// ページの上に重ねて開いたときは、新規タブではなく、そのページのタブ（hostTabId）の中の iframe で動く。
+const overlayToken = params.get("overlay");
+const overlay = overlayToken !== null;
+let hostTabId = null;
 
 const ctx = {
   self: null,
@@ -21,10 +27,29 @@ const ctx = {
   target: null,
   nextTarget: null,
   isPalette: (tab) => (tab.url ?? tab.pendingUrl ?? "").startsWith(paletteUrl),
-  navigate: (url) => chrome.tabs.update(ctx.self.id, { url }),
+  navigate,
+  pageTabId,
   leave,
   openTab,
 };
+
+// 重ねたときは見ているページを残し、隣に新しいタブを開く。
+async function navigate(url) {
+  if (!overlay) return chrome.tabs.update(ctx.self.id, { url });
+  await chrome.tabs.create({ url, windowId: ctx.self.windowId, index: ctx.self.index + 1 });
+  await closeOverlay();
+}
+
+// ページを読み込むタブ。新規タブならパレット自身、重ねたときは隣の空のタブ。
+async function pageTabId() {
+  if (!overlay) return ctx.self.id;
+  const tab = await chrome.tabs.create({ url: "about:blank", windowId: ctx.self.windowId, index: ctx.self.index + 1 });
+  return tab.id;
+}
+
+function closeOverlay() {
+  return chrome.tabs.sendMessage(hostTabId, { type: "close-palette" }, { frameId: 0 }).catch(() => {});
+}
 
 let allTabs = [];
 let results = [];
@@ -41,7 +66,13 @@ const scopeIcons = new WeakMap();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
 // ウィンドウ最後のタブなら、閉じるとウィンドウごと消えるので開いたままにする。
+// 重ねたときはタブを閉じず、パレットだけを閉じる。
 async function leave(focusTabId = ctx.target?.id) {
+  if (overlay) {
+    if (focusTabId && focusTabId !== hostTabId) await chrome.tabs.update(focusTabId, { active: true });
+    await closeOverlay();
+    return;
+  }
   const tabs = await chrome.tabs.query({ windowId: ctx.self.windowId });
   if (tabs.length <= 1) {
     input.value = "";
@@ -55,13 +86,23 @@ async function leave(focusTabId = ctx.target?.id) {
   await chrome.tabs.remove(ctx.self.id);
 }
 
+function currentTab() {
+  return overlay ? chrome.tabs.get(hostTabId) : chrome.tabs.getCurrent();
+}
+
+// 重ねたときは、見ているページが操作の対象になる。
 async function refreshTabs() {
-  ctx.self = await chrome.tabs.getCurrent();
+  ctx.self = await currentTab();
   allTabs = (await chrome.tabs.query({})).filter((tab) => !ctx.isPalette(tab));
   ctx.windowTabs = allTabs.filter((tab) => tab.windowId === ctx.self.windowId);
-  const recent = [...ctx.windowTabs].sort((a, b) => b.lastAccessed - a.lastAccessed);
-  ctx.target = recent[0] ?? null;
-  ctx.nextTarget = recent[1] ?? null;
+  const recent = ctx.windowTabs.filter((tab) => tab.id !== ctx.self.id).sort((a, b) => b.lastAccessed - a.lastAccessed);
+  ctx.target = overlay ? ctx.self : (recent[0] ?? null);
+  ctx.nextTarget = overlay ? (recent[0] ?? null) : (recent[1] ?? null);
+}
+
+// 候補に出すタブ。今いるタブは選んでも意味がないので出さない。
+function otherTabs() {
+  return allTabs.filter((tab) => tab.id !== ctx.self.id);
 }
 
 async function refreshScopes() {
@@ -82,7 +123,7 @@ const commandScope = {
 };
 
 function emptyQueryResults() {
-  const tabs = [...allTabs].sort((a, b) => b.lastAccessed - a.lastAccessed).slice(0, RECENT_TAB_COUNT);
+  const tabs = otherTabs().sort((a, b) => b.lastAccessed - a.lastAccessed).slice(0, RECENT_TAB_COUNT);
   return [
     ...tabs.map((tab) => ({ kind: "tab", key: `tab:${tab.id}`, title: tab.title || tab.url, subtitle: stripUrl(tab.url), url: tab.url, tab })),
     ...availableCommands()
@@ -206,7 +247,7 @@ async function update() {
     return;
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
-  const sources = { commands: availableCommands(), services: GOOGLE_SERVICES, tabs: allTabs };
+  const sources = { commands: availableCommands(), services: GOOGLE_SERVICES, tabs: otherTabs() };
   results = rankResults(query, sources);
   render();
 
@@ -285,8 +326,14 @@ async function openPinnedHere(tab) {
 
 async function moveTabHere(tab) {
   if (tab.pinned) return openPinnedHere(tab);
-  await chrome.tabs.move(tab.id, { windowId: ctx.self.windowId, index: ctx.self.index });
+  // 新規タブならパレットの位置、重ねたときは見ているページの隣へ移す。
+  await chrome.tabs.move(tab.id, { windowId: ctx.self.windowId, index: ctx.self.index + (overlay ? 1 : 0) });
   await leave(tab.id);
+}
+
+async function search(text) {
+  await chrome.search.query({ text, tabId: await pageTabId() });
+  if (overlay) await closeOverlay();
 }
 
 function runItem(item, { moveHere }) {
@@ -304,7 +351,7 @@ function runItem(item, { moveHere }) {
     case "account":
       return item.run(ctx);
     case "search":
-      return chrome.search.query({ text: item.text, tabId: ctx.self.id });
+      return search(item.text);
     default:
       return ctx.navigate(item.url);
   }
@@ -362,20 +409,49 @@ async function reactivate() {
 // 同じウィンドウで別のタブへ移ったら閉じて、放置したパレットが増えないようにする。
 async function closeWhenLeft({ tabId, windowId }) {
   // タブが別ウィンドウへ移されていることがあるので、最新の状態で判定する。
-  const self = await chrome.tabs.getCurrent();
+  const self = await currentTab();
   if (windowId !== self.windowId || tabId === self.id) return;
+  if (overlay) return closeOverlay();
   // leave が同時に閉じていることがあるので、失敗は無視する。
   await chrome.tabs.remove(self.id).catch(() => {});
 }
 
+// background.js が渡した合言葉から、重ねたページのタブを受け取る。合言葉は一度しか使えない。
+async function claimHostTab() {
+  const key = `overlay:${overlayToken}`;
+  const { [key]: tabId } = await chrome.storage.session.get(key);
+  await chrome.storage.session.remove(key);
+  return tabId ?? null;
+}
+
+// 読み込むまでに打った文字をページから受け取る。受け取ると、ページはパレットへフォーカスを移す。
+async function takeBufferedKeys() {
+  const keys = await chrome.tabs.sendMessage(hostTabId, { type: "palette-ready" }, { frameId: 0 });
+  const { text, submit } = applyBufferedKeys(keys ?? []);
+  input.value = text;
+  update();
+  if (submit) execute(results.find((item) => item.key === selectedKey));
+}
+
 async function init() {
+  if (overlay) {
+    hostTabId = await claimHostTab();
+    if (!hostTabId) return;
+    // パレットの外（暗くした部分）をクリックしたら閉じる。
+    document.addEventListener("mousedown", (event) => {
+      if (!event.target.closest(".palette")) leave();
+    });
+  }
   await Promise.all([refreshTabs(), refreshScopes()]);
   chrome.tabs.onActivated.addListener(closeWhenLeft);
   input.addEventListener("input", update);
   input.addEventListener("keydown", handleKeydown);
   window.addEventListener("focus", reactivate);
   input.focus();
-  update();
+  if (overlay) await takeBufferedKeys();
+  else update();
 }
 
-if (location.search.includes("focus")) init();
+// 他のサイトに埋め込まれたときは動かない。重ねるときも合言葉がなければ動かない。
+const embedded = window.top !== window;
+if (overlay ? embedded : params.has("focus") && !embedded) init();

@@ -36,6 +36,11 @@ body {
   font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
 }
 
+/* ページに重ねたときは、ページが透けて見えるよう暗くするだけにする。 */
+.overlay body {
+  background: rgb(0 0 0 / 24%);
+}
+
 .palette {
   width: min(640px, 100%);
   margin: 0 auto;

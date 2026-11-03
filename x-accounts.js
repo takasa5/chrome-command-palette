@@ -102,7 +102,7 @@ export const xScope = {
       // パレットのタブは遷移や移動で消えるので、切り替えは background.js に任せる。
       run: async (ctx) => {
         const homeTab = pickHomeTab(await chrome.tabs.query({ url: `${HOME_URL}*`, discarded: false }), ctx.self.windowId);
-        await chrome.runtime.sendMessage({ type: "switch-x-account", tabId: homeTab?.id ?? ctx.self.id, handle, openHome: !homeTab });
+        await chrome.runtime.sendMessage({ type: "switch-x-account", tabId: homeTab?.id ?? (await ctx.pageTabId()), handle, openHome: !homeTab });
         if (homeTab) await ctx.openTab(homeTab);
       },
     }));
