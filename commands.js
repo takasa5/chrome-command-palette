@@ -1,6 +1,7 @@
 // パレットから実行できるブラウザ操作。
 // needsTarget のコマンドは、パレットを開く直前に見ていたタブ（ctx.target）を操作する。
 
+import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
 
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
@@ -246,6 +247,35 @@ export const COMMANDS = [
       }
       await ctx.leave();
     },
+  },
+  {
+    id: "add-to-reading-list",
+    title: "Add to Reading List",
+    ja: "リーディングリストに追加",
+    keywords: ["read later", "あとで読む", "保存", "追加"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await addToReadingList(ctx.target);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "mark-as-read",
+    title: "Mark as Read",
+    ja: "リーディングリストで既読にする",
+    keywords: ["reading list", "read later", "あとで読む"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await markAsRead(ctx.target);
+      await ctx.leave();
+    },
+  },
+  {
+    id: "reading-list",
+    title: "Reading List",
+    ja: "リーディングリスト",
+    keywords: ["read later", "あとで読む"],
+    run: (ctx) => ctx.enterScope(readingListScope),
   },
   {
     id: "zoom-in",

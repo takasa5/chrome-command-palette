@@ -8,7 +8,7 @@ import { xScope } from "./x-accounts.js";
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", account: "アカウント" };
+const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", account: "アカウント", readingList: "リーディングリスト" };
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -31,6 +31,7 @@ const ctx = {
   pageTabId,
   leave,
   openTab,
+  enterScope,
 };
 
 // 重ねたときは見ているページを残し、隣に新しいタブを開く。
@@ -151,7 +152,7 @@ function renderIcon(item) {
   if (item.url && item.kind !== "url" && item.kind !== "siteSearch") return renderFavicon(item.url);
   const span = document.createElement("span");
   span.className = "icon";
-  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", account: "@" }[item.kind];
+  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", account: "@", readingList: "📖" }[item.kind];
   return span;
 }
 
@@ -349,6 +350,7 @@ function runItem(item, { moveHere }) {
     case "folder":
       return enterFolder(item.folder);
     case "account":
+    case "readingList":
       return item.run(ctx);
     case "search":
       return search(item.text);
