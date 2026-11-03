@@ -14,6 +14,10 @@
 * パレットは `chrome-extension://<id>/palette.html?focus` を開く
 * x.com は自動ブラウザからの接続が拒否されるので、`chrome.history.addUrl` で履歴を用意して確認する
 
+## デモ GIF
+
+`docs/demo.gif` は `scripts/demo` で `npm install` のあと `npm run record` で作り直せる。Playwright の Chromium と ffmpeg が必要。
+
 ## Git
 
 * コミットメッセージは件名も本文も日本語で書く
