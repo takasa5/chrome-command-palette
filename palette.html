@@ -14,7 +14,6 @@
       <div id="breadcrumb" hidden></div>
       <input
         id="query"
-        autofocus
         type="text"
         placeholder="コマンド、タブ、ブックマーク、履歴を検索"
         autocomplete="off"
@@ -24,6 +23,8 @@
         aria-controls="results"
         aria-label="コマンドパレット"
       />
+      <!-- module の読み込みを待たずにフォーカスする。 -->
+      <script src="focus.js"></script>
       <ul id="results" role="listbox"></ul>
       <footer>
         <span><kbd>↑</kbd><kbd>↓</kbd> 移動</span>
