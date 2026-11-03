@@ -2,6 +2,8 @@
 
 `Cmd+T` で開くコマンドパレットの Chrome 拡張機能。ブラウザ操作、タブ切り替え、ブックマークと履歴の検索、URL を開く、Web 検索をキーボードで行える。
 
+![Command Palette のデモ](docs/demo.gif)
+
 ## インストール
 
 1. `chrome://extensions` を開き、右上の「デベロッパー モード」をオンにする
