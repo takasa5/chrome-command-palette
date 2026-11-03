@@ -1,4 +1,7 @@
-# Command Palette
+<h1 align="center">
+  <img src="docs/logo.svg" alt="" width="128" /><br />
+  Command Palette
+</h1>
 
 `Cmd+T` で開くコマンドパレットの Chrome 拡張機能。ブラウザ操作、タブ切り替え、ブックマークと履歴の検索、URL を開く、Web 検索をキーボードで行える。
 
