@@ -84,6 +84,7 @@ e2e/
 5. `npm run e2e:graph` と `npm run e2e:walk` で通ることを確かめる
 
 CI は `npm run model` をやり直して差分がないことを確かめるので、作り直したファイルもコミットする。
+`palette.md` が変わった PR には、ベースのブランチから変わったところに印を付けた図が自動でコメントされる（`scripts/diagram-diff.js`、`.github/workflows/palette-diagram.yml`）。
 
 ### 押せるが効かない操作
 

@@ -119,7 +119,9 @@ for (const e of screenEdges.values()) {
   }
 }
 mermaid.push("  }");
-for (const [to, labels] of openLabels) mermaid.push(`  closed --> ${id(to)} : ${labels.join(" / ")}`);
+// 遷移を見つけた順で並びが変わらないよう、操作の定義順に並べる。
+const byAction = (a, b) => Object.values(ACTIONS).indexOf(a) - Object.values(ACTIONS).indexOf(b);
+for (const [to, labels] of openLabels) mermaid.push(`  closed --> ${id(to)} : ${labels.sort(byAction).join(" / ")}`);
 if (escapeEverywhere) mermaid.push(`  開いている --> closed : ${ACTIONS.escape}`);
 
 const bothModes = (e) => opens(e) || (e.modes.has("newTab") && e.modes.has("overlay"));
