@@ -1,0 +1,43 @@
+name: palette-diagram
+
+# パレットの状態遷移図（palette.md）が変わった PR に、変わったところに印を付けた図をコメントする。
+# コメントは 1 件だけにし、push のたびに上書きする。
+on:
+  pull_request:
+    paths:
+      - e2e/graph/generated/palette.md
+      - e2e/graph/scripts/diagram-diff.js
+      - .github/workflows/palette-diagram.yml
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: 図を作る
+        run: |
+          git show "origin/${BASE_REF}:e2e/graph/generated/palette.md" > base.md 2>/dev/null || : > base.md
+          node e2e/graph/scripts/diagram-diff.js base.md e2e/graph/generated/palette.md > comment.md
+        env:
+          BASE_REF: ${{ github.base_ref }}
+      - name: コメントする
+        run: |
+          id=$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate --jq '.[] | select(.body | startswith("<!-- palette-state-diagram -->")) | .id' | head -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${id}" -F body=@comment.md > /dev/null
+          else
+            gh pr comment "$PR" --repo "$REPO" --body-file comment.md
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
