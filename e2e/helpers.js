@@ -86,3 +86,14 @@ export async function screenshotOnFailure(t, page) {
   mkdirSync(output, { recursive: true });
   await page.screenshot({ path: join(output, `${t.name}.png`) });
 }
+
+// Enter や Esc でタブが閉じると、キーを離す前にページがなくなり、press が失敗したり返ってこなかったりする。
+// ページが閉じたら、押し終えたものとして扱う。
+export async function press(page, key) {
+  const closed = page.waitForEvent("close", { timeout: 0 }).catch(() => {});
+  try {
+    await Promise.race([page.keyboard.press(key), closed]);
+  } catch (error) {
+    if (!page.isClosed()) throw error;
+  }
+}

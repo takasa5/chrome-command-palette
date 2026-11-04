@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, test } from "node:test";
-import { launch, pageUrl, screenshotOnFailure } from "./helpers.js";
+import { launch, pageUrl, press, screenshotOnFailure } from "./helpers.js";
 
 // 重ねて開くには host_permissions のあるページが要る。
 const HOST = "https://x.com";
@@ -24,7 +24,7 @@ test("重ねたパレットで検索し、Enter でタブへ移る", async () =>
 
   await page.keyboard.type("alpha");
   await frame.locator('#results li[aria-selected="true"] .title', { hasText: "Alpha Notes" }).waitFor();
-  await page.keyboard.press("Enter");
+  await press(page, "Enter");
 
   await page.waitForFunction(() => document.querySelector("command-palette-overlay") === null);
   assert.equal((await browser.activeTab()).title, "Alpha Notes");
@@ -41,7 +41,7 @@ test("ページを開くと見ていたページは残し、隣のタブで開�
   const opened = browser.ctx.waitForEvent("page");
   await page.keyboard.type("release");
   await frame.locator('#results li[aria-selected="true"] .kind', { hasText: "履歴" }).waitFor();
-  await page.keyboard.press("Enter");
+  await press(page, "Enter");
   await (await opened).waitForURL(url);
 
   assert.equal(await overlayOpen(page), false);
@@ -60,9 +60,9 @@ test("タブを閉じるコマンドは重ねたページを閉じる", async ()
 
   await page.keyboard.type("close tab");
   await frame.locator('#results li[aria-selected="true"] .title', { hasText: /^(Close Tab|タブを閉じる)$/ }).waitFor();
-  await page.keyboard.press("Enter");
-
-  await page.waitForEvent("close");
+  const closed = page.waitForEvent("close");
+  await press(page, "Enter");
+  await closed;
   const titles = (await browser.tabs()).map((tab) => tab.title);
   assert.ok(titles.includes("Keep Page"));
 });

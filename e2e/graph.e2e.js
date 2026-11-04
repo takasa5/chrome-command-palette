@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { after, afterEach, before, test } from "node:test";
-import { launch, pageUrl, screenshotOnFailure } from "./helpers.js";
+import { launch, pageUrl, press, screenshotOnFailure } from "./helpers.js";
 
 const paths = JSON.parse(readFileSync(process.env.E2E_PATHS ?? new URL("./model/paths.json", import.meta.url), "utf8"));
 
@@ -64,8 +64,8 @@ const selected = () => palette.frame.locator('#results li[aria-selected="true"]'
 
 async function clearQuery() {
   if (!(await palette.frame.locator("#query").inputValue())) return;
-  await palette.keyboard.press("ControlOrMeta+a");
-  await palette.keyboard.press("Backspace");
+  await press(palette.page, "ControlOrMeta+a");
+  await press(palette.page, "Backspace");
 }
 
 // 入力を打ち直し、目当ての候補が選ばれてから Enter を押す。
@@ -75,7 +75,7 @@ async function pick(text, { title, kind }) {
   const row = selected();
   if (title) await row.locator(".title", { hasText: new RegExp(`^${title}$`) }).waitFor();
   if (kind) await row.locator(".kind", { hasText: kind }).waitFor();
-  await palette.keyboard.press("Enter");
+  await press(palette.page, "Enter");
 }
 
 // モデルの操作名ごとの、実物での操作。next は操作の後のモデルの状態。
@@ -93,23 +93,23 @@ const ACTIONS = {
   },
   clearQuery,
   enterFolder: (next) => pick(FOLDER_QUERIES[next.folders.at(-1)], { title: next.folders.at(-1) }),
-  exitFolder: () => palette.keyboard.press("Backspace"),
-  enterCommandScope: () => palette.keyboard.press("Tab"),
+  exitFolder: () => press(palette.page, "Backspace"),
+  enterCommandScope: () => press(palette.page, "Tab"),
   enterSiteScope: async () => {
     await clearQuery();
     await palette.keyboard.type(SITE.keyword);
     await palette.frame.locator("#breadcrumb", { hasText: `Tab で ${SITE.name} を検索` }).waitFor();
-    await palette.keyboard.press("Tab");
+    await press(palette.page, "Tab");
   },
-  exitScope: () => palette.keyboard.press("Backspace"),
-  escape: () => palette.keyboard.press("Escape"),
+  exitScope: () => press(palette.page, "Backspace"),
+  escape: () => press(palette.page, "Escape"),
   switchTab: () => pick("alpha", { title: "Alpha Notes" }),
   openHistory: () => pick("release", { kind: "履歴" }),
   openBookmark: () => pick("guide", { title: "Guide" }),
   runSiteSearch: async () => {
     await palette.keyboard.type("playwright");
     await selected().locator(".title", { hasText: "「playwright」を検索" }).waitFor();
-    await palette.keyboard.press("Enter");
+    await press(palette.page, "Enter");
   },
 };
 
@@ -156,14 +156,30 @@ async function expectState(state) {
   assert.deepEqual(errors, [], "コンソールにエラーが出た");
 }
 
+// 1 操作が止まったときに、テスト全体の時間切れではなく、どの操作で止まったかが分かるようにする。
+const STEP_TIMEOUT = 15000;
+async function withinStep(run) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${STEP_TIMEOUT}ms たっても終わらない`)), STEP_TIMEOUT);
+  });
+  try {
+    await Promise.race([run(), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 paths.forEach((steps, index) => {
   test(`経路 ${index + 1}（${steps.length - 1} 操作）`, async () => {
     await resetBrowser();
     errors.length = 0;
     for (const [i, { action, ...state }] of steps.entries()) {
       try {
-        await ACTIONS[action](state);
-        await expectState(state);
+        await withinStep(async () => {
+          await ACTIONS[action](state);
+          await expectState(state);
+        });
       } catch (error) {
         const route = steps.slice(1, i + 1).map((step) => step.action).join(" > ");
         throw new Error(`${route} の後、モデルの状態 ${JSON.stringify(state)} と合わない\n${error.message}`, { cause: error });

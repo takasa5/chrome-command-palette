@@ -53,11 +53,11 @@ CI の `e2e` ジョブで 5 分以内。足す前に、どの既存のテスト�
 
 | ファイル | 役割 |
 | --- | --- |
-| `palette.qnt` | 状態遷移のモデル。人が書く |
+| `palette.qnt` | 状態遷移のモデル |
 | `palette.md` | 状態遷移図と遷移表。`npm run model` が作る。人が読むのはこれ |
 | `paths.json` | 全遷移を通す操作列。`npm run model` が作る。CI はこれを再生する |
-| `build.js` | 上の 2 つを作る。種を固定しているので、モデルが同じなら同じものができる |
-| `walk.js` | 乱数の種を変えた長い操作列を作って再生する |
+| `build.js` | 上の 2 つを作る。シードを固定しているので、モデルが同じなら同じものができる |
+| `walk.js` | 乱数のシードを変えた長い操作列を作って再生する |
 
 モデルを変えるときの手順：
 
@@ -82,7 +82,7 @@ npm run e2e
 npm run e2e:walk
 ```
 
-`e2e:walk` は乱数で 5 本 × 40 操作を作って再生する。失敗したら表示された種で `npm run e2e:walk -- <種>` とすると再現できる。
+`e2e:walk` は乱数で 5 本 × 40 操作を作って再生する。失敗したら表示されたシードで `npm run e2e:walk -- <シード>` とすると再現できる。
 初回は `npx playwright-core install chromium` が必要。失敗した画面は `e2e/.output/` に残る（CI では artifact）。
 
 ## 落とし穴
@@ -90,5 +90,6 @@ npm run e2e:walk
 * **外へつながない**：`helpers.js` の route が、どの URL にもタイトルだけのページを返す。拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、`--host-resolver-rules` で名前解決も止めている。外す前に、本物のサイトにつながらないか確かめる
 * **Cmd+Shift+S は押せない**：ブラウザのショートカットは Playwright から押せないので、Service Worker で `chrome.commands.onCommand.dispatch` を呼ぶ。ドキュメントにない API なので、Chrome の更新で使えなくなったら、background.js の処理を関数に切り出して呼ぶ形に変える
 * **重ねる先は x.com**：`activeTab` はショートカットを押したときしか付かないので、重ねる先のページは `host_permissions` にある `https://x.com` に置く（通信はしない）
+* **キーでタブが閉じる**：Enter や Esc でパレットのタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。キーは `helpers.js` の `press` で押す。閉じるのを待つなら、`page.waitForEvent("close")` を押す前に始めておく
 * **前のテストのタブが残る**：同じファイルのテストはブラウザを共有する。タブの名前はテストごとに変えるか、後片付けをする
 * **読み込み前に打ったキー**：重ねたパレットが読み込み終わる前のキーをためて渡す処理は、タイミング次第で通る道が変わるので E2E では確かめていない（`applyBufferedKeys` は単体テスト）

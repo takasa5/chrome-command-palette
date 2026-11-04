@@ -1,5 +1,5 @@
 // palette.qnt から、人が読む palette.md と、CI で全遷移を通す paths.json を作る。
-// 種を固定しているので、モデルが変わらなければ同じものができる。CI で作り直して差分がないことを確かめる。
+// シードを固定しているので、モデルが変わらなければ同じものができる。CI で作り直して差分がないことを確かめる。
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { generateTraces, stateKey, toPathJson } from "./traces.js";
