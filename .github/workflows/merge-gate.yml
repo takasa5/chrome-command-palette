@@ -46,6 +46,7 @@ jobs:
 
   # コードの変更を LLM が判定する。Claude のトークンを使うので、リポジトリの持ち主の PR で、持ち主が動かしたときだけ動く。
   # Claude にはツールを一切使わせず、GitHub のトークンも渡さない。答えは JSON で受け取るだけ。
+  # モデルは Haiku。判断が分かれそうな 12 のケースで Sonnet と同じ判定になり、使用量は 1/16 ほどだった。
   judge:
     needs: classify
     if: >-
@@ -75,7 +76,7 @@ jobs:
         continue-on-error: true
         run: >-
           claude -p
-          --model sonnet
+          --model haiku
           --tools ""
           --strict-mcp-config
           --setting-sources ""
