@@ -1,0 +1,115 @@
+name: merge-gate
+
+# PR を人間がレビューせずに自動でマージしてよいかを決め、head の commit に `merge-gate` の status を付ける。
+#   success: 自動でマージしてよい
+#   pending: 人間が見る。リポジトリの持ち主が `/approve <SHA>` とコメントすると success になる
+# 判定のしかたは .github/merge-gate/ にある。
+#
+# pull_request_target と issue_comment は、どちらも base ブランチのワークフローで動く。
+# PR の中でこのファイルや .github/merge-gate/ を書き換えても、その PR の判定には効かない。
+# PR のコードは checkout も実行もせず、中身は API で読むだけにする。
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created, edited]
+
+permissions: {}
+
+jobs:
+  # パスで分類する。LLM も secret も使わない。
+  classify:
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (github.event.issue.pull_request &&
+       github.event.comment.user.login == github.repository_owner &&
+       startsWith(github.event.comment.body, '/approve'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      need_llm: ${{ steps.classify.outputs.need_llm }}
+      eligible: ${{ steps.classify.outputs.eligible }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: classify
+        run: node .github/merge-gate/run.js classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  # コードの変更を LLM が判定する。Claude のトークンを使うので、リポジトリの持ち主の PR で、持ち主が動かしたときだけ動く。
+  # Claude にはツールを一切使わせず、GitHub のトークンも渡さない。答えは JSON で受け取るだけ。
+  # モデルは Haiku。判断が分かれそうな 12 のケースで Sonnet と同じ判定になり、使用量は 1/16 ほどだった。
+  judge:
+    needs: classify
+    if: >-
+      needs.classify.outputs.need_llm == 'true' &&
+      needs.classify.outputs.eligible == 'true' &&
+      github.triggering_actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      verdict: ${{ steps.verdict.outputs.verdict }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install -g @anthropic-ai/claude-code@2.1.317
+      - name: LLM に渡す入力を作る
+        run: node .github/merge-gate/run.js prepare > "$RUNNER_TEMP/input.md"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Claude で判定する
+        continue-on-error: true
+        run: >-
+          claude -p
+          --model haiku
+          --tools ""
+          --strict-mcp-config
+          --setting-sources ""
+          --no-session-persistence
+          --system-prompt-file .github/merge-gate/prompt.md
+          --output-format json
+          --json-schema "$(node .github/merge-gate/run.js schema)"
+          < "$RUNNER_TEMP/input.md" > "$RUNNER_TEMP/verdict.json"
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      - id: verdict
+        if: always()
+        run: node .github/merge-gate/run.js verdict "$RUNNER_TEMP/verdict.json"
+
+  # パスの分類と LLM の判定を合わせ、status とコメントを書く。LLM は使わない。
+  decide:
+    needs: [classify, judge]
+    if: always() && needs.classify.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node .github/merge-gate/run.js decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERDICT: ${{ needs.judge.outputs.verdict }}
+          JUDGE_RESULT: ${{ needs.judge.result }}

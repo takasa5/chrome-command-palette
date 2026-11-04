@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(gh pr comment */approve*)",
+      "Bash(gh issue comment */approve*)",
+      "Bash(gh pr review */approve*)",
+      "Bash(gh api */approve*)"
+    ]
+  }
+}
