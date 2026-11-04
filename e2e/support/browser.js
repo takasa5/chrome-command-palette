@@ -90,20 +90,17 @@ export async function pressToClose(page, key) {
   await closed;
 }
 
+// 重ねたパレットを閉じるキーを押す。keydown でパレットの iframe が外れると、keyup が届かず press が返ってこないことがある。
+// keydown だけを送り、iframe が外れてからページで離す。
+export async function pressToCloseOverlay(page, key) {
+  await page.keyboard.down(key);
+  await page.waitForFunction(() => document.querySelector("command-palette-overlay") === null);
+  await page.keyboard.up(key);
+}
+
 // 失敗したときの画面を e2e/.output/<group>/<name>.png に残し、CI の artifact から見られるようにする。
 export async function saveScreenshot(page, group, name) {
   if (!page || page.isClosed()) return;
   mkdirSync(join(output, group), { recursive: true });
   await page.screenshot({ path: join(output, group, `${name}.png`) });
-}
-
-// 閉じるかどうかが前もって分からないキーを押す（グラフベースのテストで使う）。閉じると分かっているなら pressToClose を使う。
-// キーを離す前にページが閉じると press が失敗したり返ってこなかったりするので、閉じたら押し終えたものとして扱う。
-export async function press(page, key) {
-  const closed = page.waitForEvent("close", { timeout: 0 }).catch(() => {});
-  try {
-    await Promise.race([page.keyboard.press(key), closed]);
-  } catch (error) {
-    if (!page.isClosed()) throw error;
-  }
 }

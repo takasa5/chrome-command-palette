@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, describe, test } from "node:test";
-import { launch, pageUrl, pressToClose, saveScreenshot } from "../support/browser.js";
+import { launch, pageUrl, pressToClose, pressToCloseOverlay, saveScreenshot } from "../support/browser.js";
 
 describe("例ベース", () => {
   describe("ページに重ねて開く", () => {
@@ -28,9 +28,8 @@ describe("例ベース", () => {
 
       await page.keyboard.type("alpha");
       await frame.locator('#results li[aria-selected="true"] .title', { hasText: "Alpha Notes" }).waitFor();
-      await page.keyboard.press("Enter");
+      await pressToCloseOverlay(page, "Enter");
 
-      await page.waitForFunction(() => document.querySelector("command-palette-overlay") === null);
       assert.equal((await browser.activeTab()).title, "Alpha Notes");
     });
 
@@ -45,7 +44,7 @@ describe("例ベース", () => {
       const opened = browser.ctx.waitForEvent("page");
       await page.keyboard.type("release");
       await frame.locator('#results li[aria-selected="true"] .kind', { hasText: "履歴" }).waitFor();
-      await page.keyboard.press("Enter");
+      await pressToCloseOverlay(page, "Enter");
       await (await opened).waitForURL(url);
 
       assert.equal(await overlayOpen(page), false);

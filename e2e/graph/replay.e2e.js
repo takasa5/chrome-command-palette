@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { after, before, describe, test } from "node:test";
-import { launch, pageUrl, press, saveScreenshot } from "../support/browser.js";
+import { launch, pageUrl, saveScreenshot } from "../support/browser.js";
 import { ACTIONS as LABELS, describeState } from "./scripts/labels.js";
 
 const paths = JSON.parse(readFileSync(process.env.E2E_PATHS ?? new URL("./generated/paths.json", import.meta.url), "utf8"));
@@ -52,8 +52,21 @@ after(() => browser.close());
 
 const overlayOpen = () => host.evaluate(() => document.querySelector("command-palette-overlay") !== null);
 
+// パレットを閉じるキーは keydown だけを送る。パレットは keydown で閉じるので、keyup は閉じたタブや外した iframe に届き、
+// 返ってこなかったり失敗したりする。押したままのキーは、閉じたのを確かめてから残っているページで離す。
+let heldKey = null;
+async function closeWith(key) {
+  const { page } = palette;
+  await page.keyboard.down(key).catch((error) => {
+    if (!page.isClosed()) throw error;
+  });
+  heldKey = { page, key };
+}
+
 // 閉じた状態を毎回同じにする。用意したタブだけを残し、重ねる先のページを前に出す。
 async function resetBrowser() {
+  if (heldKey && !heldKey.page.isClosed()) await heldKey.page.keyboard.up(heldKey.key);
+  heldKey = null;
   for (const page of browser.ctx.pages()) if (page.url() !== ALPHA && page.url() !== HOST) await page.close();
   if (await overlayOpen()) await host.reload();
   await host.bringToFront();
@@ -64,18 +77,19 @@ const selected = () => palette.frame.locator('#results li[aria-selected="true"]'
 
 async function clearQuery() {
   if (!(await palette.frame.locator("#query").inputValue())) return;
-  await press(palette.page, "ControlOrMeta+a");
-  await press(palette.page, "Backspace");
+  await palette.keyboard.press("ControlOrMeta+a");
+  await palette.keyboard.press("Backspace");
 }
 
-// 入力を打ち直し、目当ての候補が選ばれてから Enter を押す。
-async function pick(text, { title, kind }) {
+// 入力を打ち直し、目当ての候補が選ばれてから Enter を押す。closes なら、Enter でパレットが閉じる。
+async function pick(text, { title, kind, closes = false }) {
   await clearQuery();
   await palette.keyboard.type(text);
   const row = selected();
   if (title) await row.locator(".title", { hasText: new RegExp(`^${title}$`) }).waitFor();
   if (kind) await row.locator(".kind", { hasText: kind }).waitFor();
-  await press(palette.page, "Enter");
+  if (closes) await closeWith("Enter");
+  else await palette.keyboard.press("Enter");
 }
 
 // モデルの操作名ごとの、実物での操作。next は操作の後のモデルの状態。
@@ -93,23 +107,23 @@ const ACTIONS = {
   },
   clearQuery,
   enterFolder: (next) => pick(FOLDER_QUERIES[next.folders.at(-1)], { title: next.folders.at(-1) }),
-  exitFolder: () => press(palette.page, "Backspace"),
-  enterCommandScope: () => press(palette.page, "Tab"),
+  exitFolder: () => palette.keyboard.press("Backspace"),
+  enterCommandScope: () => palette.keyboard.press("Tab"),
   enterSiteScope: async () => {
     await clearQuery();
     await palette.keyboard.type(SITE.keyword);
     await palette.frame.locator("#breadcrumb", { hasText: `Tab で ${SITE.name} を検索` }).waitFor();
-    await press(palette.page, "Tab");
+    await palette.keyboard.press("Tab");
   },
-  exitScope: () => press(palette.page, "Backspace"),
-  escape: () => press(palette.page, "Escape"),
-  switchTab: () => pick("alpha", { title: "Alpha Notes" }),
-  openHistory: () => pick("release", { kind: "履歴" }),
-  openBookmark: () => pick("guide", { title: "Guide" }),
+  exitScope: () => palette.keyboard.press("Backspace"),
+  escape: () => closeWith("Escape"),
+  switchTab: () => pick("alpha", { title: "Alpha Notes", closes: true }),
+  openHistory: () => pick("release", { kind: "履歴", closes: true }),
+  openBookmark: () => pick("guide", { title: "Guide", closes: true }),
   runSiteSearch: async () => {
     await palette.keyboard.type("playwright");
     await selected().locator(".title", { hasText: "「playwright」を検索" }).waitFor();
-    await press(palette.page, "Enter");
+    await closeWith("Enter");
   },
 };
 

@@ -105,6 +105,6 @@ CI は `npm run model` をやり直して差分がないことを確かめるの
 * **外へつながない**：`support/browser.js` の route が、どの URL にもタイトルだけのページを返す。拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、`--host-resolver-rules` で名前解決も止めている。外す前に、本物のサイトにつながらないか確かめる
 * **Cmd+Shift+S は押せない**：ブラウザのショートカットは Playwright から押せないので、Service Worker で `chrome.commands.onCommand.dispatch` を呼ぶ。ドキュメントにない API なので、Chrome の更新で使えなくなったら、background.js の処理を関数に切り出して呼ぶ形に変える
 * **重ねる先は x.com**：`activeTab` はショートカットを押したときしか付かないので、重ねる先のページは `host_permissions` にある `https://x.com` に置く（通信はしない）
-* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。閉じると分かっているキーは `support/browser.js` の `pressToClose` で押す。閉じるかどうかが前もって分からないとき（グラフベースのテスト）は `press` で押す
+* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。タブが閉じるキーは `support/browser.js` の `pressToClose` で押す。重ねたパレットを閉じるキーも、iframe が外れて keyup が返ってこないことがあるので `pressToCloseOverlay` で押す。グラフベースでは、閉じる操作のキーは `replay.e2e.js` の `closeWith` で keydown だけを送る
 * **前のテストのタブが残る**：同じファイルのテストはブラウザを共有する。タブの名前はテストごとに変えるか、後片付けをする
 * **読み込み前に打ったキー**：重ねたパレットが読み込み終わる前のキーをためて渡す処理は、タイミング次第で通る道が変わるので E2E では確かめていない（`applyBufferedKeys` は単体テスト）
