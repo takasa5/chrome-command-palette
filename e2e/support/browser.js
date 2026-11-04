@@ -4,8 +4,8 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-const ext = resolve(import.meta.dirname, "..");
-const output = join(import.meta.dirname, ".output");
+const ext = resolve(import.meta.dirname, "..", "..");
+const output = join(import.meta.dirname, "..", ".output");
 
 // 外部サイトにはつながず、どの URL にもタイトルだけのページを返す。
 // URL の title がそのままページのタイトルになる。
@@ -23,7 +23,12 @@ export async function launch() {
     // 既定の headless shell は拡張機能を読み込めない。
     channel: "chromium",
     headless: true,
-    args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`],
+    args: [
+      `--disable-extensions-except=${ext}`,
+      `--load-extension=${ext}`,
+      // 拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、名前解決を止めて外へ出られなくする。
+      "--host-resolver-rules=MAP * ~NOTFOUND",
+    ],
   });
   await ctx.route(/^https?:/, fakePage);
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent("serviceworker"));
@@ -40,11 +45,16 @@ export async function launch() {
       return page;
     },
     // Cmd+T と同じく新しいタブを開き、パレットが表示されるのを待つ。
+    // 前に開いたタブが Playwright に遅れて届くことがあるので、次に届いたページではなく、新しく現れたパレットのページを探す。
     async openPalette() {
-      const opened = ctx.waitForEvent("page");
+      const before = new Set(ctx.pages());
       await sw.evaluate(() => chrome.tabs.create({}));
-      const page = await opened;
-      await page.waitForURL(/palette\.html\?focus/);
+      const until = Date.now() + 10000;
+      let page;
+      while (!(page = ctx.pages().find((p) => !before.has(p) && p.url().includes("palette.html?focus")))) {
+        if (Date.now() > until) throw new Error("新しいタブにパレットが開かない");
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
       await page.waitForSelector("#results li");
       return page;
     },
@@ -85,9 +95,17 @@ export async function pressToClose(page, key) {
   await closed;
 }
 
-// 失敗したテストの画面を残し、CI の artifact から見られるようにする。
-export async function screenshotOnFailure(t, page) {
-  if (!page || page.isClosed() || t.passed) return;
-  mkdirSync(output, { recursive: true });
-  await page.screenshot({ path: join(output, `${t.name}.png`) });
+// 重ねたパレットを閉じるキーを押す。keydown でパレットの iframe が外れると、keyup が届かず press が返ってこないことがある。
+// keydown だけを送り、iframe が外れてからページで離す。
+export async function pressToCloseOverlay(page, key) {
+  await page.keyboard.down(key);
+  await page.waitForFunction(() => document.querySelector("command-palette-overlay") === null);
+  await page.keyboard.up(key);
+}
+
+// 失敗したときの画面を e2e/.output/<group>/<name>.png に残し、CI の artifact から見られるようにする。
+export async function saveScreenshot(page, group, name) {
+  if (!page || page.isClosed()) return;
+  mkdirSync(join(output, group), { recursive: true });
+  await page.screenshot({ path: join(output, group, `${name}.png`) });
 }

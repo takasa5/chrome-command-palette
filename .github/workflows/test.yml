@@ -13,7 +13,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
+      - run: npm ci
       - run: npm test
+      # palette.md と paths.json がモデルから作り直したものと一致するか
+      - run: npm run model
+      - run: git diff --exit-code -- e2e/graph/generated
 
   e2e:
     runs-on: ubuntu-latest
