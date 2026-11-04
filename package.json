@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "e2e": "node --test --test-concurrency=1 \"e2e/**/*.e2e.js\""
+    "e2e": "node --test --test-concurrency=1 --test-timeout=60000 \"e2e/**/*.e2e.js\""
   },
   "devDependencies": {
     "playwright-core": "1.64.1"

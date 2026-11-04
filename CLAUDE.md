@@ -10,11 +10,17 @@
 
 `npm test` では画面の動作を確認できないので、UI を変えたら実際に拡張機能を読み込んで確認する。
 
-* 画面の主な流れは `npm run e2e` で確かめられる（`e2e/`、CI でも動く）。初回は `npx playwright-core install chromium` が必要
-
 * Playwright の Chrome for Testing を、`--load-extension` と `--disable-extensions-except` を付けて起動する
 * パレットは `chrome-extension://<id>/palette.html?focus` を開く
 * x.com は自動ブラウザからの接続が拒否されるので、`chrome.history.addUrl` で履歴を用意して確認する
+
+## E2E
+
+画面の主な流れは `npm run e2e` で確かめる（`e2e/`、CI でも動く）。初回は `npx playwright-core install chromium` が必要。
+
+* 実行コストが高いので、ブラウザでしか確かめられないことだけを書き、むやみに増やさない
+* 候補の並びや入力のパターンの網羅は単体テストで行う
+* 開き方（新しいタブ、ページに重ねる）で処理が分かれるところは、それぞれで確かめる
 
 ## デモ GIF
 
