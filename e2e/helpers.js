@@ -28,9 +28,12 @@ export async function launch() {
   await ctx.route(/^https?:/, fakePage);
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent("serviceworker"));
 
+  const extId = new URL(sw.url()).host;
+
   return {
     ctx,
     sw,
+    extensionUrl: (path) => `chrome-extension://${extId}/${path}`,
     async openPage(title, origin) {
       const page = await ctx.newPage();
       await page.goto(pageUrl(title, origin));
