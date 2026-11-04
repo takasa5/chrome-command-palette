@@ -73,6 +73,14 @@ test("内部遷移だけ変わった状態は changed にし、変わった行�
   assert.match(out, /class s0 changed/);
 });
 
+test("枠の外の状態への矢印は、枠の外に書く", () => {
+  const head = BASE.replace("    s1 --> s0 : Backspace\n", "    s1 --> s0 : Backspace\n    s1 --> closed : ブックマークを選んで Enter\n");
+  const out = renderDiff(null, parseDiagram(head));
+  const [inside, outside] = out.split("\n  }\n");
+  assert.doesNotMatch(inside, /--> closed/);
+  assert.match(outside, /^  s1 --> closed : ブックマークを選んで Enter$/m);
+});
+
 test("commentBody は目印と Mermaid の図だけを返す", () => {
   const body = commentBody(BASE, BASE);
   assert.ok(body.startsWith(`${MARKER}\n\`\`\`mermaid\nstateDiagram-v2`));

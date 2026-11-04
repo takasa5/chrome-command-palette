@@ -110,15 +110,17 @@ for (const s of states) {
   mermaid.push(`    ${id(s)} : ${lines.join("<br/>")}`);
 }
 const openLabels = new Map();
+// 枠の中に「閉じている」への矢印を書くと、Mermaid は「閉じている」を枠の中の状態として作ってしまうので、枠の外に書く。
+const closing = [];
 for (const e of screenEdges.values()) {
   if (e.from === e.to) continue;
   if (opens(e)) {
     openLabels.set(e.to, [...(openLabels.get(e.to) ?? []), ACTIONS[e.action]]);
   } else if (!(escapeEverywhere && e.action === "escape")) {
-    mermaid.push(`    ${id(e.from)} --> ${id(e.to)} : ${ACTIONS[e.action]}`);
+    (e.to === "closed" ? closing : mermaid).push(`${e.to === "closed" ? "  " : "    "}${id(e.from)} --> ${id(e.to)} : ${ACTIONS[e.action]}`);
   }
 }
-mermaid.push("  }");
+mermaid.push("  }", ...closing);
 // 遷移を見つけた順で並びが変わらないよう、操作の定義順に並べる。
 const byAction = (a, b) => Object.values(ACTIONS).indexOf(a) - Object.values(ACTIONS).indexOf(b);
 for (const [to, labels] of openLabels) mermaid.push(`  closed --> ${id(to)} : ${labels.sort(byAction).join(" / ")}`);

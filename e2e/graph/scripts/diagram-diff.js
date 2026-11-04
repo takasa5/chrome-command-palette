@@ -70,8 +70,8 @@ export function renderDiff(base, head) {
   const mark = { added: "＋ ", removed: "− " };
   const declare = (state) => `${ids.get(state.name)} : ${[`${mark[status.get(state.name)] ?? ""}${state.name}`, ...internalLines.get(state.name)].join("<br/>")}`;
   const arrow = (e) => `${ids.get(e.from)} --> ${ids.get(e.to)}${e.label ? ` : ${e.mark}${e.label}` : ""}`;
-  // build.js と同じく、枠の中の状態から出る遷移は枠の中に書く。
-  const inside = (e) => !OUTSIDE.has(ids.get(e.from));
+  // 枠の中に枠の外の状態への矢印を書くと、Mermaid はその状態を枠の中に作ってしまうので、両端が枠の中のときだけ枠の中に書く。
+  const inside = (e) => !OUTSIDE.has(ids.get(e.from)) && !OUTSIDE.has(ids.get(e.to));
 
   const lines = ["stateDiagram-v2"];
   for (const state of states.values()) if (!state.inside) lines.push(`  ${declare(state)}`);

@@ -20,30 +20,30 @@ stateDiagram-v2
     s6 : フォルダ Docs・入力「specs」<br/>Tab / 何もしない
     s7 : フォルダ Docs / Specs・入力なし<br/>Tab / 何もしない
     s0 --> s3 : Tab
-    s0 --> closed : 履歴を選んで Enter
-    s0 --> closed : タブを選んで Enter
     s3 --> s0 : Backspace
     s0 --> s5 : フォルダ名 + Enter
     s0 --> s4 : gh + Tab
-    s4 --> closed : 検索語 + Enter
     s5 --> s2 : Backspace
     s2 --> s0 : 入力を消す
     s4 --> s1 : Backspace
     s5 --> s7 : フォルダ名 + Enter
     s7 --> s6 : Backspace
     s6 --> s7 : フォルダ名 + Enter
-    s2 --> closed : タブを選んで Enter
-    s7 --> closed : ブックマークを選んで Enter
-    s1 --> closed : タブを選んで Enter
     s2 --> s4 : gh + Tab
     s1 --> s4 : gh + Tab
     s1 --> s5 : フォルダ名 + Enter
-    s2 --> closed : 履歴を選んで Enter
-    s1 --> closed : 履歴を選んで Enter
     s6 --> s5 : 入力を消す
     s1 --> s0 : 入力を消す
     s2 --> s5 : フォルダ名 + Enter
   }
+  s0 --> closed : 履歴を選んで Enter
+  s0 --> closed : タブを選んで Enter
+  s4 --> closed : 検索語 + Enter
+  s2 --> closed : タブを選んで Enter
+  s7 --> closed : ブックマークを選んで Enter
+  s1 --> closed : タブを選んで Enter
+  s2 --> closed : 履歴を選んで Enter
+  s1 --> closed : 履歴を選んで Enter
   closed --> s0 : Cmd+T / Cmd+Shift+S
   開いている --> closed : Esc
 ```
