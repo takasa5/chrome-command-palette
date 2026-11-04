@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, test } from "node:test";
-import { launch, pageUrl, screenshotOnFailure } from "./helpers.js";
+import { launch, pageUrl, pressToClose, screenshotOnFailure } from "./helpers.js";
 
 let browser;
 let page;
@@ -21,9 +21,8 @@ test("タブを検索して Enter でそのタブへ移る", async () => {
   await page.keyboard.type("alpha");
   const selected = page.locator('#results li[aria-selected="true"] .title');
   await selected.filter({ hasText: "Alpha Notes" }).waitFor();
-  await page.keyboard.press("Enter");
+  await pressToClose(page, "Enter");
 
-  await page.waitForEvent("close");
   const active = await browser.activeTab();
   assert.equal(active.title, "Alpha Notes");
 });
@@ -48,9 +47,8 @@ test("タブを閉じるコマンドは直前に見ていたタブを閉じる",
 
   await page.keyboard.type("close tab");
   await page.locator('#results li[aria-selected="true"] .title', { hasText: /^(Close Tab|タブを閉じる)$/ }).waitFor();
-  await page.keyboard.press("Enter");
+  await pressToClose(page, "Enter");
 
-  await page.waitForEvent("close");
   const titles = (await browser.tabs()).map((tab) => tab.title);
   assert.ok(!titles.includes("Close Me"));
   assert.ok(titles.includes("Keep Page"));

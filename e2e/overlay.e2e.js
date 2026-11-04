@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, test } from "node:test";
-import { launch, pageUrl, screenshotOnFailure } from "./helpers.js";
+import { launch, pageUrl, pressToClose, screenshotOnFailure } from "./helpers.js";
 
 // 重ねて開くには host_permissions のあるページが要る。
 const HOST = "https://x.com";
@@ -60,9 +60,8 @@ test("タブを閉じるコマンドは重ねたページを閉じる", async ()
 
   await page.keyboard.type("close tab");
   await frame.locator('#results li[aria-selected="true"] .title', { hasText: /^(Close Tab|タブを閉じる)$/ }).waitFor();
-  await page.keyboard.press("Enter");
+  await pressToClose(page, "Enter");
 
-  await page.waitForEvent("close");
   const titles = (await browser.tabs()).map((tab) => tab.title);
   assert.ok(titles.includes("Keep Page"));
 });

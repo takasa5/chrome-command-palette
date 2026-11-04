@@ -75,6 +75,16 @@ export async function launch() {
   };
 }
 
+// page を閉じるキーを押す。press は keydown と keyup を続けて送るので、keydown で閉じると keyup が閉じたページに届いて失敗する。
+// 押すだけにして、閉じたのを待つ。
+export async function pressToClose(page, key) {
+  const closed = page.waitForEvent("close");
+  await page.keyboard.down(key).catch((e) => {
+    if (!page.isClosed()) throw e;
+  });
+  await closed;
+}
+
 // 失敗したテストの画面を残し、CI の artifact から見られるようにする。
 export async function screenshotOnFailure(t, page) {
   if (!page || page.isClosed() || t.passed) return;
