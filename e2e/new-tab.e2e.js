@@ -40,3 +40,18 @@ test("履歴を選ぶとパレットのタブでそのページを開く", async
   await page.waitForURL(url);
   assert.equal(await page.title(), "Release Notes");
 });
+
+test("タブを閉じるコマンドは直前に見ていたタブを閉じる", async () => {
+  await browser.openPage("Keep Page");
+  await browser.openPage("Close Me");
+  page = await browser.openPalette();
+
+  await page.keyboard.type("close tab");
+  await page.locator('#results li[aria-selected="true"] .title', { hasText: /^(Close Tab|タブを閉じる)$/ }).waitFor();
+  await page.keyboard.press("Enter");
+
+  await page.waitForEvent("close");
+  const titles = (await browser.tabs()).map((tab) => tab.title);
+  assert.ok(!titles.includes("Close Me"));
+  assert.ok(titles.includes("Keep Page"));
+});

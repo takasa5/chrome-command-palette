@@ -50,3 +50,19 @@ test("ページを開くと見ていたページは残し、隣のタブで開�
   const host = tabs.findIndex((tab) => tab.url === page.url());
   assert.equal(tabs[host + 1].url, url);
 });
+
+test("タブを閉じるコマンドは重ねたページを閉じる", async () => {
+  await browser.openPage("Keep Page");
+  page = await browser.openPage("Close Me", HOST);
+  await browser.openOverlay(page);
+  const frame = await browser.overlayFrame(page);
+  await frame.locator("#results li").first().waitFor();
+
+  await page.keyboard.type("close tab");
+  await frame.locator('#results li[aria-selected="true"] .title', { hasText: /^(Close Tab|タブを閉じる)$/ }).waitFor();
+  await page.keyboard.press("Enter");
+
+  await page.waitForEvent("close");
+  const titles = (await browser.tabs()).map((tab) => tab.title);
+  assert.ok(titles.includes("Keep Page"));
+});
