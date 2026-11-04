@@ -4,7 +4,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const spec = join(import.meta.dirname, "palette.qnt");
+const spec = join(import.meta.dirname, "..", "palette.qnt");
 
 // 1 本の操作列は [{ action, state }] で、先頭は action が init の初期状態。
 // rust の実行環境は初回に GitHub から取ってくるので、typescript で動かす。
@@ -32,5 +32,5 @@ function toStep({ mode, folders, scope, query, "mbt::actionTaken": action }) {
 
 export const stateKey = ({ mode, folders, scope, query }) => [mode, folders.join("/"), scope, query].join("|");
 
-// graph.e2e.js が読む形。1 操作を { action, mode, folders, scope, query } にする。
+// replay.e2e.js が読む形。1 操作を { action, mode, folders, scope, query } にする。
 export const toPathJson = (traces) => JSON.stringify(traces.map((steps) => steps.map(({ action, state }) => ({ action, ...state }))), null, 1) + "\n";

@@ -1,6 +1,6 @@
 ---
 name: e2e
-description: このリポジトリの E2E テスト（e2e/）を書く、直す、実行する、または E2E を足すべきか判断するときに使う。パレットの状態遷移モデル（e2e/model/palette.qnt）を変えるときも使う。
+description: このリポジトリの E2E テスト（e2e/）を書く、直す、実行する、または E2E を足すべきか判断するときに使う。パレットの状態遷移モデル（e2e/graph/palette.qnt）を変えるときも使う。
 ---
 
 # E2E テスト
@@ -28,8 +28,8 @@ E2E に分岐の網羅を持ち込まない。分岐が増えたら、純粋関�
 
 ### 手法：グラフベース + 例ベース
 
-* **グラフベース**（`e2e/graph.e2e.js`）：パレットの状態遷移を Quint でモデルにし（`e2e/model/palette.qnt`）、モデルから作った操作列を実物で再生する。1 操作ごとに、画面がモデルの状態と一致すること、コンソールにエラーが出ていないことを確かめる
-* **例ベース**（`e2e/*.e2e.js` のそれ以外）：モデルに入れない、価値の高い流れを固定する。開き方ごとの対象タブ、ページを開く先、埋め込み対策など
+* **グラフベース**（`e2e/graph/`）：パレットの状態遷移を Quint でモデルにし（`palette.qnt`）、モデルから作った操作列を実物で再生する。1 操作ごとに、画面がモデルの状態と一致すること、コンソールにエラーが出ていないことを確かめる
+* **例ベース**（`e2e/example/`）：モデルに入れない、価値の高い流れを固定する。開き方ごとの対象タブ、ページを開く先、埋め込み対策など
 
 ### 時間の予算
 
@@ -49,23 +49,39 @@ CI の `e2e` ジョブで 5 分以内。足す前に、どの既存のテスト�
 3. それ以外で、ブラウザでしか確かめられず、壊れると困るものか → 例ベースで 1 本
 4. どれでもない → 足さない
 
-## モデル（`e2e/model/`）
+## ディレクトリ
 
-| ファイル | 役割 |
-| --- | --- |
-| `palette.qnt` | 状態遷移のモデル |
-| `palette.md` | 状態遷移図と遷移表。`npm run model` が作る。人が読むのはこれ |
-| `paths.json` | 全遷移を通す操作列。`npm run model` が作る。CI はこれを再生する |
-| `build.js` | 上の 2 つを作る。シードを固定しているので、モデルが同じなら同じものができる |
-| `walk.js` | 乱数のシードを変えた長い操作列を作って再生する |
+```
+e2e/
+  support/browser.js    共通。ブラウザの起動、テスト用ページ、キー操作、失敗時の画面の保存
+  example/              例ベース。1 ファイルが 1 つの話題
+  graph/                グラフベース
+    palette.qnt         状態遷移のモデル
+    replay.e2e.js       操作列を実物で再生するテスト
+    generated/          npm run model が作る。手で書き換えない
+      palette.md        状態遷移図と遷移表。人が読むのはこれ
+      paths.json        全遷移を通す操作列。CI はこれを再生する
+    scripts/
+      build.js          generated/ を作る。シードを固定しているので、モデルが同じなら同じものができる
+      walk.js           乱数のシードを変えた長い操作列を作って再生する
+      traces.js         Quint を動かして操作列を取り出す
+      labels.js         操作と状態を人が読む言葉にする（図、表、テスト結果で使う）
+  .output/              失敗時の出力（git に入れない。CI では artifact）
+    example/            例ベースの失敗時の画面
+    graph/              グラフベースの失敗時の画面（経路と何番目の操作か）
+    walk/               e2e:walk が作った操作列（シードごと）
+```
+
+テスト結果は「例ベース › 話題 › テスト」「グラフベース › 経路 › 操作」の入れ子で出る。
+グラフベースの操作の行は「何番目. 操作 → 操作の後のモデルの状態」で、失敗した操作から先は進めない。
 
 モデルを変えるときの手順：
 
 1. `palette.qnt` に状態や操作を足す。操作は `step` の `any` にも足す
-2. `build.js` の `ACTIONS` に、図に出す操作の説明を足す
-3. `graph.e2e.js` の `ACTIONS` に、実物での操作を足す。画面に新しい状態が出るなら `expectedScreen` も直す
-4. `npm run model` で `palette.md` と `paths.json` を作り直し、図が意図どおりか読む
-5. `npm run e2e` と `npm run e2e:walk` で通ることを確かめる
+2. `scripts/labels.js` の `ACTIONS` に、操作の説明を足す。新しい状態が出るなら `describeScreen` も直す
+3. `replay.e2e.js` の `ACTIONS` に、実物での操作を足す。画面に新しい状態が出るなら `expectedScreen` も直す
+4. `npm run model` で `generated/` を作り直し、`palette.md` の図が意図どおりか読む
+5. `npm run e2e:graph` と `npm run e2e:walk` で通ることを確かめる
 
 CI は `npm run model` をやり直して差分がないことを確かめるので、作り直したファイルもコミットする。
 
@@ -74,22 +90,21 @@ CI は `npm run model` をやり直して差分がないことを確かめるの
 
 ## 実行
 
-```bash
-npm run e2e
-```
+| コマンド | 中身 |
+| --- | --- |
+| `npm run e2e` | 例ベースとグラフベースの両方（CI と同じ） |
+| `npm run e2e:example` | 例ベースだけ |
+| `npm run e2e:graph` | グラフベースだけ |
+| `npm run e2e:walk -- [シード]` | 乱数で 5 本 × 40 操作を作って再生する。失敗したら表示されたシードを渡すと再現できる |
+| `npm run model` | `palette.qnt` から `generated/` を作り直す |
 
-```bash
-npm run e2e:walk
-```
-
-`e2e:walk` は乱数で 5 本 × 40 操作を作って再生する。失敗したら表示されたシードで `npm run e2e:walk -- <シード>` とすると再現できる。
-初回は `npx playwright-core install chromium` が必要。失敗した画面は `e2e/.output/` に残る（CI では artifact）。
+初回は `npx playwright-core install chromium` が必要。
 
 ## 落とし穴
 
-* **外へつながない**：`helpers.js` の route が、どの URL にもタイトルだけのページを返す。拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、`--host-resolver-rules` で名前解決も止めている。外す前に、本物のサイトにつながらないか確かめる
+* **外へつながない**：`support/browser.js` の route が、どの URL にもタイトルだけのページを返す。拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、`--host-resolver-rules` で名前解決も止めている。外す前に、本物のサイトにつながらないか確かめる
 * **Cmd+Shift+S は押せない**：ブラウザのショートカットは Playwright から押せないので、Service Worker で `chrome.commands.onCommand.dispatch` を呼ぶ。ドキュメントにない API なので、Chrome の更新で使えなくなったら、background.js の処理を関数に切り出して呼ぶ形に変える
 * **重ねる先は x.com**：`activeTab` はショートカットを押したときしか付かないので、重ねる先のページは `host_permissions` にある `https://x.com` に置く（通信はしない）
-* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。閉じると分かっているキーは `helpers.js` の `pressToClose` で押す。閉じるかどうかが前もって分からないとき（グラフベースのテスト）は `press` で押す
+* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。閉じると分かっているキーは `support/browser.js` の `pressToClose` で押す。閉じるかどうかが前もって分からないとき（グラフベースのテスト）は `press` で押す
 * **前のテストのタブが残る**：同じファイルのテストはブラウザを共有する。タブの名前はテストごとに変えるか、後片付けをする
 * **読み込み前に打ったキー**：重ねたパレットが読み込み終わる前のキーをためて渡す処理は、タイミング次第で通る道が変わるので E2E では確かめていない（`applyBufferedKeys` は単体テスト）

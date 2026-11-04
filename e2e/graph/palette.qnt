@@ -1,6 +1,6 @@
 // コマンドパレットの画面の状態遷移。
-// build.js がここから操作列を作り、graph.e2e.js が実物のパレットで再生して、画面がこの状態と一致するかを確かめる。
-// 状態や操作を変えたら npm run model で palette.md と paths.json を作り直す。
+// scripts/build.js がここから操作列を作り、replay.e2e.js が実物のパレットで再生して、画面がこの状態と一致するかを確かめる。
+// 状態や操作を変えたら npm run model で generated/ の palette.md と paths.json を作り直す。
 module palette {
   // closed: 閉じている / newTab: 新しいタブで開いている / overlay: ページに重ねて開いている
   var mode: str

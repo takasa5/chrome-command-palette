@@ -1,33 +1,17 @@
-// palette.qnt から、人が読む palette.md と、CI で全遷移を通す paths.json を作る。
+// palette.qnt から、人が読む palette.md と、CI で全遷移を通す paths.json を generated/ に作る。
 // シードを固定しているので、モデルが変わらなければ同じものができる。CI で作り直して差分がないことを確かめる。
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { ACTIONS, MODES, describeScreen } from "./labels.js";
 import { generateTraces, stateKey, toPathJson } from "./traces.js";
 
 const SEED = 1;
 const SAMPLES = 300;
 const STEPS = 25;
 
-const ACTIONS = {
-  openNewTab: "Cmd+T",
-  openOverlay: "Cmd+Shift+S",
-  clearQuery: "入力を消す",
-  enterFolder: "フォルダ名 + Enter",
-  exitFolder: "Backspace",
-  enterCommandScope: "Tab",
-  enterSiteScope: "gh + Tab",
-  exitScope: "Backspace",
-  escape: "Esc",
-  switchTab: "タブを選んで Enter",
-  openHistory: "履歴を選んで Enter",
-  openBookmark: "ブックマークを選んで Enter",
-  runSiteSearch: "検索語 + Enter",
-};
-const MODES = { closed: "閉じている", newTab: "新しいタブ", overlay: "ページに重ねる" };
-
 const traces = generateTraces({ seed: SEED, samples: SAMPLES, steps: STEPS });
 const unknown = new Set(traces.flat().map((s) => s.action).filter((a) => a !== "init" && !ACTIONS[a]));
-if (unknown.size > 0) throw new Error(`build.js に操作の説明がない: ${[...unknown].join(", ")}`);
+if (unknown.size > 0) throw new Error(`labels.js に操作の説明がない: ${[...unknown].join(", ")}`);
 
 const edgesOf = (trace) => trace.slice(1).map((step, i) => ({ from: trace[i].state, action: step.action, to: step.state }));
 const edgeKey = ({ from, action, to }) => `${stateKey(from)} ${action} ${stateKey(to)}`;
@@ -74,22 +58,14 @@ while (covered.size < allEdges.size) {
   }
 }
 if (path.length > 1) paths.push(path);
-writeFileSync(join(import.meta.dirname, "paths.json"), toPathJson(paths));
+const generated = join(import.meta.dirname, "..", "generated");
+writeFileSync(join(generated, "paths.json"), toPathJson(paths));
 
 // ---- palette.md: 人が読む状態遷移図と遷移表 ----
 // 新しいタブと重ねたときは同じ形になるはずなので、開き方を除いた画面の状態で 1 枚にまとめる。
 // 形が違えば、どちらかにしかない遷移として表に書く。
 const screen = ({ mode, folders, scope, query }) => (mode === "closed" ? "closed" : [folders.join("/"), scope, query].join("|"));
-const describe = (key) => {
-  if (key === "closed") return MODES.closed;
-  const [folders, scope, query] = key.split("|");
-  const parts = [];
-  if (folders) parts.push(`フォルダ ${folders.replaceAll("/", " / ")}`);
-  if (scope === "commands") parts.push("コマンドに絞り込み");
-  if (scope === "gh") parts.push("サイト内検索 gh");
-  parts.push(query ? `入力「${query}」` : "入力なし");
-  return parts.join("・");
-};
+const describe = (key) => (key === "closed" ? MODES.closed : describeScreen(parse(`open|${key}`)));
 
 const screenEdges = new Map();
 for (const e of [...allEdges].map((k) => k.split(" "))) {
@@ -143,7 +119,7 @@ const rows = [...screenEdges.values()]
 
 const md = `# パレットの状態遷移
 
-このファイルは \`npm run model\` が [palette.qnt](palette.qnt) から作る。手で書き換えない。
+このファイルは \`npm run model\` が [palette.qnt](../palette.qnt) から作る。手で書き換えない。
 
 新しいタブで開いたときと、ページに重ねたときの遷移は同じ形なので、開き方を除いてまとめている。
 片方にしかない遷移は、表の「開き方」の列に書く。
@@ -158,5 +134,5 @@ ${rows.join("\n")}
 
 E2E では、上の遷移を開き方ごとにすべて通す ${paths.length} 本の操作列（[paths.json](paths.json)、計 ${paths.reduce((n, p) => n + p.length - 1, 0)} 操作）を実物で再生する。
 `;
-writeFileSync(join(import.meta.dirname, "palette.md"), md);
+writeFileSync(join(generated, "palette.md"), md);
 console.log(`states ${states.length + 1}, transitions ${allEdges.size}, paths ${paths.length}, steps ${paths.reduce((n, p) => n + p.length - 1, 0)}`);

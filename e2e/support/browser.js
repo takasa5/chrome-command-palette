@@ -4,8 +4,8 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-const ext = resolve(import.meta.dirname, "..");
-const output = join(import.meta.dirname, ".output");
+const ext = resolve(import.meta.dirname, "..", "..");
+const output = join(import.meta.dirname, "..", ".output");
 
 // 外部サイトにはつながず、どの URL にもタイトルだけのページを返す。
 // URL の title がそのままページのタイトルになる。
@@ -90,11 +90,11 @@ export async function pressToClose(page, key) {
   await closed;
 }
 
-// 失敗したテストの画面を残し、CI の artifact から見られるようにする。
-export async function screenshotOnFailure(t, page) {
-  if (!page || page.isClosed() || t.passed) return;
-  mkdirSync(output, { recursive: true });
-  await page.screenshot({ path: join(output, `${t.name}.png`) });
+// 失敗したときの画面を e2e/.output/<group>/<name>.png に残し、CI の artifact から見られるようにする。
+export async function saveScreenshot(page, group, name) {
+  if (!page || page.isClosed()) return;
+  mkdirSync(join(output, group), { recursive: true });
+  await page.screenshot({ path: join(output, group, `${name}.png`) });
 }
 
 // 閉じるかどうかが前もって分からないキーを押す（グラフベースのテストで使う）。閉じると分かっているなら pressToClose を使う。

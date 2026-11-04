@@ -1,12 +1,13 @@
-// model/paths.json の操作列を実物のパレットで再生する（グラフベーステスト）。
+// generated/paths.json の操作列を実物のパレットで再生する（グラフベーステスト）。
 // 1 操作ごとに、画面がモデルの状態と一致すること、コンソールにエラーが出ていないことを確かめる。
 // E2E_PATHS にファイルを渡すと、その操作列を使う（npm run e2e:walk が乱数で作ったもの）。
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { after, afterEach, before, test } from "node:test";
-import { launch, pageUrl, press, screenshotOnFailure } from "./helpers.js";
+import { after, before, describe, test } from "node:test";
+import { launch, pageUrl, press, saveScreenshot } from "../support/browser.js";
+import { ACTIONS as LABELS, describeState } from "./scripts/labels.js";
 
-const paths = JSON.parse(readFileSync(process.env.E2E_PATHS ?? new URL("./model/paths.json", import.meta.url), "utf8"));
+const paths = JSON.parse(readFileSync(process.env.E2E_PATHS ?? new URL("./generated/paths.json", import.meta.url), "utf8"));
 
 // モデルの前提にするブラウザの中身。閉じた状態では、毎回このタブだけが残る。
 const ALPHA = pageUrl("Alpha Notes");
@@ -48,7 +49,6 @@ before(async () => {
   host = await browser.openPage("Host Page", "https://x.com");
 });
 after(() => browser.close());
-afterEach((t) => screenshotOnFailure(t, palette?.page ?? host));
 
 const overlayOpen = () => host.evaluate(() => document.querySelector("command-palette-overlay") !== null);
 
@@ -156,36 +156,31 @@ async function expectState(state) {
   assert.deepEqual(errors, [], "コンソールにエラーが出た");
 }
 
-// 1 操作が止まったときに、テスト全体の時間切れではなく、どの操作で止まったかが分かるようにする。
+// 1 操作が止まったときに、経路全体の時間切れではなく、どの操作で止まったかが分かるようにする。
 const STEP_TIMEOUT = 15000;
-async function withinStep(run) {
-  let timer;
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`${STEP_TIMEOUT}ms たっても終わらない`)), STEP_TIMEOUT);
-  });
-  try {
-    await Promise.race([run(), timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
-paths.forEach((steps, index) => {
-  test(`経路 ${index + 1}（${steps.length - 1} 操作）`, async () => {
-    await resetBrowser();
-    errors.length = 0;
-    for (const [i, { action, ...state }] of steps.entries()) {
-      try {
-        await withinStep(async () => {
+// 結果は「グラフベース › 経路 › 操作」の入れ子で出す。操作の行は「操作 → 操作の後のモデルの状態」。
+describe("グラフベース", () => {
+  paths.forEach((steps, index) => {
+    const name = `経路 ${index + 1}`;
+    test(`${name}（${steps.length - 1} 操作）`, async (t) => {
+      await resetBrowser();
+      errors.length = 0;
+      for (const [i, { action, ...state }] of steps.entries()) {
+        let done = false;
+        await t.test(`${i}. ${LABELS[action]} → ${describeState(state)}`, { timeout: STEP_TIMEOUT }, async () => {
           await ACTIONS[action](state);
           await expectState(state);
+          done = true;
         });
-      } catch (error) {
-        const route = steps.slice(1, i + 1).map((step) => step.action).join(" > ");
-        throw new Error(`${route} の後、モデルの状態 ${JSON.stringify(state)} と合わない\n${error.message}`, { cause: error });
+        // 失敗したら残りの操作は前提が崩れているので進めない。
+        if (!done) {
+          await saveScreenshot(palette?.page ?? host, "graph", `${name}-${i}`);
+          return;
+        }
       }
-    }
-    // 開いたまま終わった経路は閉じて、次の経路に持ち越さない。
-    if (palette) await ACTIONS.escape();
+      // 開いたまま終わった経路は閉じて、次の経路に持ち越さない。
+      if (palette) await ACTIONS.escape();
+    });
   });
 });
