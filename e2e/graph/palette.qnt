@@ -13,8 +13,8 @@ module palette {
 
   // 入れるフォルダの順。テストでは Work / Docs / Specs の階層を用意する。
   // フォルダの名前を打つと直下のフォルダが出るので、最初は work と打って Docs に入り、Docs の中では specs と打って Specs に入る
-  pure val FOLDERS = ["Docs", "Specs"]
-  pure val FOLDER_QUERIES = ["work", "specs"]
+  pure val FOLDERS = ["Docs", "API"]
+  pure val FOLDER_QUERIES = ["work", "api"]
   // テストで登録するサイト内検索のキーワード
   pure val SITE_KEYWORD = "gh"
 
@@ -92,7 +92,7 @@ module palette {
   action step = any {
     openNewTab, openOverlay,
     clearQuery, enterFolder, exitFolder, enterCommandScope, enterSiteScope, exitScope,
-    ignoredBackspace, ignoredTab,
+    ignoredTab,
     escape, switchTab, openHistory, openBookmark, runSiteSearch,
   }
 

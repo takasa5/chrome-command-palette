@@ -15,9 +15,9 @@ const ALPHA = pageUrl("Alpha Notes");
 const HOST = pageUrl("Host Page", "https://x.com");
 const HISTORY = pageUrl("Release Notes", "https://docs.example.test");
 const SITE = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };
-const FOLDERS = { Work: { Docs: { Specs: { Guide: pageUrl("Guide", "https://docs.example.test") } } } };
+const FOLDERS = { Work: { Docs: { API: { Guide: pageUrl("Guide", "https://docs.example.test") } } } };
 // フォルダに入るときに打つ文字。名前を打つと直下のフォルダが出るので、Docs には親の work で入る。
-const FOLDER_QUERIES = { Docs: "work", Specs: "specs" };
+const FOLDER_QUERIES = { Docs: "work", API: "api" };
 
 let browser;
 let host;
