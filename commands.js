@@ -316,6 +316,30 @@ export const COMMANDS = [
       await ctx.leave();
     },
   },
+  {
+    id: "maximize",
+    title: "Toggle Maximize Window",
+    ja: "ウィンドウの最大化を切り替え",
+    keywords: ["最大化", "zoom"],
+    needsTarget: true,
+    run: async (ctx) => {
+      const win = await chrome.windows.get(ctx.self.windowId);
+      await chrome.windows.update(win.id, { state: win.state === "maximized" ? "normal" : "maximized" });
+      await ctx.leave();
+    },
+  },
+  {
+    id: "minimize",
+    title: "Minimize Window",
+    ja: "ウィンドウを最小化",
+    keywords: ["最小化", "hide"],
+    needsTarget: true,
+    // パレットのタブを閉じるとこのスクリプトも止まるので、先に最小化する。
+    run: async (ctx) => {
+      await chrome.windows.update(ctx.self.windowId, { state: "minimized" });
+      await ctx.leave();
+    },
+  },
   chromePage("history", "History", "履歴", ["りれき"], "chrome://history", true),
   chromePage("bookmarks", "Bookmarks", "ブックマークマネージャ", ["favorites", "お気に入り"], "chrome://bookmarks", true),
   chromePage("downloads", "Downloads", "ダウンロード", ["dl"], "chrome://downloads", true),
