@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, test } from "node:test";
-import { launch, screenshotOnFailure } from "./helpers.js";
+import { launch, pageUrl, screenshotOnFailure } from "./helpers.js";
 
 let browser;
 let page;
@@ -26,4 +26,17 @@ test("タブを検索して Enter でそのタブへ移る", async () => {
   await page.waitForEvent("close");
   const active = await browser.activeTab();
   assert.equal(active.title, "Alpha Notes");
+});
+
+test("履歴を選ぶとパレットのタブでそのページを開く", async () => {
+  const url = pageUrl("Release Notes", "https://docs.example.test");
+  await browser.sw.evaluate((url) => chrome.history.addUrl({ url }), url);
+  page = await browser.openPalette();
+
+  await page.keyboard.type("release");
+  await page.locator('#results li[aria-selected="true"] .kind', { hasText: "履歴" }).waitFor();
+  await page.keyboard.press("Enter");
+
+  await page.waitForURL(url);
+  assert.equal(await page.title(), "Release Notes");
 });
