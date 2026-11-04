@@ -9,6 +9,8 @@ export const ACTIONS = {
   enterCommandScope: "Tab",
   enterSiteScope: "gh + Tab",
   exitScope: "Backspace",
+  ignoredBackspace: "Backspace",
+  ignoredTab: "Tab",
   escape: "Esc",
   switchTab: "タブを選んで Enter",
   openHistory: "履歴を選んで Enter",

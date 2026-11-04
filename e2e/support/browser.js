@@ -45,11 +45,16 @@ export async function launch() {
       return page;
     },
     // Cmd+T と同じく新しいタブを開き、パレットが表示されるのを待つ。
+    // 前に開いたタブが Playwright に遅れて届くことがあるので、次に届いたページではなく、新しく現れたパレットのページを探す。
     async openPalette() {
-      const opened = ctx.waitForEvent("page");
+      const before = new Set(ctx.pages());
       await sw.evaluate(() => chrome.tabs.create({}));
-      const page = await opened;
-      await page.waitForURL(/palette\.html\?focus/);
+      const until = Date.now() + 10000;
+      let page;
+      while (!(page = ctx.pages().find((p) => !before.has(p) && p.url().includes("palette.html?focus")))) {
+        if (Date.now() > until) throw new Error("新しいタブにパレットが開かない");
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
       await page.waitForSelector("#results li");
       return page;
     },

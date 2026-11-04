@@ -65,6 +65,17 @@ module palette {
     scope' = "none", query' = if (scope == SITE_KEYWORD) SITE_KEYWORD else "", mode' = mode, folders' = folders,
   }
 
+  // ---- 押せるが何も変えない ----
+  // キーはどの状態でも押せるので、効かない状態でも押したときの振る舞い（何も変わらない）を書いておく。
+
+  action unchanged = all { mode' = mode, folders' = folders, scope' = scope, query' = query }
+
+  // 入力が空でも、戻る先のフォルダや絞り込みがなければ、Backspace は何も変えない
+  action ignoredBackspace = all { atTop, query == "", unchanged }
+
+  // Tab で入れる絞り込みがなければ（フォルダの中、絞り込みの中、入力がキーワードでない）、Tab は何も変えない
+  action ignoredTab = all { isOpen, not(atTop and (query == "" or query == SITE_KEYWORD)), unchanged }
+
   // ---- 閉じる ----
 
   // Esc で閉じる
@@ -81,6 +92,7 @@ module palette {
   action step = any {
     openNewTab, openOverlay,
     clearQuery, enterFolder, exitFolder, enterCommandScope, enterSiteScope, exitScope,
+    ignoredBackspace, ignoredTab,
     escape, switchTab, openHistory, openBookmark, runSiteSearch,
   }
 

@@ -67,7 +67,11 @@ async function closeWith(key) {
 async function resetBrowser() {
   if (heldKey && !heldKey.page.isClosed()) await heldKey.page.keyboard.up(heldKey.key);
   heldKey = null;
-  for (const page of browser.ctx.pages()) if (page.url() !== ALPHA && page.url() !== HOST) await page.close();
+  // Playwright がまだ見つけていないタブも閉じるよう、chrome.tabs で片付ける。
+  await browser.sw.evaluate(async (keep) => {
+    const tabs = await chrome.tabs.query({});
+    await chrome.tabs.remove(tabs.filter((tab) => !keep.includes(tab.url || tab.pendingUrl)).map((tab) => tab.id));
+  }, [ALPHA, HOST]);
   if (await overlayOpen()) await host.reload();
   await host.bringToFront();
   palette = null;
@@ -116,6 +120,9 @@ const ACTIONS = {
     await palette.keyboard.press("Tab");
   },
   exitScope: () => palette.keyboard.press("Backspace"),
+  // 押しても何も変わらないこと。画面がモデルの状態（押す前と同じ）のままかを expectState が確かめる。
+  ignoredBackspace: () => palette.keyboard.press("Backspace"),
+  ignoredTab: () => palette.keyboard.press("Tab"),
   escape: () => closeWith("Escape"),
   switchTab: () => pick("alpha", { title: "Alpha Notes", closes: true }),
   openHistory: () => pick("release", { kind: "履歴", closes: true }),
@@ -127,13 +134,13 @@ const ACTIONS = {
   },
 };
 
-// モデルの状態から、画面に出るはずの入力欄と、上のパンくずの表示。
+// モデルの状態から、画面に出るはずの入力欄と、上のパンくずの表示。開いている間は、いつも入力欄にフォーカスがある。
 function expectedScreen({ folders, scope, query }) {
   let breadcrumb = folders.join(" / ");
   if (scope === "commands") breadcrumb = "コマンド";
   else if (scope === SITE.keyword) breadcrumb = `${SITE.name} を検索`;
   else if (query === SITE.keyword) breadcrumb = `Tab で ${SITE.name} を検索`;
-  return { query, breadcrumb };
+  return { query, breadcrumb, focused: true };
 }
 
 const screen = () =>
@@ -141,7 +148,8 @@ const screen = () =>
     // 絞り込みのアイコンを除いた文字だけを比べる。
     const breadcrumb = document.getElementById("breadcrumb");
     const text = [...breadcrumb.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).map((node) => node.textContent).join("");
-    return { query: document.getElementById("query").value, breadcrumb: breadcrumb.hidden ? "" : text };
+    const input = document.getElementById("query");
+    return { query: input.value, breadcrumb: breadcrumb.hidden ? "" : text, focused: document.hasFocus() && document.activeElement === input };
   });
 
 async function eventually(check, timeout = 5000) {

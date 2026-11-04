@@ -98,10 +98,20 @@ const opens = (e) => e.from === "closed";
 // Esc はどの画面からでも閉じるので、図では 1 本にまとめる。
 const escapeEverywhere = states.every((s) => [...screenEdges.values()].some((e) => e.from === s && e.action === "escape"));
 
+// 状態が変わらない操作は、UML の内部遷移のように、矢印ではなく状態の中に「操作 / 何もしない」と書く。
+const internal = new Map();
+for (const e of screenEdges.values()) {
+  if (e.from === e.to) internal.set(e.from, [...new Set([...(internal.get(e.from) ?? []), ACTIONS[e.action]])]);
+}
+
 const mermaid = ["stateDiagram-v2", `  closed : ${MODES.closed}`, "  [*] --> closed", "  state 開いている {"];
-for (const s of states) mermaid.push(`    ${id(s)} : ${describe(s)}`);
+for (const s of states) {
+  const lines = [describe(s), ...(internal.get(s) ?? []).map((label) => `${label} / 何もしない`)];
+  mermaid.push(`    ${id(s)} : ${lines.join("<br/>")}`);
+}
 const openLabels = new Map();
 for (const e of screenEdges.values()) {
+  if (e.from === e.to) continue;
   if (opens(e)) {
     openLabels.set(e.to, [...(openLabels.get(e.to) ?? []), ACTIONS[e.action]]);
   } else if (!(escapeEverywhere && e.action === "escape")) {
@@ -123,6 +133,7 @@ const md = `# パレットの状態遷移
 
 新しいタブで開いたときと、ページに重ねたときの遷移は同じ形なので、開き方を除いてまとめている。
 片方にしかない遷移は、表の「開き方」の列に書く。
+状態の中の「操作 / 何もしない」は、押しても状態が変わらない操作（内部遷移）を表す。
 
 \`\`\`mermaid
 ${mermaid.join("\n")}

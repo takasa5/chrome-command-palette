@@ -8,29 +8,6 @@
    "query": ""
   },
   {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
    "action": "openNewTab",
    "mode": "newTab",
    "folders": [],
@@ -38,22 +15,15 @@
    "query": ""
   },
   {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
    "action": "enterCommandScope",
-   "mode": "overlay",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "commands",
+   "query": ""
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "newTab",
    "folders": [],
    "scope": "commands",
    "query": ""
@@ -73,21 +43,7 @@
    "query": ""
   },
   {
-   "action": "enterSiteScope",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "gh",
-   "query": ""
-  },
-  {
-   "action": "runSiteSearch",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
+   "action": "ignoredBackspace",
    "mode": "overlay",
    "folders": [],
    "scope": "none",
@@ -101,117 +57,14 @@
    "query": ""
   },
   {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
+   "action": "openNewTab",
+   "mode": "newTab",
    "folders": [],
    "scope": "none",
    "query": ""
   },
   {
    "action": "switchTab",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterCommandScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "commands",
-   "query": ""
-  },
-  {
-   "action": "exitScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "newTab",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "newTab",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "newTab",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": "specs"
-  },
-  {
-   "action": "enterFolder",
-   "mode": "newTab",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openBookmark",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  }
- ],
- [
-  {
-   "action": "init",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openHistory",
    "mode": "closed",
    "folders": [],
    "scope": "none",
@@ -246,46 +99,13 @@
    "query": ""
   },
   {
-   "action": "switchTab",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
    "action": "enterFolder",
-   "mode": "overlay",
+   "mode": "newTab",
    "folders": [
     "Docs"
    ],
    "scope": "none",
    "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": "specs"
   },
   {
    "action": "escape",
@@ -295,30 +115,51 @@
    "query": ""
   },
   {
+   "action": "openNewTab",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openHistory",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openNewTab",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "ignoredBackspace",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  }
+ ],
+ [
+  {
+   "action": "init",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
    "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "clearQuery",
    "mode": "overlay",
    "folders": [],
    "scope": "none",
@@ -339,30 +180,25 @@
    "query": ""
   },
   {
-   "action": "enterSiteScope",
+   "action": "enterFolder",
    "mode": "overlay",
-   "folders": [],
-   "scope": "gh",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
    "query": ""
   },
   {
-   "action": "exitScope",
+   "action": "ignoredTab",
    "mode": "overlay",
-   "folders": [],
+   "folders": [
+    "Docs"
+   ],
    "scope": "none",
-   "query": "gh"
+   "query": ""
   },
   {
    "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  }
- ],
- [
-  {
-   "action": "init",
    "mode": "closed",
    "folders": [],
    "scope": "none",
@@ -383,7 +219,42 @@
    "query": ""
   },
   {
+   "action": "exitScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
    "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "switchTab",
    "mode": "closed",
    "folders": [],
    "scope": "none",
@@ -404,67 +275,7 @@
    "query": ""
   },
   {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "newTab",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "openHistory",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "newTab",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
+   "action": "exitScope",
    "mode": "newTab",
    "folders": [],
    "scope": "none",
@@ -480,238 +291,6 @@
   {
    "action": "exitScope",
    "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": "gh"
-  },
-  {
-   "action": "enterSiteScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "gh",
-   "query": ""
-  },
-  {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openBookmark",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  }
- ],
- [
-  {
-   "action": "init",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "escape",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "openHistory",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "switchTab",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openOverlay",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "enterSiteScope",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "gh",
-   "query": ""
-  },
-  {
-   "action": "exitScope",
-   "mode": "overlay",
    "folders": [],
    "scope": "none",
    "query": "gh"
@@ -733,92 +312,82 @@
    "query": ""
   },
   {
-   "action": "openOverlay",
-   "mode": "overlay",
+   "action": "openNewTab",
+   "mode": "newTab",
    "folders": [],
    "scope": "none",
    "query": ""
   },
   {
    "action": "enterSiteScope",
-   "mode": "overlay",
+   "mode": "newTab",
    "folders": [],
    "scope": "gh",
    "query": ""
   },
   {
-   "action": "exitScope",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "gh"
-  },
-  {
-   "action": "enterSiteScope",
-   "mode": "overlay",
+   "action": "ignoredTab",
+   "mode": "newTab",
    "folders": [],
    "scope": "gh",
    "query": ""
   },
   {
-   "action": "exitScope",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "none",
-   "query": "gh"
-  },
-  {
-   "action": "clearQuery",
-   "mode": "overlay",
+   "action": "escape",
+   "mode": "closed",
    "folders": [],
    "scope": "none",
    "query": ""
   },
   {
-   "action": "enterSiteScope",
-   "mode": "overlay",
-   "folders": [],
-   "scope": "gh",
-   "query": ""
-  },
-  {
-   "action": "exitScope",
-   "mode": "overlay",
+   "action": "openNewTab",
+   "mode": "newTab",
    "folders": [],
    "scope": "none",
-   "query": "gh"
+   "query": ""
   },
   {
    "action": "enterFolder",
-   "mode": "overlay",
+   "mode": "newTab",
    "folders": [
     "Docs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs",
-    "Specs"
    ],
    "scope": "none",
    "query": ""
   },
   {
    "action": "exitFolder",
-   "mode": "overlay",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "switchTab",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openNewTab",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "newTab",
    "folders": [
     "Docs"
    ],
    "scope": "none",
-   "query": "specs"
+   "query": ""
   },
   {
-   "action": "clearQuery",
-   "mode": "overlay",
+   "action": "ignoredTab",
+   "mode": "newTab",
    "folders": [
     "Docs"
    ],
@@ -827,26 +396,7 @@
   },
   {
    "action": "enterFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "exitFolder",
-   "mode": "overlay",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
-   "query": "specs"
-  },
-  {
-   "action": "enterFolder",
-   "mode": "overlay",
+   "mode": "newTab",
    "folders": [
     "Docs",
     "Specs"
@@ -869,6 +419,118 @@
    "query": ""
   },
   {
+   "action": "enterCommandScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "commands",
+   "query": ""
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "commands",
+   "query": ""
+  },
+  {
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "clearQuery",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  }
+ ],
+ [
+  {
+   "action": "init",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
    "action": "enterSiteScope",
    "mode": "overlay",
    "folders": [],
@@ -876,8 +538,122 @@
    "query": ""
   },
   {
-   "action": "exitScope",
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
    "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "runSiteSearch",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openNewTab",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "enterFolder",
+   "mode": "newTab",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "openHistory",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openNewTab",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "clearQuery",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "newTab",
    "folders": [],
    "scope": "none",
    "query": "gh"
@@ -906,23 +682,18 @@
    "query": ""
   },
   {
-   "action": "enterFolder",
+   "action": "enterSiteScope",
    "mode": "newTab",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
+   "folders": [],
+   "scope": "gh",
    "query": ""
   },
   {
-   "action": "enterFolder",
+   "action": "exitScope",
    "mode": "newTab",
-   "folders": [
-    "Docs",
-    "Specs"
-   ],
+   "folders": [],
    "scope": "none",
-   "query": ""
+   "query": "gh"
   },
   {
    "action": "escape",
@@ -937,6 +708,34 @@
    "folders": [],
    "scope": "none",
    "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
   },
   {
    "action": "enterFolder",
@@ -978,34 +777,18 @@
    "query": "work"
   },
   {
-   "action": "enterFolder",
+   "action": "enterSiteScope",
    "mode": "newTab",
-   "folders": [
-    "Docs"
-   ],
-   "scope": "none",
+   "folders": [],
+   "scope": "gh",
    "query": ""
   },
   {
-   "action": "exitFolder",
+   "action": "exitScope",
    "mode": "newTab",
    "folders": [],
    "scope": "none",
-   "query": "work"
-  },
-  {
-   "action": "switchTab",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
+   "query": "gh"
   },
   {
    "action": "enterFolder",
@@ -1054,21 +837,59 @@
    "query": "work"
   },
   {
-   "action": "enterSiteScope",
+   "action": "enterFolder",
    "mode": "newTab",
-   "folders": [],
-   "scope": "gh",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
    "query": ""
   },
   {
-   "action": "exitScope",
+   "action": "exitFolder",
    "mode": "newTab",
    "folders": [],
    "scope": "none",
-   "query": "gh"
+   "query": "work"
   },
   {
-   "action": "switchTab",
+   "action": "ignoredTab",
+   "mode": "newTab",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "enterFolder",
+   "mode": "newTab",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "newTab",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "newTab",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "escape",
    "mode": "closed",
    "folders": [],
    "scope": "none",
@@ -1089,48 +910,6 @@
    "folders": [],
    "scope": "none",
    "query": ""
-  },
-  {
-   "action": "enterSiteScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "gh",
-   "query": ""
-  },
-  {
-   "action": "exitScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": "gh"
-  },
-  {
-   "action": "openHistory",
-   "mode": "closed",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "openNewTab",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": ""
-  },
-  {
-   "action": "enterSiteScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "gh",
-   "query": ""
-  },
-  {
-   "action": "exitScope",
-   "mode": "newTab",
-   "folders": [],
-   "scope": "none",
-   "query": "gh"
   },
   {
    "action": "enterFolder",
@@ -1196,25 +975,413 @@
    "query": ""
   },
   {
-   "action": "openNewTab",
-   "mode": "newTab",
+   "action": "openOverlay",
+   "mode": "overlay",
    "folders": [],
    "scope": "none",
    "query": ""
   },
   {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
    "action": "enterSiteScope",
-   "mode": "newTab",
+   "mode": "overlay",
    "folders": [],
    "scope": "gh",
    "query": ""
   },
   {
    "action": "exitScope",
-   "mode": "newTab",
+   "mode": "overlay",
    "folders": [],
    "scope": "none",
    "query": "gh"
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "switchTab",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "switchTab",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  }
+ ],
+ [
+  {
+   "action": "init",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "openHistory",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "work"
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openBookmark",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
+  },
+  {
+   "action": "escape",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  }
+ ],
+ [
+  {
+   "action": "init",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "openHistory",
+   "mode": "closed",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "openOverlay",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterSiteScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "gh",
+   "query": ""
+  },
+  {
+   "action": "exitScope",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": "gh"
+  },
+  {
+   "action": "clearQuery",
+   "mode": "overlay",
+   "folders": [],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
+  },
+  {
+   "action": "clearQuery",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "enterFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
+   "scope": "none",
+   "query": ""
+  },
+  {
+   "action": "exitFolder",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "overlay",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
   },
   {
    "action": "escape",
@@ -1231,23 +1398,49 @@
    "query": ""
   },
   {
-   "action": "enterSiteScope",
+   "action": "enterFolder",
    "mode": "newTab",
-   "folders": [],
-   "scope": "gh",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
    "query": ""
   },
   {
-   "action": "exitScope",
+   "action": "enterFolder",
    "mode": "newTab",
-   "folders": [],
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
    "scope": "none",
-   "query": "gh"
+   "query": ""
   },
   {
-   "action": "clearQuery",
+   "action": "exitFolder",
    "mode": "newTab",
-   "folders": [],
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
+  },
+  {
+   "action": "ignoredTab",
+   "mode": "newTab",
+   "folders": [
+    "Docs"
+   ],
+   "scope": "none",
+   "query": "specs"
+  },
+  {
+   "action": "enterFolder",
+   "mode": "newTab",
+   "folders": [
+    "Docs",
+    "Specs"
+   ],
    "scope": "none",
    "query": ""
   }
