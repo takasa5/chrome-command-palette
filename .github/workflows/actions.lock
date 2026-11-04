@@ -5,6 +5,9 @@ version: 'v0.0.3'
 workflows:
     '.github/workflows/actions-lock.yml':
         - 'actions/checkout@v4.4.0'
+    '.github/workflows/merge-gate.yml':
+        - 'actions/checkout@v4.4.0'
+        - 'actions/setup-node@v4.4.0'
     '.github/workflows/palette-diagram.yml':
         - 'actions/checkout@v4.4.0'
         - 'actions/setup-node@v4.4.0'
