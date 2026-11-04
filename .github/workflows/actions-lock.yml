@@ -1,0 +1,23 @@
+name: actions-lock
+
+# ワークフローと actions.lock がずれていないか確かめる。
+# lockfile が古いワークフローは startup_failure になってチェック一覧に出ないので、ここで見つける。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
+      - run: gh extension install github/gh-actions-lock --pin v0.4.0
+      - run: gh actions-lock --verify
