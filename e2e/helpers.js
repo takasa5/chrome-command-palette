@@ -23,7 +23,12 @@ export async function launch() {
     // 既定の headless shell は拡張機能を読み込めない。
     channel: "chromium",
     headless: true,
-    args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`],
+    args: [
+      `--disable-extensions-except=${ext}`,
+      `--load-extension=${ext}`,
+      // 拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、名前解決を止めて外へ出られなくする。
+      "--host-resolver-rules=MAP * ~NOTFOUND",
+    ],
   });
   await ctx.route(/^https?:/, fakePage);
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent("serviceworker"));
