@@ -10,6 +10,8 @@
 
 `npm test` では画面の動作を確認できないので、UI を変えたら実際に拡張機能を読み込んで確認する。
 
+* 画面の主な流れは `npm run e2e` で確かめられる（`e2e/`、CI でも動く）。初回は `npx playwright-core install chromium` が必要
+
 * Playwright の Chrome for Testing を、`--load-extension` と `--disable-extensions-except` を付けて起動する
 * パレットは `chrome-extension://<id>/palette.html?focus` を開く
 * x.com は自動ブラウザからの接続が拒否されるので、`chrome.history.addUrl` で履歴を用意して確認する
@@ -21,7 +23,7 @@
 ## Git
 
 * コミットメッセージは件名も本文も日本語で書く
-* 個人プロジェクトなので、push を頼まれたらブランチを切らず `main` へ直接 push する
+* `main` へ直接 push しない。ブランチを切って PR を作り、CI が通ったのを確かめてからマージする
 
 ## README
 
