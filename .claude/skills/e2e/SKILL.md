@@ -90,6 +90,6 @@ npm run e2e:walk
 * **外へつながない**：`helpers.js` の route が、どの URL にもタイトルだけのページを返す。拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、`--host-resolver-rules` で名前解決も止めている。外す前に、本物のサイトにつながらないか確かめる
 * **Cmd+Shift+S は押せない**：ブラウザのショートカットは Playwright から押せないので、Service Worker で `chrome.commands.onCommand.dispatch` を呼ぶ。ドキュメントにない API なので、Chrome の更新で使えなくなったら、background.js の処理を関数に切り出して呼ぶ形に変える
 * **重ねる先は x.com**：`activeTab` はショートカットを押したときしか付かないので、重ねる先のページは `host_permissions` にある `https://x.com` に置く（通信はしない）
-* **キーでタブが閉じる**：Enter や Esc でパレットのタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。キーは `helpers.js` の `press` で押す。閉じるのを待つなら、`page.waitForEvent("close")` を押す前に始めておく
+* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。閉じると分かっているキーは `helpers.js` の `pressToClose` で押す。閉じるかどうかが前もって分からないとき（グラフベースのテスト）は `press` で押す
 * **前のテストのタブが残る**：同じファイルのテストはブラウザを共有する。タブの名前はテストごとに変えるか、後片付けをする
 * **読み込み前に打ったキー**：重ねたパレットが読み込み終わる前のキーをためて渡す処理は、タイミング次第で通る道が変わるので E2E では確かめていない（`applyBufferedKeys` は単体テスト）

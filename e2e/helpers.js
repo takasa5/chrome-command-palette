@@ -80,6 +80,16 @@ export async function launch() {
   };
 }
 
+// page を閉じるキーを押す。press は keydown と keyup を続けて送るので、keydown で閉じると keyup が閉じたページに届いて失敗する。
+// 押すだけにして、閉じたのを待つ。
+export async function pressToClose(page, key) {
+  const closed = page.waitForEvent("close");
+  await page.keyboard.down(key).catch((e) => {
+    if (!page.isClosed()) throw e;
+  });
+  await closed;
+}
+
 // 失敗したテストの画面を残し、CI の artifact から見られるようにする。
 export async function screenshotOnFailure(t, page) {
   if (!page || page.isClosed() || t.passed) return;
@@ -87,8 +97,8 @@ export async function screenshotOnFailure(t, page) {
   await page.screenshot({ path: join(output, `${t.name}.png`) });
 }
 
-// Enter や Esc でタブが閉じると、キーを離す前にページがなくなり、press が失敗したり返ってこなかったりする。
-// ページが閉じたら、押し終えたものとして扱う。
+// 閉じるかどうかが前もって分からないキーを押す（グラフベースのテストで使う）。閉じると分かっているなら pressToClose を使う。
+// キーを離す前にページが閉じると press が失敗したり返ってこなかったりするので、閉じたら押し終えたものとして扱う。
 export async function press(page, key) {
   const closed = page.waitForEvent("close", { timeout: 0 }).catch(() => {});
   try {
