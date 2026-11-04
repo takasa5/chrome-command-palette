@@ -32,7 +32,7 @@ test("CLAUDE.md と skill は LLM に回す", () => {
 });
 
 test(".github/、manifest.json、状態遷移モデルは人間", () => {
-  for (const path of [".github/workflows/test.yml", ".github/merge-gate/gate.js", "manifest.json", "e2e/graph/palette.qnt", ".claude/settings.json", ".claude/hooks/block-approve.js"]) {
+  for (const path of [".github/workflows/test.yml", ".github/merge-gate/gate.js", "manifest.json", "e2e/graph/palette.qnt", ".claude/settings.json"]) {
     const result = classify([file("commands.js"), file(path)]);
     assert.equal(result.tier, "human", path);
     assert.match(result.reasons[0], /人間が見るファイル/);
@@ -133,6 +133,9 @@ test("decide: description は 140 文字に収める", () => {
 
 test("parseApprove は 1 行目の /approve <sha> だけを読む", () => {
   assert.equal(parseApprove("/approve 0123456789AB"), "0123456789ab");
+  // deny ルールが大文字と小文字を区別するので、/approve も小文字だけを受け付ける
+  assert.equal(parseApprove("/APPROVE 0123456789ab"), null);
+  assert.equal(parseApprove("/Approve 0123456789ab"), null);
   assert.equal(parseApprove("/approve 0123456789ab\nよさそう"), "0123456789ab");
   assert.equal(parseApprove("/approve 01234"), null);
   assert.equal(parseApprove("/approve"), null);

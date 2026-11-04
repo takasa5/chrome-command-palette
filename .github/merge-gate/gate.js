@@ -11,8 +11,8 @@ export const MAX_LINES = 400;
 export const AUTO_KINDS = new Set(["docs", "test", "refactor", "fix"]);
 export const KINDS = ["docs", "test", "refactor", "fix", "feature", "infra", "risky"];
 
-// .claude/settings.json と .claude/hooks/ には、Claude が /approve を書けないようにする hook がある。
-const HUMAN_PATHS = [/^\.github\//, /^manifest\.json$/, /^e2e\/graph\/palette\.qnt$/, /^\.claude\/settings\.json$/, /^\.claude\/hooks\//];
+// .claude/settings.json には、Claude が /approve をコメントできないようにする deny ルールがある。
+const HUMAN_PATHS = [/^\.github\//, /^manifest\.json$/, /^e2e\/graph\/palette\.qnt$/, /^\.claude\/settings\.json$/];
 const DOCS_PATHS = [/^README\.md$/, /^docs\//];
 const DEPENDENCY_KEYS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "bundleDependencies", "overrides"];
 // npm install や npm ci のときに動くスクリプト。
@@ -121,8 +121,9 @@ function pending(reasons) {
 export const truncate = (text, max) => ([...text].length <= max ? text : [...text].slice(0, max - 1).join("") + "…");
 
 // "/approve <sha>" の SHA を返す。1 行目だけを見る。
+// .claude/settings.json の deny ルールは大文字と小文字を区別するので、こちらも小文字の /approve だけを受け付ける。
 export function parseApprove(body) {
-  const match = body?.split("\n")[0].trim().match(/^\/approve\s+([0-9a-f]{12,40})$/i);
+  const match = body?.split("\n")[0].trim().match(/^\/approve\s+([0-9a-fA-F]{12,40})$/);
   return match ? match[1].toLowerCase() : null;
 }
 

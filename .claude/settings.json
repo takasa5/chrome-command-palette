@@ -1,15 +1,10 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-approve.js\""
-          }
-        ]
-      }
+  "permissions": {
+    "deny": [
+      "Bash(gh pr comment */approve*)",
+      "Bash(gh issue comment */approve*)",
+      "Bash(gh pr review */approve*)",
+      "Bash(gh api */approve*)"
     ]
   }
 }
