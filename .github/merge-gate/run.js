@@ -116,11 +116,15 @@ function schema() {
 
 function verdict(file) {
   let parsed = null;
+  let text = "";
   try {
-    parsed = parseVerdict(JSON.parse(readFileSync(file, "utf8")));
+    text = readFileSync(file, "utf8");
+    parsed = parseVerdict(JSON.parse(text));
   } catch (error) {
     console.error(`claude の出力を読めなかった: ${error.message}`);
   }
+  // 判定が得られなかったときは、原因を追えるように claude の出力をそのままログに出す。
+  if (!parsed) console.error(`claude の出力（先頭 2000 文字）:\n${text.slice(0, 2000) || "（空）"}`);
   console.log(JSON.stringify(parsed));
   output("verdict", parsed ? JSON.stringify(parsed) : "");
 }

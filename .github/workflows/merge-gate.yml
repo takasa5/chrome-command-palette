@@ -67,7 +67,11 @@ jobs:
       - uses: actions/setup-node@v4.4.0
         with:
           node-version: 24
-      - run: npm install -g @anthropic-ai/claude-code@2.1.317
+      # Claude Code は postinstall で本体のバイナリを用意する。npm 11.19 からは install スクリプトを既定で動かさないので、許可する。
+      - name: Claude Code を入れる
+        run: |
+          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code@2.1.317
+          claude --version
       - name: LLM に渡す入力を作る
         run: node .github/merge-gate/run.js prepare > "$RUNNER_TEMP/input.md"
         env:
