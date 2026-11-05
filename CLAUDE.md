@@ -24,7 +24,7 @@
 
 ## Git
 
-* コミットメッセージは件名も本文も日本語で書く
+* コミットメッセージは Conventional Commits 形式（`type: 件名`、`type(scope): 件名`）にする。type は英語の小文字（feat, fix, docs, refactor, test, chore, ci など）、件名と本文は日本語で書く。例: `fix: 履歴が空のときにクラッシュする問題を直す`
 * `main` へ直接 push しない。ブランチを切って PR を作る
 * PR を作ったら `gh pr merge --auto --merge` で auto-merge をオンにする。CI と merge-gate（`.github/merge-gate/`）が通ると GitHub がマージする
 * merge-gate が「レビューをお願いします」と判定した PR は、ユーザーにそう伝えて承認を待つ。承認（merge-gate のコメントのチェックボックスか `/approve`）はユーザーがするもので、Claude はしない。`gh pr merge` で直接マージもしない
