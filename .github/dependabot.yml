@@ -10,3 +10,17 @@ updates:
     # 脆弱性を直すセキュリティ更新は待たない。
     cooldown:
       default-days: 7
+  # テストと E2E で使う Quint と playwright-core。公開から 7 日待ってから取り込む。
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  # デモ GIF を作る playwright-core。公開から 7 日待ってから取り込む。
+  - package-ecosystem: npm
+    directory: /scripts/demo
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
