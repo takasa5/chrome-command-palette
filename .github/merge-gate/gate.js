@@ -194,35 +194,56 @@ export function parseApprove(body) {
 
 export const shaMatches = (approved, head) => approved.length >= 12 && head.toLowerCase().startsWith(approved);
 
+// 判定のコメントに置く、承認のチェックボックス。
+// 行に /approve を入れておき、Claude がコメントを書き換えてチェックを付けようとしても、.claude/settings.json の deny ルールに当たるようにする。
+const checkboxLine = (sha, checked) => `- [${checked ? "x" : " "}] \`/approve ${sha.slice(0, 12)}\``;
+
 // 判定のコメント。末尾に、同じ SHA の判定を使い回すためのデータを隠して置く。
-export function commentBody({ sha, paths, verdict, result, approvedBy }) {
+// checkedBy は、チェックボックスで承認した人。チェックを付けたままにし、外すと承認を取り消せるようにする。
+export function commentBody({ sha, paths, verdict, result, approvedBy, checkedBy }) {
   const icon = result.state === "success" ? "✅" : "👀";
   const lines = [MARKER, `## ${icon} merge-gate`, ""];
   if (approvedBy) {
     lines.push(`@${approvedBy} が \`${sha.slice(0, 12)}\` を承認した。自動でマージしてよい。`);
+    if (checkedBy) lines.push("", checkboxLine(sha, true));
   } else if (result.state === "success") {
     lines.push(`自動でマージしてよい（${result.description}）。`);
   } else {
     lines.push("レビューをお願いします。理由:", "", ...result.reasons.map((r) => `- ${r}`));
-    lines.push("", `確認したら \`/approve ${sha.slice(0, 12)}\` とコメントする。push すると承認はやり直しになる。`);
+    lines.push("", `確認したら下のチェックを付ける（\`/approve ${sha.slice(0, 12)}\` とコメントしてもよい）。push すると承認はやり直しになる。`, "", checkboxLine(sha, false));
   }
   if (verdict) lines.push("", `**LLM の判定**: \`${verdict.kind}\` — ${verdict.reason}`);
   lines.push("", "<details><summary>ファイルごとの分類</summary>", "", "| ファイル | 分類 |", "|---|---|");
   const label = { human: "要レビュー", docs: "ドキュメント", code: "コード" };
   for (const f of paths.files) lines.push(`| \`${f.path}\` | ${label[f.tier]} |`);
-  lines.push("", "</details>", "", `<!-- merge-gate-data ${JSON.stringify({ sha, verdict })} -->`);
+  const data = checkedBy ? { sha, verdict, checkedBy } : { sha, verdict };
+  lines.push("", "</details>", "", `<!-- merge-gate-data ${JSON.stringify(data)} -->`);
   return lines.join("\n");
 }
 
-// コメントに隠したデータから、同じ SHA の LLM の判定を取り出す。
-export function cachedVerdict(body, sha) {
+function hiddenData(body, sha) {
   const json = body?.match(/<!-- merge-gate-data (.*) -->/)?.[1];
   if (!json) return null;
   try {
     const data = JSON.parse(json);
-    if (data.sha !== sha || !data.verdict) return null;
-    return parseVerdict({ structured_output: data.verdict });
+    return data.sha === sha ? data : null;
   } catch {
     return null;
   }
+}
+
+// コメントに隠したデータから、同じ SHA の LLM の判定を取り出す。
+export function cachedVerdict(body, sha) {
+  const data = hiddenData(body, sha);
+  return data?.verdict ? parseVerdict({ structured_output: data.verdict }) : null;
+}
+
+// 判定のコメントのチェックボックスで承認されていれば、承認した人（リポジトリの持ち主）を返す。
+// editor は、このイベントでコメントを書き換えた人。持ち主がチェックを付けたときに承認になり、
+// そのあとの実行では、コメントに残したチェックと隠したデータから承認を引き継ぐ。
+export function checkboxApproval({ body, sha, owner, editor }) {
+  const checked = body?.match(/^- \[[xX]\] `\/approve ([0-9a-f]{12,40})`/m)?.[1];
+  if (!checked || !shaMatches(checked, sha)) return null;
+  if (editor === owner) return owner;
+  return hiddenData(body, sha)?.checkedBy === owner ? owner : null;
 }
