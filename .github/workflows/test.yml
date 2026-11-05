@@ -5,8 +5,45 @@ on:
     branches: [main]
   pull_request:
 
+# test と e2e は main の必須チェックなので、paths-ignore でワークフローごと止めるとチェックが来ずにマージできなくなる。
+# ワークフローは毎回動かし、関係ないファイルしか変えていない PR では job を skip する。skip した job は必須チェックを満たす。
+# changes が失敗したときは出力が空になるので、skip せずにテストを動かす。
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    outputs:
+      test: ${{ steps.filter.outputs.test }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+    steps:
+      - id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # main への push は常に全部動かす
+          if [ "$GITHUB_EVENT_NAME" != pull_request ]; then
+            echo "test=true" >> "$GITHUB_OUTPUT"
+            echo "e2e=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          gh api "repos/${REPO}/pulls/${PR}/files" --paginate --jq '.[].filename' > files.txt
+          cat files.txt
+          # どのテストにも効かないファイル。ここに無いファイルが 1 つでも変わればテストを動かす
+          unrelated='^(\.claude/|docs/|scripts/demo/|README\.md$|CLAUDE\.md$|\.gitignore$|\.github/dependabot\.yml$|\.github/workflows/(palette-diagram|actions-lock)\.yml$|\.github/workflows/actions\.lock$)'
+          # e2e は拡張機能の画面を見るので、単体テストと merge-gate だけの変更でも要らない
+          unit_only='^(tests/|\.github/merge-gate/)'
+          if grep -Eqv "$unrelated" files.txt; then test=true; else test=false; fi
+          if grep -Ev "$unrelated" files.txt | grep -Eqv "$unit_only"; then e2e=true; else e2e=false; fi
+          echo "test=$test" | tee -a "$GITHUB_OUTPUT"
+          echo "e2e=$e2e" | tee -a "$GITHUB_OUTPUT"
+
   test:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.test != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
@@ -21,6 +58,8 @@ jobs:
       - run: git diff --exit-code -- e2e/graph/generated
 
   e2e:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.e2e != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
