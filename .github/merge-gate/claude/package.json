@@ -1,0 +1,8 @@
+{
+  "name": "merge-gate-claude",
+  "private": true,
+  "description": "merge-gate の judge ジョブで使う Claude Code。lockfile で中身を固定し、Dependabot で更新を追う。",
+  "devDependencies": {
+    "@anthropic-ai/claude-code": "2.1.317"
+  }
+}
