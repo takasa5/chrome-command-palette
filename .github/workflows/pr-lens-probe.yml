@@ -1,0 +1,18 @@
+name: pr-lens-probe
+
+# 試験用。PR Lens の App が github-actions[bot] の "@pr-lens draw" に反応するか確かめる。確かめたら消す。
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "@pr-lens draw"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
