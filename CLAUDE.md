@@ -25,7 +25,9 @@
 ## Git
 
 * コミットメッセージは件名も本文も日本語で書く
-* `main` へ直接 push しない。ブランチを切って PR を作り、CI が通ったのを確かめてからマージする
+* `main` へ直接 push しない。ブランチを切って PR を作る
+* PR を作ったら `gh pr merge --auto --merge` で auto-merge をオンにする。CI と merge-gate（`.github/merge-gate/`）が通ると GitHub がマージする
+* merge-gate が「レビューをお願いします」と判定した PR は、ユーザーにそう伝えて承認を待つ。`/approve` はユーザーが書くもので、Claude は書かない。`gh pr merge` で直接マージもしない
 
 ## README
 
