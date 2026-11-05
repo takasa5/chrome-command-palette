@@ -1,5 +1,12 @@
 version: 2
 updates:
+  # merge-gate の judge ジョブで使う Claude Code。secret を持って動くので、更新は merge-gate で人が見る。
+  - package-ecosystem: npm
+    directory: /.github/merge-gate/claude
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
   # uses: と actions.lock を一緒に更新する
   - package-ecosystem: github-actions
     directory: /
