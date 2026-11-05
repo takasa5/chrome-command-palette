@@ -57,7 +57,7 @@ export function classifyPaths({ files, basePackage, headPackage, baseDirs }) {
     let tier = "code";
     if (paths.some((p) => HUMAN_PATHS.some((r) => r.test(p)))) {
       tier = "human";
-      reasons.push(`${file.filename} は人間が見るファイル`);
+      reasons.push(`${file.filename} は要レビューのファイル`);
     } else if (paths.every((p) => DOCS_PATHS.some((r) => r.test(p)))) {
       tier = "docs";
     }
@@ -110,12 +110,23 @@ export function decide({ paths, verdict, llmSkipped }) {
   if (paths.tier === "human") return pending(paths.reasons);
   if (paths.tier === "docs") return { state: "success", description: "ドキュメントだけの変更", reasons: [] };
   if (!verdict) return pending([llmSkipped ?? "LLM の判定が得られなかった"]);
-  if (!AUTO_KINDS.has(verdict.kind)) return pending([`LLM の判定が ${verdict.kind}: ${verdict.reason}`]);
+  // 詳しい理由はコメントの「LLM の判定」の行に書くので、ここでは種類だけにする。
+  if (!AUTO_KINDS.has(verdict.kind)) return pending([`LLM の判定が ${verdict.kind}（${KIND_LABELS[verdict.kind]}）`]);
   return { state: "success", description: `LLM の判定が ${verdict.kind}`, reasons: [] };
 }
 
+const KIND_LABELS = {
+  docs: "文章だけの変更",
+  test: "テストの追加や修正",
+  refactor: "振る舞いを変えない整理",
+  fix: "小さなバグの修正",
+  feature: "機能の追加や振る舞いの変更",
+  infra: "新しい仕組みやツールの導入",
+  risky: "影響が読めない変更",
+};
+
 function pending(reasons) {
-  return { state: "pending", description: truncate(`人間が見る: ${reasons[0]}`, 140), reasons };
+  return { state: "pending", description: truncate(`レビューをお願いします: ${reasons[0]}`, 140), reasons };
 }
 
 export const truncate = (text, max) => ([...text].length <= max ? text : [...text].slice(0, max - 1).join("") + "…");
@@ -138,12 +149,12 @@ export function commentBody({ sha, paths, verdict, result, approvedBy }) {
   } else if (result.state === "success") {
     lines.push(`自動でマージしてよい（${result.description}）。`);
   } else {
-    lines.push("人間が見る。理由:", "", ...result.reasons.map((r) => `- ${r}`));
+    lines.push("レビューをお願いします。理由:", "", ...result.reasons.map((r) => `- ${r}`));
     lines.push("", `確認したら \`/approve ${sha.slice(0, 12)}\` とコメントする。push すると承認はやり直しになる。`);
   }
   if (verdict) lines.push("", `**LLM の判定**: \`${verdict.kind}\` — ${verdict.reason}`);
   lines.push("", "<details><summary>ファイルごとの分類</summary>", "", "| ファイル | 分類 |", "|---|---|");
-  const label = { human: "人間", docs: "ドキュメント", code: "コード" };
+  const label = { human: "要レビュー", docs: "ドキュメント", code: "コード" };
   for (const f of paths.files) lines.push(`| \`${f.path}\` | ${label[f.tier]} |`);
   lines.push("", "</details>", "", `<!-- merge-gate-data ${JSON.stringify({ sha, verdict })} -->`);
   return lines.join("\n");

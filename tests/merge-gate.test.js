@@ -35,7 +35,7 @@ test(".github/、manifest.json、状態遷移モデルは人間", () => {
   for (const path of [".github/workflows/test.yml", ".github/merge-gate/gate.js", "manifest.json", "e2e/graph/palette.qnt", ".claude/settings.json"]) {
     const result = classify([file("commands.js"), file(path)]);
     assert.equal(result.tier, "human", path);
-    assert.match(result.reasons[0], /人間が見るファイル/);
+    assert.match(result.reasons[0], /要レビューのファイル/);
   }
 });
 
@@ -102,7 +102,7 @@ test("decide: パスで人間なら LLM の答えに関係なく pending", () =>
   const paths = classify([file("manifest.json")]);
   const result = decide({ paths, verdict: { kind: "test", reason: "x" } });
   assert.equal(result.state, "pending");
-  assert.match(result.description, /^人間が見る: manifest\.json/);
+  assert.match(result.description, /^レビューをお願いします: manifest\.json/);
 });
 
 test("decide: docs は LLM なしで success", () => {
@@ -115,8 +115,19 @@ test("decide: コードは LLM の種類で決める", () => {
   for (const kind of ["feature", "infra", "risky"]) {
     const result = decide({ paths, verdict: { kind, reason: "新しいコマンド" } });
     assert.equal(result.state, "pending", kind);
-    assert.deepEqual(result.reasons, [`LLM の判定が ${kind}: 新しいコマンド`]);
+    // 詳しい理由はコメントの「LLM の判定」の行に書くので、理由とステータスには種類だけを書く
+    assert.match(result.reasons[0], new RegExp(`^LLM の判定が ${kind}（.+）$`));
+    assert.doesNotMatch(result.description, /新しいコマンド/);
   }
+});
+
+test("LLM の理由はコメントに 1 回だけ書く", () => {
+  const sha = "0123456789abcdef0123456789abcdef01234567";
+  const paths = classify([file("commands.js")]);
+  const verdict = { kind: "feature", reason: "新しいコマンドを足す" };
+  const body = commentBody({ sha, paths, verdict, result: decide({ paths, verdict }) });
+  assert.equal(body.split("新しいコマンドを足す").length - 1, 2); // 表示に 1 回、隠したデータに 1 回
+  assert.match(body, /- LLM の判定が feature（機能の追加や振る舞いの変更）/);
 });
 
 test("decide: LLM の答えがなければ pending", () => {
@@ -127,7 +138,7 @@ test("decide: LLM の答えがなければ pending", () => {
 
 test("decide: description は 140 文字に収める", () => {
   const paths = classify([file("a.js")]);
-  const result = decide({ paths, verdict: { kind: "risky", reason: "あ".repeat(300) } });
+  const result = decide({ paths, verdict: null, llmSkipped: "あ".repeat(300) });
   assert.equal([...result.description].length, 140);
 });
 
@@ -165,5 +176,6 @@ test("pending のコメントには承認のしかたを書く", () => {
   const paths = classify([file("manifest.json")]);
   const body = commentBody({ sha, paths, verdict: null, result: decide({ paths, verdict: null }) });
   assert.match(body, /`\/approve 0123456789ab`/);
-  assert.match(body, /\| `manifest\.json` \| 人間 \|/);
+  assert.match(body, /^レビューをお願いします。理由:$/m);
+  assert.match(body, /\| `manifest\.json` \| 要レビュー \|/);
 });
