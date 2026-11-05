@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # uses: と actions.lock を一緒に更新する
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
