@@ -120,21 +120,22 @@
     };
   }
 
+  // 題名と最初のひとまとまりを訳すまで待ち、失敗はパレットに返す。残りは待たずに訳し続ける。
   async function translate(source, target) {
     if (state) return;
     const session = { source, target, originals: new Map(), title: null, queue: Promise.resolve(), stop: null };
     state = session;
     session.stop = observe(session);
-    session.queue = session.queue.then(async () => {
+    const nodes = textNodesIn(document.body);
+    const first = (async () => {
       await translateTitle();
-      await translateNodes(textNodesIn(document.body));
+      await translateNodes(nodes.slice(0, BATCH_SIZE));
+    })();
+    session.queue = first.then(() => translateNodes(nodes.slice(BATCH_SIZE)));
+    session.queue.catch(() => {
+      if (state === session) restore();
     });
-    try {
-      await session.queue;
-    } catch (error) {
-      restore();
-      throw error;
-    }
+    await first;
   }
 
   function restore() {

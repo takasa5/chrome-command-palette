@@ -31,8 +31,12 @@ function readPage() {
   };
 }
 
+// 失敗はメッセージで返す。例外のままだと executeScript がメッセージを落とすことがある。
 function startTranslation(source, target) {
-  globalThis.paletteTranslation.translate(source, target).catch(console.error);
+  return globalThis.paletteTranslation.translate(source, target).then(
+    () => null,
+    (error) => error.message,
+  );
 }
 
 function restoreTranslation() {
@@ -96,7 +100,9 @@ export async function translateTab(ctx) {
   if (!source) throw new Error("ページの言語が分からないので翻訳できません");
   if (source === target) throw new Error("このページはすでに表示言語で書かれています");
   await prepareModel(source, target, ctx);
-  await runInPage(tabId, startTranslation, [source, target]);
+  ctx.status("翻訳しています");
+  const error = await runInPage(tabId, startTranslation, [source, target]);
+  if (error) throw new Error(`翻訳できませんでした: ${error}`);
   await ctx.leave();
 }
 
