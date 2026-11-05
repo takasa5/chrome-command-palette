@@ -14,6 +14,7 @@ import {
   KINDS,
   MARKER,
   cachedVerdict,
+  checkboxApproval,
   classifyPaths,
   commentBody,
   decide,
@@ -68,12 +69,16 @@ function load() {
 
   const comments = apiAll(`repos/${repo}/issues/${number}/comments`);
   const gateComment = comments.find((c) => c.user.login === BOT && c.body.startsWith(MARKER));
-  const approval = comments.find((c) => c.user.login === owner && shaMatches(parseApprove(c.body) ?? "", sha));
+  const approvalComment = comments.find((c) => c.user.login === owner && shaMatches(parseApprove(c.body) ?? "", sha));
+  // このイベントが判定のコメントの書き換え（チェックボックスの付け外し）なら、書き換えた人を渡す。
+  const editor = event.action === "edited" && gateComment && event.comment?.id === gateComment.id ? event.sender.login : null;
+  const checkedBy = checkboxApproval({ body: gateComment?.body, sha, owner, editor });
+  const approval = approvalComment?.user.login ?? checkedBy;
   const eligible = pr.user.login === owner && pr.head.repo?.full_name === repo;
   // fork からの PR は dependabot の名前でも扱わない。ファイルが多すぎて全部見えないときも扱わない。
   const sameRepo = pr.head.repo?.full_name === repo;
   const dependabot = sameRepo && files.length < MAX_FILES ? dependabotBump({ author: pr.user.login, files }) : null;
-  return { event, number, pr, sha, mergeBase, paths, gateComment, approval, eligible, dependabot, cached: cachedVerdict(gateComment?.body, sha) };
+  return { event, number, pr, sha, mergeBase, paths, gateComment, approval, checkedBy, eligible, dependabot, cached: cachedVerdict(gateComment?.body, sha) };
 }
 
 function classify() {
@@ -144,16 +149,16 @@ function decideAndPost() {
   const fromJudge = process.env.VERDICT ? parseVerdict({ structured_output: JSON.parse(process.env.VERDICT) }) : null;
   const verdict = fromJudge ?? s.cached;
   let result = decide({ paths: s.paths, verdict, llmSkipped: llmSkipped(s), dependabot: s.dependabot });
-  const approvedBy = s.approval && result.state !== "success" ? s.approval.user.login : null;
+  const approvedBy = s.approval && result.state !== "success" ? s.approval : null;
   if (approvedBy) result = { state: "success", description: `@${approvedBy} が承認した`, reasons: [] };
   console.log(JSON.stringify({ sha: s.sha, verdict, result }, null, 2));
-  // dependabot の PR は自分で auto-merge をオンにしないので、通ったもの（/approve したものも含む）は automerge ジョブでオンにする。
+  // dependabot の PR は自分で auto-merge をオンにしないので、通ったもの（持ち主が承認したものも含む）は automerge ジョブでオンにする。
   output("automerge", Boolean(s.dependabot && result.state === "success"));
 
   const runUrl = `${process.env.GITHUB_SERVER_URL}/${repo}/actions/runs/${process.env.GITHUB_RUN_ID}`;
   gh(["api", "-X", "POST", `repos/${repo}/statuses/${s.sha}`, "-f", `state=${result.state}`, "-f", `context=${CONTEXT}`, "-f", `description=${result.description}`, "-f", `target_url=${runUrl}`]);
 
-  const body = commentBody({ sha: s.sha, paths: s.paths, verdict, result, approvedBy });
+  const body = commentBody({ sha: s.sha, paths: s.paths, verdict, result, approvedBy, checkedBy: approvedBy && s.checkedBy });
   if (!s.gateComment) gh(["api", "-X", "POST", `repos/${repo}/issues/${s.number}/comments`, "-f", `body=${body}`]);
   else if (s.gateComment.body !== body) gh(["api", "-X", "PATCH", `repos/${repo}/issues/comments/${s.gateComment.id}`, "-f", `body=${body}`]);
 

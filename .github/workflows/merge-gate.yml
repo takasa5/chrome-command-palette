@@ -2,7 +2,8 @@ name: merge-gate
 
 # PR を人間がレビューせずに自動でマージしてよいかを決め、head の commit に `merge-gate` の status を付ける。
 #   success: 自動でマージしてよい
-#   pending: 人間が見る。リポジトリの持ち主が `/approve <SHA>` とコメントすると success になる
+#   pending: 人間が見る。リポジトリの持ち主が merge-gate のコメントのチェックボックスを付けるか、
+#            `/approve <SHA>` とコメントすると success になる
 # 判定のしかたは .github/merge-gate/ にある。
 #
 # pull_request_target と issue_comment は、どちらも base ブランチのワークフローで動く。
@@ -23,7 +24,12 @@ jobs:
       github.event_name == 'pull_request_target' ||
       (github.event.issue.pull_request &&
        github.event.comment.user.login == github.repository_owner &&
-       startsWith(github.event.comment.body, '/approve'))
+       startsWith(github.event.comment.body, '/approve')) ||
+      (github.event.issue.pull_request &&
+       github.event.action == 'edited' &&
+       github.event.sender.login == github.repository_owner &&
+       github.event.comment.user.login == 'github-actions[bot]' &&
+       startsWith(github.event.comment.body, '<!-- merge-gate -->'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
