@@ -57,7 +57,7 @@ export function classifyPaths({ files, basePackage, headPackage, baseDirs }) {
     let tier = "code";
     if (paths.some((p) => HUMAN_PATHS.some((r) => r.test(p)))) {
       tier = "human";
-      reasons.push(`${file.filename} はレビューが要るファイル`);
+      reasons.push(`${file.filename} は要レビューのファイル`);
     } else if (paths.every((p) => DOCS_PATHS.some((r) => r.test(p)))) {
       tier = "docs";
     }
@@ -154,7 +154,7 @@ export function commentBody({ sha, paths, verdict, result, approvedBy }) {
   }
   if (verdict) lines.push("", `**LLM の判定**: \`${verdict.kind}\` — ${verdict.reason}`);
   lines.push("", "<details><summary>ファイルごとの分類</summary>", "", "| ファイル | 分類 |", "|---|---|");
-  const label = { human: "レビューが要る", docs: "ドキュメント", code: "コード" };
+  const label = { human: "要レビュー", docs: "ドキュメント", code: "コード" };
   for (const f of paths.files) lines.push(`| \`${f.path}\` | ${label[f.tier]} |`);
   lines.push("", "</details>", "", `<!-- merge-gate-data ${JSON.stringify({ sha, verdict })} -->`);
   return lines.join("\n");

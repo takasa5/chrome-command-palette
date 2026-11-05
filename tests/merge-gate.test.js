@@ -35,7 +35,7 @@ test(".github/、manifest.json、状態遷移モデルは人間", () => {
   for (const path of [".github/workflows/test.yml", ".github/merge-gate/gate.js", "manifest.json", "e2e/graph/palette.qnt", ".claude/settings.json"]) {
     const result = classify([file("commands.js"), file(path)]);
     assert.equal(result.tier, "human", path);
-    assert.match(result.reasons[0], /レビューが要るファイル/);
+    assert.match(result.reasons[0], /要レビューのファイル/);
   }
 });
 
@@ -177,5 +177,5 @@ test("pending のコメントには承認のしかたを書く", () => {
   const body = commentBody({ sha, paths, verdict: null, result: decide({ paths, verdict: null }) });
   assert.match(body, /`\/approve 0123456789ab`/);
   assert.match(body, /^レビューをお願いします。理由:$/m);
-  assert.match(body, /\| `manifest\.json` \| レビューが要る \|/);
+  assert.match(body, /\| `manifest\.json` \| 要レビュー \|/);
 });
