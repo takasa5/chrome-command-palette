@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+# npm ci で入れたパッケージや action が動くので、トークンは読むだけにする。
+permissions:
+  contents: read
+
 # test と e2e は main の必須チェックなので、paths-ignore でワークフローごと止めるとチェックが来ずにマージできなくなる。
 # ワークフローは毎回動かし、関係ないファイルしか変えていない PR では job を skip する。skip した job は必須チェックを満たす。
 # changes が失敗したときは出力が空になるので、skip せずにテストを動かす。
@@ -47,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
@@ -63,6 +69,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24

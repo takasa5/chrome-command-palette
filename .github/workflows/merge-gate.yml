@@ -73,11 +73,15 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
-      # Claude Code は postinstall で本体のバイナリを用意する。npm 11.19 からは install スクリプトを既定で動かさないので、許可する。
+      # バージョンと中身のハッシュは .github/merge-gate/claude/package-lock.json で固定し、Dependabot で更新を追う。
+      # pull_request_target で checkout するのは base ブランチなので、PR の中で lockfile を書き換えてもこの判定には効かない。
+      # Claude Code は postinstall で本体のバイナリを用意する。npm 11.19 からは install スクリプトを既定で動かさないので、
+      # 許可は .github/merge-gate/claude/package.json の allowScripts に書く（プロジェクト内の install では --allow-scripts が使えない）。
       - name: Claude Code を入れる
         run: |
-          npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code@2.1.317
-          claude --version
+          npm ci --prefix .github/merge-gate/claude
+          echo "$PWD/.github/merge-gate/claude/node_modules/.bin" >> "$GITHUB_PATH"
+          .github/merge-gate/claude/node_modules/.bin/claude --version
       - name: LLM に渡す入力を作る
         run: node .github/merge-gate/run.js prepare > "$RUNNER_TEMP/input.md"
         env:

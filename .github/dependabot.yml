@@ -1,5 +1,12 @@
 version: 2
 updates:
+  # merge-gate の judge ジョブで使う Claude Code。secret を持って動くので、更新は merge-gate で人が見る。
+  - package-ecosystem: npm
+    directory: /.github/merge-gate/claude
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
   # uses: と actions.lock を一緒に更新する
   - package-ecosystem: github-actions
     directory: /
@@ -8,5 +15,17 @@ updates:
     # 侵害されたリリースは数日で見つかって取り下げられることが多いので、公開から 7 日待ってから取り込む。
     # マイナー更新は merge-gate が人のレビューなしで通すので、待つのはここでしかできない。
     # 脆弱性を直すセキュリティ更新は待たない。
+    cooldown:
+      default-days: 7
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  - package-ecosystem: npm
+    directory: /scripts/demo
+    schedule:
+      interval: weekly
     cooldown:
       default-days: 7
