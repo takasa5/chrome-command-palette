@@ -7,6 +7,28 @@ chrome.runtime.onMessage.addListener(({ type, tabId, handle, openHome }) => {
   if (type === "switch-x-account") switchAccount(tabId, handle, { openHome }).catch(console.error);
 });
 
+// 翻訳中のページから届いた文字列を、offscreen.html の Translator に渡す。
+let offscreenReady = null;
+
+function ensureOffscreen() {
+  offscreenReady ??= chrome.offscreen
+    .hasDocument()
+    .then((exists) => exists || chrome.offscreen.createDocument({ url: "offscreen.html", reasons: ["DOM_PARSER"], justification: "組み込みの Translator API でページを翻訳する" }))
+    .catch((error) => {
+      offscreenReady = null;
+      throw error;
+    });
+  return offscreenReady;
+}
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type !== "translate-texts") return;
+  ensureOffscreen()
+    .then(() => chrome.runtime.sendMessage({ ...message, type: "offscreen-translate" }))
+    .then(sendResponse, (error) => sendResponse({ error: error.message }));
+  return true;
+});
+
 // 今のページの上にパレットを開く。chrome:// などスクリプトを入れられないページでは、新しいタブで開く。
 // パレットには一度だけ使える合言葉で開いたタブを渡し、他のサイトに埋め込まれたときは動かないようにする。
 chrome.commands.onCommand.addListener(async (command, tab) => {

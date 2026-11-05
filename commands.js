@@ -3,6 +3,7 @@
 
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
+import { restoreTab, translateTab } from "./translate.js";
 
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   id,
@@ -276,6 +277,22 @@ export const COMMANDS = [
     ja: "リーディングリスト",
     keywords: ["read later", "あとで読む"],
     run: (ctx) => ctx.enterScope(readingListScope),
+  },
+  {
+    id: "translate",
+    title: "Translate Page",
+    ja: "ページを翻訳",
+    keywords: ["translate", "翻訳", "ほんやく"],
+    needsTarget: true,
+    run: translateTab,
+  },
+  {
+    id: "show-original",
+    title: "Show Original",
+    ja: "翻訳を元に戻す",
+    keywords: ["translate", "原文", "翻訳"],
+    needsTarget: true,
+    run: restoreTab,
   },
   {
     id: "zoom-in",

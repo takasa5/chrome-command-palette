@@ -31,6 +31,7 @@ const ctx = {
   pageTabId,
   leave,
   openTab,
+  status: (text) => (toast.textContent = text),
   enterScope,
 };
 

@@ -62,7 +62,7 @@ export function toggleOverlay(src) {
   // 読み込み途中の iframe がフォーカスを受けるとその間のキーが消えるので、ダイアログ自身にフォーカスを置く。
   dialog.tabIndex = -1;
   const frame = document.createElement("iframe");
-  frame.allow = "clipboard-write";
+  frame.allow = "clipboard-write; translator; language-detector";
   frame.src = src;
   root.append(style, dialog);
 
