@@ -4,7 +4,7 @@
 //   node run.js prepare           LLM に渡す入力（PR の説明、ファイルの分類、diff）を標準出力に書く
 //   node run.js schema            LLM の答えの JSON Schema を標準出力に書く
 //   node run.js verdict <file>    claude -p の出力を確かめ、GITHUB_OUTPUT に書く
-//   node run.js decide            すべてを合わせて commit status とコメントを書く
+//   node run.js decide            すべてを合わせて commit status とコメントを書く。dependabot の PR を通したら automerge=true
 //
 // PR の中身は API で読むだけで、checkout も実行もしない。
 import { execFileSync } from "node:child_process";
@@ -17,6 +17,7 @@ import {
   classifyPaths,
   commentBody,
   decide,
+  dependabotBump,
   parseApprove,
   parseVerdict,
   shaMatches,
@@ -69,12 +70,15 @@ function load() {
   const gateComment = comments.find((c) => c.user.login === BOT && c.body.startsWith(MARKER));
   const approval = comments.find((c) => c.user.login === owner && shaMatches(parseApprove(c.body) ?? "", sha));
   const eligible = pr.user.login === owner && pr.head.repo?.full_name === repo;
-  return { event, number, pr, sha, mergeBase, paths, gateComment, approval, eligible, cached: cachedVerdict(gateComment?.body, sha) };
+  // fork からの PR は dependabot の名前でも扱わない。ファイルが多すぎて全部見えないときも扱わない。
+  const sameRepo = pr.head.repo?.full_name === repo;
+  const dependabot = sameRepo && files.length < MAX_FILES ? dependabotBump({ author: pr.user.login, files }) : null;
+  return { event, number, pr, sha, mergeBase, paths, gateComment, approval, eligible, dependabot, cached: cachedVerdict(gateComment?.body, sha) };
 }
 
 function classify() {
   const s = load();
-  console.log(JSON.stringify({ sha: s.sha, tier: s.paths.tier, reasons: s.paths.reasons, cached: s.cached, approved: Boolean(s.approval) }, null, 2));
+  console.log(JSON.stringify({ sha: s.sha, tier: s.paths.tier, reasons: s.paths.reasons, dependabot: s.dependabot, cached: s.cached, approved: Boolean(s.approval) }, null, 2));
   output("need_llm", s.paths.tier === "code" && !s.cached && !s.approval);
   output("eligible", s.eligible);
 }
@@ -139,10 +143,12 @@ function decideAndPost() {
   const s = load();
   const fromJudge = process.env.VERDICT ? parseVerdict({ structured_output: JSON.parse(process.env.VERDICT) }) : null;
   const verdict = fromJudge ?? s.cached;
-  let result = decide({ paths: s.paths, verdict, llmSkipped: llmSkipped(s) });
+  let result = decide({ paths: s.paths, verdict, llmSkipped: llmSkipped(s), dependabot: s.dependabot });
   const approvedBy = s.approval && result.state !== "success" ? s.approval.user.login : null;
   if (approvedBy) result = { state: "success", description: `@${approvedBy} が承認した`, reasons: [] };
   console.log(JSON.stringify({ sha: s.sha, verdict, result }, null, 2));
+  // dependabot の PR は自分で auto-merge をオンにしないので、通ったもの（/approve したものも含む）は automerge ジョブでオンにする。
+  output("automerge", Boolean(s.dependabot && result.state === "success"));
 
   const runUrl = `${process.env.GITHUB_SERVER_URL}/${repo}/actions/runs/${process.env.GITHUB_RUN_ID}`;
   gh(["api", "-X", "POST", `repos/${repo}/statuses/${s.sha}`, "-f", `state=${result.state}`, "-f", `context=${CONTEXT}`, "-f", `description=${result.description}`, "-f", `target_url=${runUrl}`]);

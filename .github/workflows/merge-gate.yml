@@ -105,6 +105,8 @@ jobs:
       contents: read
       pull-requests: write
       statuses: write
+    outputs:
+      automerge: ${{ steps.decide.outputs.automerge }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -112,8 +114,27 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
-      - run: node .github/merge-gate/run.js decide
+      - id: decide
+        run: node .github/merge-gate/run.js decide
         env:
           GH_TOKEN: ${{ github.token }}
           VERDICT: ${{ needs.judge.outputs.verdict }}
           JUDGE_RESULT: ${{ needs.judge.result }}
+
+  # dependabot の PR が通ったら（マイナー更新か、持ち主が /approve したとき）、auto-merge をオンにする。
+  # マージは CI と merge-gate が通ったあとに GitHub がする。checkout はせず、gh で API を呼ぶだけ。
+  # GITHUB_TOKEN でマージするので、main への push で動くワークフローはこのマージでは動かない。
+  automerge:
+    needs: decide
+    if: needs.decide.outputs.automerge == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - run: gh pr merge "$PR" --repo "$REPO" --auto --merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number || github.event.issue.number }}
