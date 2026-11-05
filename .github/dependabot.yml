@@ -17,3 +17,15 @@ updates:
     # 脆弱性を直すセキュリティ更新は待たない。
     cooldown:
       default-days: 7
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  - package-ecosystem: npm
+    directory: /scripts/demo
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
