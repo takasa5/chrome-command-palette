@@ -44,3 +44,7 @@
 ```sh
 npm test
 ```
+
+## Inspired by [Arc](https://arc.net/)
+
+Rest in peace.
