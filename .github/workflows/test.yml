@@ -5,11 +5,17 @@ on:
     branches: [main]
   pull_request:
 
+# npm ci で入れたパッケージや action が動くので、トークンは読むだけにする。
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
@@ -24,6 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
