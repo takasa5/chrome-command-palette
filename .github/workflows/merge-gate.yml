@@ -134,9 +134,10 @@ jobs:
   # dependabot の PR が通ったら（マイナー更新か、持ち主が /approve したとき）、auto-merge をオンにする。
   # マージは CI と merge-gate が通ったあとに GitHub がする。checkout はせず、gh で API を呼ぶだけ。
   # GITHUB_TOKEN でマージするので、main への push で動くワークフローはこのマージでは動かない。
+  # always() がないと、上流の judge がスキップされたとき（dependabot の PR ではいつもそう）にこのジョブもスキップされる。
   automerge:
     needs: decide
-    if: needs.decide.outputs.automerge == 'true'
+    if: always() && needs.decide.result == 'success' && needs.decide.outputs.automerge == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
