@@ -31,10 +31,9 @@ export function itemUsageBonus(item, usage, now) {
   return key && usage ? usageBonus(usage[key], now) : 0;
 }
 
-// 選んだことを記録した新しいオブジェクトを返す。件数が上限を超えたら、点数の低いものから消す。
-export function recordUsage(usage, item, now, maxEntries = MAX_ENTRIES) {
-  const key = usageKey(item);
-  if (!key) return usage;
+// key（usageKey）の候補を選んだことを記録した新しいオブジェクトを返す。件数が上限を超えたら、点数の低いものから消す。
+export function recordUsage(usage, key, now, maxEntries = MAX_ENTRIES) {
+  if (typeof key !== "string" || !key) return usage;
   const next = { ...usage, [key]: { count: (usage[key]?.count ?? 0) + 1, lastUsed: now } };
   const keys = Object.keys(next);
   if (keys.length <= maxEntries) return next;

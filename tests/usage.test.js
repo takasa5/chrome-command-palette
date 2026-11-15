@@ -41,16 +41,17 @@ test("usageBonus は時間がたつと弱まる", () => {
 });
 
 test("recordUsage は回数を増やし、最後に選んだ時刻を更新する", () => {
-  const item = { kind: "tab", url: "https://example.com/" };
-  const once = recordUsage({}, item, NOW);
-  const twice = recordUsage(once, item, NOW + DAY);
+  const key = usageKey({ kind: "tab", url: "https://example.com/" });
+  const once = recordUsage({}, key, NOW);
+  const twice = recordUsage(once, key, NOW + DAY);
   assert.deepEqual(twice["url:https://example.com/"], { count: 2, lastUsed: NOW + DAY });
   assert.deepEqual(once["url:https://example.com/"], { count: 1, lastUsed: NOW });
 });
 
-test("recordUsage は記録しない種類ならそのまま返す", () => {
+test("recordUsage はキーがなければそのまま返す", () => {
   const usage = {};
-  assert.equal(recordUsage(usage, { kind: "search", text: "foo" }, NOW), usage);
+  assert.equal(recordUsage(usage, null, NOW), usage);
+  assert.equal(recordUsage(usage, undefined, NOW), usage);
 });
 
 test("recordUsage は上限を超えたら点数の低いものから消す", () => {
@@ -58,7 +59,7 @@ test("recordUsage は上限を超えたら点数の低いものから消す", ()
     "url:old": { count: 50, lastUsed: NOW - 300 * DAY },
     "url:often": { count: 50, lastUsed: NOW - DAY },
   };
-  const next = recordUsage(usage, { kind: "tab", url: "new" }, NOW, 2);
+  const next = recordUsage(usage, "url:new", NOW, 2);
   assert.deepEqual(Object.keys(next).sort(), ["url:new", "url:often"]);
 });
 

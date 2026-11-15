@@ -3,7 +3,7 @@ import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
-import { USAGE_STORAGE_KEY, recordUsage, sortByUsage, usageKey } from "./usage.js";
+import { USAGE_STORAGE_KEY, sortByUsage, usageKey } from "./usage.js";
 
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
@@ -120,13 +120,12 @@ async function refreshUsage() {
   usage = stored ?? {};
 }
 
-// 別のパレットで選んだ記録を消さないよう、保存されている最新の記録に足す。
+// 記録の書き換えは background.js にまとめ、別のパレットや履歴の削除と書き込みがぶつからないようにする。
 async function rememberUsage(item) {
-  if (!usageKey(item)) return;
+  const key = usageKey(item);
+  if (!key) return;
   try {
-    const { [USAGE_STORAGE_KEY]: stored } = await chrome.storage.local.get(USAGE_STORAGE_KEY);
-    usage = recordUsage(stored ?? {}, item, Date.now());
-    await chrome.storage.local.set({ [USAGE_STORAGE_KEY]: usage });
+    usage = (await chrome.runtime.sendMessage({ type: "record-usage", key })) ?? usage;
   } catch {
     // 記録できなくても、選んだ候補は開く。
   }
