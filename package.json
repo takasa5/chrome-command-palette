@@ -8,7 +8,10 @@
     "e2e:example": "node --test --test-concurrency=1 --test-timeout=60000 \"e2e/example/*.e2e.js\"",
     "e2e:graph": "node --test --test-concurrency=1 --test-timeout=60000 \"e2e/graph/*.e2e.js\"",
     "e2e:walk": "node e2e/graph/scripts/walk.js",
-    "model": "node e2e/graph/scripts/build.js"
+    "model": "node e2e/graph/scripts/build.js",
+    "icons": "node scripts/store/icons.js",
+    "store-assets": "node scripts/store/screenshots.js && node scripts/store/promo.js",
+    "package": "node scripts/store/package.js"
   },
   "devDependencies": {
     "@informalsystems/quint": "0.33.1",

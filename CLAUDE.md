@@ -22,6 +22,10 @@
 
 `docs/demo.gif` は `scripts/demo` で `npm install` のあと `npm run record` で作り直せる。Playwright の Chromium と ffmpeg が必要。
 
+## ストア公開
+
+申請に使う zip、アイコン、スクリーンショット、ダッシュボードに入力する文面は [docs/store/listing.md](docs/store/listing.md) にまとめてある。権限を足したり、扱うデータが変わったりしたら、`listing.md` の権限の理由と `PRIVACY.md` も直す。
+
 ## Git
 
 * コミットメッセージは Conventional Commits 形式（`type: 件名`、`type(scope): 件名`）にする。type は英語の小文字（feat, fix, docs, refactor, test, chore, ci など）、件名と本文は日本語で書く。例: `fix: 履歴が空のときにクラッシュする問題を直す`
