@@ -1,5 +1,7 @@
 // 検索とランキング。Chrome API に依存しない純粋関数だけを置く。
 
+import { itemUsageBonus, sortByUsage } from "./usage.js";
+
 const KIND_BONUS = { command: 3, favorite: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
 const SCORE_URL_ITEM = 85;
 const SCORE_API_FLOOR = 10;
@@ -110,12 +112,22 @@ function folderItem(folder, score) {
   return { kind: "folder", key: `folder:${folder.id}`, title: folder.title, subtitle, folder, score };
 }
 
+// 一致の点数に、種類のボーナスと、よく選ぶ候補の点数（boost）を足して並べる。
+function rankScore(item) {
+  return item.score + (KIND_BONUS[item.kind] ?? 0) + (item.boost ?? 0);
+}
+
 function byScore(a, b) {
-  return b.score + KIND_BONUS[b.kind] - (a.score + KIND_BONUS[a.kind]) || (b.visitCount ?? 0) - (a.visitCount ?? 0);
+  return rankScore(b) - rankScore(a) || (b.visitCount ?? 0) - (a.visitCount ?? 0);
+}
+
+function withUsage(items, usage, now) {
+  for (const item of items) item.boost = itemUsageBonus(item, usage, now);
+  return items;
 }
 
 // フォルダの中に入っているときの結果。入力が空なら直下の項目をフォルダ、リンクの順に返す。
-export function rankFolderContents(query, folder) {
+export function rankFolderContents(query, folder, { usage = {}, now = Date.now() } = {}) {
   const nodes = flattenBookmarks(folder.children ?? [], 2);
   if (!normalize(query)) {
     const direct = nodes.filter((node) => node.folders.length === 0);
@@ -124,10 +136,10 @@ export function rankFolderContents(query, folder) {
       ...direct.filter((node) => node.url).map((node) => bookmarkItem(query, node)),
     ];
   }
-  return nodes
+  const items = nodes
     .map((node) => (node.url ? bookmarkItem(query, node) : folderItem(node, scoreFields(query, [{ text: node.title }, ...folderFields(node)]))))
-    .filter((item) => item.score > 0)
-    .sort(byScore);
+    .filter((item) => item.score > 0);
+  return withUsage(items, usage, now).sort(byScore);
 }
 
 function commandFields(command) {
@@ -142,10 +154,10 @@ export function commandItem(command, score) {
   return { kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command, score };
 }
 
-// コマンドだけに絞っているときの結果。入力が空なら全件を返す。
-export function rankCommands(query, commands) {
-  if (!normalize(query)) return commands.map((command) => commandItem(command));
-  return rankResults(query, { commands }).filter((item) => item.kind === "command");
+// コマンドだけに絞っているときの結果。入力が空なら全件を、よく選ぶ順に返す。
+export function rankCommands(query, commands, { usage = {}, now = Date.now() } = {}) {
+  if (!normalize(query)) return sortByUsage(commands.map((command) => commandItem(command)), usage, now);
+  return rankResults(query, { commands, usage, now }).filter((item) => item.kind === "command");
 }
 
 // URL として開けそうな入力を完全な URL にする。そうでなければ null。
@@ -175,7 +187,8 @@ function dedupeByUrl(entries) {
 }
 
 // 入力に対して表示する結果を、スコアの高い順に返す。
-export function rankResults(query, { commands = [], favorites = [], tabs = [], bookmarks = [], history = [] }) {
+// usage はパレットで選んだ記録（usage.js）。よく選ぶ候補ほど、同じくらい一致するほかの候補より上に出す。
+export function rankResults(query, { commands = [], favorites = [], tabs = [], bookmarks = [], history = [], usage = {}, now = Date.now() }) {
   const entries = [];
   for (const command of commands) {
     const score = scoreFields(query, commandFields(command), { fuzzy: true });
@@ -202,14 +215,14 @@ export function rankResults(query, { commands = [], favorites = [], tabs = [], b
     entries.push({ kind: "history", key: `history:${page.id}`, title: page.title || page.url, subtitle: stripUrl(page.url), url: page.url, visitCount: page.visitCount ?? 0, score });
   }
 
-  const ranked = dedupeByUrl(entries)
+  const ranked = withUsage(dedupeByUrl(entries), usage, now)
     .sort(byScore)
     .slice(0, MAX_RESULTS);
 
   const url = toUrl(query);
   if (url) {
     const item = { kind: "url", key: "url", title: `${url} を開く`, subtitle: "URL", url, score: SCORE_URL_ITEM };
-    const index = ranked.findIndex((entry) => entry.score + KIND_BONUS[entry.kind] < SCORE_URL_ITEM);
+    const index = ranked.findIndex((entry) => rankScore(entry) < SCORE_URL_ITEM);
     ranked.splice(index === -1 ? ranked.length : index, 0, item);
   }
   ranked.push({ kind: "search", key: "search", title: `「${query.trim()}」を検索`, subtitle: "既定の検索エンジン", text: query.trim(), score: 0 });
