@@ -16,12 +16,10 @@ Command Palette（以下「本拡張機能」）が扱うデータについて�
 | リーディングリスト | 候補に出し、ページを加えたり既読にしたりする |
 | 最近閉じたタブ | 閉じたタブを開き直す |
 | パレットで選んだ候補 | 選んだ回数と最後に選んだ時刻を記録し、よく選ぶ候補を上に出す |
-| 翻訳するページの本文 | 「Translate Page」を実行したときだけ読み取り、Chrome 組み込みの翻訳機能でブラウザの中で翻訳する |
-| x.com のアカウント メニュー | X のアカウント切り替えを実行したときだけ、x.com のページでアカウント名を読み取り、切り替える |
 
 ## 保存するデータ
 
-設定画面で入力した内容（タブを閉じるまでの時間、X のアカウント名、サイト内検索の登録など）は `chrome.storage.sync` に保存します。Chrome の同期をオンにしている場合は、Google アカウントを通じてお使いの他の端末にも同期されます。開発者がこのデータを見ることはありません。
+設定画面で入力した内容（タブを閉じるまでの時間、サイト内検索の登録など）は `chrome.storage.sync` に保存します。Chrome の同期をオンにしている場合は、Google アカウントを通じてお使いの他の端末にも同期されます。開発者がこのデータを見ることはありません。
 
 タブを最後に見た時刻は `chrome.storage.session` に保存し、Chrome を終了すると消えます。
 
@@ -46,8 +44,6 @@ Command Palette（以下「本拡張機能」）が扱うデータについて�
 Command Palette ("the extension") does not send any data to the developer or to third parties. It does not collect, sell, or use data for advertising. Everything it reads stays in your browser.
 
 - **Tabs, history, bookmarks, reading list, recently closed tabs**: read to show search results in the palette and to run the command you choose.
-- **Page text**: read only when you run "Translate Page", and translated on your device with Chrome's built-in Translator API.
-- **x.com account menu**: read only when you switch X accounts, to list and switch your accounts.
 - **Palette usage**: the pages, commands and bookmark folders you pick in the palette, with how often and when, are stored in `chrome.storage.local` on this device only to rank them higher. Removing a page from your history also removes its record.
 - **Settings** you enter are stored in `chrome.storage.sync` and may be synced to your other devices through your Google account if Chrome sync is on. The developer cannot see them.
 - **Web search** sends your query to the default search engine you set in Chrome, the same as searching from the address bar.
