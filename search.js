@@ -1,6 +1,6 @@
 // 検索とランキング。Chrome API に依存しない純粋関数だけを置く。
 
-const KIND_BONUS = { command: 3, service: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
+const KIND_BONUS = { command: 3, favorite: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
 const SCORE_URL_ITEM = 85;
 const SCORE_API_FLOOR = 10;
 const MAX_RESULTS = 30;
@@ -158,9 +158,9 @@ export function toUrl(input) {
   return null;
 }
 
-// サービス > 開いているタブ > ブックマーク > 履歴 の順で同じ URL を 1 つにまとめる。
+// お気に入り > 開いているタブ > ブックマーク > 履歴 の順で同じ URL を 1 つにまとめる。
 function dedupeByUrl(entries) {
-  const order = ["service", "tab", "bookmark", "history"];
+  const order = ["favorite", "tab", "bookmark", "history"];
   const seen = new Set();
   const kept = new Set();
   for (const kind of order) {
@@ -175,16 +175,16 @@ function dedupeByUrl(entries) {
 }
 
 // 入力に対して表示する結果を、スコアの高い順に返す。
-export function rankResults(query, { commands = [], services = [], tabs = [], bookmarks = [], history = [] }) {
+export function rankResults(query, { commands = [], favorites = [], tabs = [], bookmarks = [], history = [] }) {
   const entries = [];
   for (const command of commands) {
     const score = scoreFields(query, commandFields(command), { fuzzy: true });
     if (score > 0) entries.push(commandItem(command, score));
   }
-  for (const service of services) {
-    // キーワードも重みを下げず、同じ当たり方のタブやブックマークより上に出す。
-    const score = scoreFields(query, [{ text: service.title }, ...service.keywords.map((text) => ({ text }))]);
-    if (score > 0) entries.push({ kind: "service", key: `service:${service.id}`, title: service.title, subtitle: stripUrl(service.url), url: service.url, service, score });
+  for (const favorite of favorites) {
+    // 別名も重みを下げず、同じ当たり方のタブやブックマークより上に出す。
+    const score = scoreFields(query, [{ text: favorite.title }, ...favorite.keywords.map((text) => ({ text }))]);
+    if (score > 0) entries.push({ kind: "favorite", key: `favorite:${favorite.url}`, title: favorite.title, subtitle: stripUrl(favorite.url), url: favorite.url, favorite, score });
   }
   for (const tab of tabs) {
     const score = scoreFields(query, pageFields(tab));

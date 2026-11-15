@@ -1,4 +1,5 @@
 import { getNewWindowPins } from "./commands.js";
+import { DEFAULT_FAVORITES, formatFavorites, getFavorites, parseFavorites } from "./favorites.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
 
@@ -6,6 +7,9 @@ const input = document.getElementById("stale-hours");
 const newWindowPins = document.getElementById("new-window-pins");
 const siteSearch = document.getElementById("site-search");
 const siteSearchErrors = document.getElementById("site-search-errors");
+const favorites = document.getElementById("favorites");
+const favoritesErrors = document.getElementById("favorites-errors");
+const resetFavorites = document.getElementById("reset-favorites");
 const toast = document.getElementById("toast");
 
 const savedEngines = await getEngines();
@@ -14,8 +18,35 @@ let savedEnginesJson = JSON.stringify(savedEngines);
 input.value = await getStaleHours();
 newWindowPins.checked = await getNewWindowPins();
 siteSearch.value = formatEngines(savedEngines);
+favorites.value = formatFavorites(await getFavorites());
 
 newWindowPins.addEventListener("change", () => chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
+
+// 1 つでも直すと初期値ではなく、この一覧を保存して使う。空にすればお気に入りはなくなる。
+let savedFavoritesJson = JSON.stringify(parseFavorites(favorites.value).favorites);
+
+async function saveFavorites() {
+  const parsed = parseFavorites(favorites.value);
+  favoritesErrors.textContent = parsed.errors.join("\n");
+  const json = JSON.stringify(parsed.favorites);
+  if (json === savedFavoritesJson) return;
+  try {
+    await chrome.storage.sync.set({ favorites: parsed.favorites });
+    savedFavoritesJson = json;
+  } catch (error) {
+    favoritesErrors.textContent = `保存できませんでした: ${error.message}`;
+  }
+}
+
+favorites.addEventListener("input", saveFavorites);
+
+resetFavorites.addEventListener("click", async () => {
+  favorites.value = formatFavorites(DEFAULT_FAVORITES);
+  favoritesErrors.textContent = "";
+  // 初期値が変わったときに追いつけるよう、保存した一覧を消して初期値に任せる。
+  await chrome.storage.sync.remove("favorites");
+  savedFavoritesJson = JSON.stringify(DEFAULT_FAVORITES);
+});
 
 siteSearch.addEventListener("input", async () => {
   const { engines, errors } = parseEngines(siteSearch.value);

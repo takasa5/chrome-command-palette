@@ -1,5 +1,5 @@
 import { COMMANDS } from "./commands.js";
-import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
+import { findFavoriteTab, getFavorites } from "./favorites.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
@@ -7,7 +7,7 @@ import { getEngines, siteSearchScope } from "./site-search.js";
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", readingList: "リーディングリスト" };
+const KIND_LABELS = { command: "コマンド", favorite: "お気に入り", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", readingList: "リーディングリスト" };
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -62,6 +62,7 @@ let folderStack = [];
 let activeScope = null;
 // キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
 let scopes = [];
+let favorites = [];
 const scopeIcons = new WeakMap();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
@@ -105,8 +106,9 @@ function otherTabs() {
   return allTabs.filter((tab) => tab.id !== ctx.self.id);
 }
 
+// 設定画面で編集されたときに追いつけるよう、サイト内検索と一緒に読み直す。
 async function refreshScopes() {
-  scopes = (await getEngines()).map(siteSearchScope);
+  [scopes, favorites] = await Promise.all([getEngines().then((engines) => engines.map(siteSearchScope)), getFavorites()]);
   // キーワードを打ち終える前に読み込んでおき、ヒントと同時に出せるようにする。
   scopes.forEach(scopeIcon);
 }
@@ -247,7 +249,7 @@ async function update() {
     return;
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
-  const sources = { commands: availableCommands(), services: GOOGLE_SERVICES, tabs: otherTabs() };
+  const sources = { commands: availableCommands(), favorites, tabs: otherTabs() };
   results = rankResults(query, sources);
   render();
 
@@ -340,8 +342,8 @@ function runItem(item, { moveHere }) {
   switch (item.kind) {
     case "command":
       return item.command.run(ctx);
-    case "service": {
-      const tab = findServiceTab(allTabs, item.service, ctx.self.windowId);
+    case "favorite": {
+      const tab = findFavoriteTab(allTabs, item.favorite, ctx.self.windowId);
       return tab ? openTab(tab) : ctx.navigate(item.url);
     }
     case "tab":
