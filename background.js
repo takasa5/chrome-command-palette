@@ -1,4 +1,5 @@
 import { toggleOverlay } from "./overlay.js";
+import { USAGE_STORAGE_KEY, forgetUrls, recordUsage } from "./usage.js";
 
 const paletteUrl = chrome.runtime.getURL("palette.html");
 
@@ -33,3 +34,27 @@ chrome.tabs.onActivated.addListener(async ({ tabId, windowId }) => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => chrome.storage.session.remove(String(tabId)));
+
+// パレットで選んだ記録は、ここだけで順番に書き換える。
+// パレットと履歴の削除が同時に書くと、片方の変更が古い記録で上書きされる（消したページが残るなど）ため。
+let usageWrites = Promise.resolve();
+
+function updateUsage(change) {
+  const write = usageWrites.then(async () => {
+    const { [USAGE_STORAGE_KEY]: usage = {} } = await chrome.storage.local.get(USAGE_STORAGE_KEY);
+    const next = change(usage);
+    if (next !== usage) await chrome.storage.local.set({ [USAGE_STORAGE_KEY]: next });
+    return next;
+  });
+  usageWrites = write.catch(() => {});
+  return write;
+}
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type !== "record-usage") return;
+  updateUsage((usage) => recordUsage(usage, message.key, Date.now())).then(sendResponse, () => sendResponse(null));
+  return true;
+});
+
+// 閲覧履歴から消したページは、パレットで選んだ記録からも消す。
+chrome.history.onVisitRemoved.addListener((removed) => updateUsage((usage) => forgetUrls(usage, removed)));
