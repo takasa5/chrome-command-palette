@@ -50,8 +50,15 @@ export async function getFavorites() {
   return favorites ?? DEFAULT_FAVORITES;
 }
 
+// Google のサービスは /u/0/、/u/1/ のようにパスにアカウントの番号が入るので、番号を区別せずに比べる。
+// 番号の部分だけを置き換え、/document/u/0/（ホーム）と /document/d/…（個別のファイル）は区別したままにする。
+export function withoutAccountNumber(url) {
+  return url.replace(/\/u\/\d+(?=\/|$)/g, "/u/*");
+}
+
 // URL で始まるタブを再利用する。今のウィンドウのタブを優先する。
 export function findFavoriteTab(tabs, favorite, windowId) {
-  const open = tabs.filter((tab) => tab.url?.startsWith(favorite.url));
+  const prefix = withoutAccountNumber(favorite.url);
+  const open = tabs.filter((tab) => tab.url && withoutAccountNumber(tab.url).startsWith(prefix));
   return open.find((tab) => tab.windowId === windowId) ?? open[0] ?? null;
 }

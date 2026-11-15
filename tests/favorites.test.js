@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { COMMANDS } from "../commands.js";
-import { DEFAULT_FAVORITES, findFavoriteTab, formatFavorites, parseFavorites } from "../favorites.js";
+import { DEFAULT_FAVORITES, findFavoriteTab, formatFavorites, parseFavorites, withoutAccountNumber } from "../favorites.js";
 import { rankResults } from "../search.js";
 
 const favorite = (title) => DEFAULT_FAVORITES.find((f) => f.title === title);
@@ -86,4 +86,18 @@ test("不正な行は保存せず、行番号付きで理由を返す", () => {
 
 test("書き出した内容を読み直すと同じ一覧になる", () => {
   assert.deepEqual(parseFavorites(formatFavorites(DEFAULT_FAVORITES)), { favorites: DEFAULT_FAVORITES, errors: [] });
+});
+
+test("別のアカウント（/u/1/）で開いているホームのタブも再利用する", () => {
+  const home = { id: 2, windowId: 1, url: "https://docs.google.com/document/u/1/" };
+  assert.equal(findFavoriteTab([home], favorite("Google Docs"), 1), home);
+  assert.equal(findFavoriteTab([{ id: 3, windowId: 1, url: "https://docs.google.com/document/d/abc/edit" }], favorite("Google Docs"), 1), null);
+  assert.equal(findFavoriteTab([{ id: 4, windowId: 1, url: "https://docs.google.com/spreadsheets/u/2/?tgif=d" }], favorite("Google Sheets"), 1)?.id, 4);
+});
+
+test("アカウントの番号だけを置き換える", () => {
+  assert.equal(withoutAccountNumber("https://docs.google.com/document/u/12/"), "https://docs.google.com/document/u/*/");
+  assert.equal(withoutAccountNumber("https://mail.google.com/mail/u/0"), "https://mail.google.com/mail/u/*");
+  assert.equal(withoutAccountNumber("https://example.com/u/name/"), "https://example.com/u/name/");
+  assert.equal(withoutAccountNumber("https://example.com/menu/1/"), "https://example.com/menu/1/");
 });
