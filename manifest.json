@@ -10,8 +10,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["tabs", "history", "bookmarks", "sessions", "search", "favicon", "clipboardWrite", "storage", "scripting", "activeTab", "readingList", "offscreen"],
-  "optional_host_permissions": ["<all_urls>"],
+  "permissions": ["tabs", "history", "bookmarks", "sessions", "search", "favicon", "clipboardWrite", "storage", "scripting", "activeTab", "readingList"],
   "commands": {
     "open-palette": {
       "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },
