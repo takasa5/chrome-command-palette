@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findMissingFiles, manifestReferences, selectPackageFiles, sourceReferences } from "../scripts/store/package-files.js";
+import { findMissingFiles, isPackageName, manifestReferences, selectPackageFiles, sourceReferences } from "../scripts/store/package-files.js";
 
 test("selectPackageFiles はルートのページとスクリプト、manifest.json、icons の PNG だけを選ぶ", () => {
   const files = [
@@ -55,6 +55,7 @@ test("sourceReferences は JS の import、files、url、getURL を拾い、ク�
   const js = [
     `import { a } from "./search.js";`,
     `const m = await import("./translate.js");`,
+    `import "./focus.js";`,
     `chrome.scripting.executeScript({ target, files: ["translate-page.js"] });`,
     `chrome.offscreen.createDocument({ url: "offscreen.html" });`,
     `chrome.runtime.getURL("palette.html") + "?focus";`,
@@ -64,10 +65,18 @@ test("sourceReferences は JS の import、files、url、getURL を拾い、ク�
     `const labels = { url: "URL" };`,
     `import { chromium } from "playwright-core";`,
   ].join("\n");
-  assert.deepEqual(sourceReferences(js), ["search.js", "playwright-core", "translate.js", "palette.html", "options.html", "translate-page.js", "offscreen.html"]);
+  assert.deepEqual(sourceReferences(js), ["search.js", "playwright-core", "focus.js", "translate.js", "palette.html", "options.html", "translate-page.js", "offscreen.html"]);
 });
 
 test("findMissingFiles は zip に入らない参照を重複なく返す", () => {
   assert.deepEqual(findMissingFiles(["a.js", "b.js", "a.js", "icons/icon-16.png"], ["a.js"]), ["b.js", "icons/icon-16.png"]);
   assert.deepEqual(findMissingFiles(["a.js"], ["a.js", "b.js"]), []);
+});
+
+test("isPackageName は拡張子のない参照を npm のパッケージ名とみなす", () => {
+  assert.equal(isPackageName("playwright-core"), true);
+  assert.equal(isPackageName("@scope/pkg"), true);
+  assert.equal(isPackageName("search.js"), false);
+  assert.equal(isPackageName("icons/icon-16.png"), false);
+  assert.equal(isPackageName("palette.html"), false);
 });

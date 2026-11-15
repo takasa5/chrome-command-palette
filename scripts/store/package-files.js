@@ -19,10 +19,12 @@ export function manifestReferences(manifest) {
 
 // HTML の src と href、JS の import、files: [...]、url: "..."、getURL(...) が指す、拡張機能の中のファイル。
 // palette.html?focus のような後ろの指定と、先頭の ./ や / は落とす。
+// import "playwright-core" のようなパッケージ名も返す。拡張機能では読み込めないので、isPackageName で見分けて止める。
 export function sourceReferences(text) {
   const patterns = [
     /\b(?:src|href)="([^"]+)"/g,
     /\bfrom\s+"([^"]+)"/g,
+    /\bimport\s+"([^"]+)"/g,
     /\bimport\s*\(\s*"([^"]+)"\s*\)/g,
     /\bgetURL\(\s*"([^"]+)"/g,
     /\bfiles:\s*\[\s*"([^"]+)"/g,
@@ -34,6 +36,12 @@ export function sourceReferences(text) {
     .filter((reference) => !/^[a-z][a-z0-9+.-]*:/i.test(reference) && !reference.startsWith("#"))
     .map((reference) => reference.replace(/[?#].*$/, "").replace(/^\.?\//, ""))
     .filter((reference) => reference && !reference.endsWith("/"));
+}
+
+// 拡張子のない参照は、ファイルではなく npm のパッケージ名とみなす。
+// Chrome はパッケージ名を解決できず、node_modules も zip に入らないので、拡張機能からは読み込めない。
+export function isPackageName(reference) {
+  return !/\.[a-z0-9]+$/i.test(reference);
 }
 
 // 参照しているのに zip に入らないファイル。
