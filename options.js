@@ -1,12 +1,9 @@
 import { getNewWindowPins } from "./commands.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
-import { getAccounts, parseAccounts, readAccountsFromX, xScope } from "./x-accounts.js";
 
 const input = document.getElementById("stale-hours");
 const newWindowPins = document.getElementById("new-window-pins");
-const accounts = document.getElementById("x-accounts");
-const readButton = document.getElementById("read-x-accounts");
 const siteSearch = document.getElementById("site-search");
 const siteSearchErrors = document.getElementById("site-search-errors");
 const toast = document.getElementById("toast");
@@ -16,15 +13,12 @@ let savedEnginesJson = JSON.stringify(savedEngines);
 
 input.value = await getStaleHours();
 newWindowPins.checked = await getNewWindowPins();
-accounts.value = (await getAccounts()).join("\n");
 siteSearch.value = formatEngines(savedEngines);
 
 newWindowPins.addEventListener("change", () => chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
 
-accounts.addEventListener("input", () => chrome.storage.sync.set({ xAccounts: parseAccounts(accounts.value) }));
-
 siteSearch.addEventListener("input", async () => {
-  const { engines, errors } = parseEngines(siteSearch.value, [xScope.keyword]);
+  const { engines, errors } = parseEngines(siteSearch.value);
   siteSearchErrors.textContent = errors.join("\n");
   // storage.sync は書き込み回数に上限があるので、登録内容が変わったときだけ保存する。
   const json = JSON.stringify(engines);
@@ -34,21 +28,6 @@ siteSearch.addEventListener("input", async () => {
     savedEnginesJson = json;
   } catch (error) {
     siteSearchErrors.textContent = `保存できませんでした: ${error.message}`;
-  }
-});
-
-readButton.addEventListener("click", async () => {
-  readButton.disabled = true;
-  toast.textContent = "";
-  try {
-    const handles = await readAccountsFromX();
-    if (handles.length === 0) throw new Error("読み込めませんでした。X にログインしているか確認してください");
-    accounts.value = handles.join("\n");
-    await chrome.storage.sync.set({ xAccounts: handles });
-  } catch (error) {
-    toast.textContent = error.message;
-  } finally {
-    readButton.disabled = false;
   }
 });
 

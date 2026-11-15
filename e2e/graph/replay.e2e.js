@@ -4,15 +4,15 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { after, before, describe, test } from "node:test";
-import { launch, pageUrl, saveScreenshot } from "../support/browser.js";
+import { HOST_ORIGIN, launch, pageUrl, saveScreenshot } from "../support/browser.js";
 import { ACTIONS as LABELS, describeState } from "./scripts/labels.js";
 
 const paths = JSON.parse(readFileSync(process.env.E2E_PATHS ?? new URL("./generated/paths.json", import.meta.url), "utf8"));
 
 // モデルの前提にするブラウザの中身。閉じた状態では、毎回このタブだけが残る。
 const ALPHA = pageUrl("Alpha Notes");
-// 重ねるには host_permissions のあるページが要る。
-const HOST = pageUrl("Host Page", "https://x.com");
+// 重ねる先のページ。
+const HOST = pageUrl("Host Page", HOST_ORIGIN);
 const HISTORY = pageUrl("Release Notes", "https://docs.example.test");
 const SITE = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };
 const FOLDERS = { Work: { Docs: { Specs: { Guide: pageUrl("Guide", "https://docs.example.test") } } } };
@@ -46,7 +46,7 @@ before(async () => {
     { folders: FOLDERS, site: SITE, history: HISTORY },
   );
   await browser.openPage("Alpha Notes");
-  host = await browser.openPage("Host Page", "https://x.com");
+  host = await browser.openPage("Host Page", HOST_ORIGIN);
 });
 after(() => browser.close());
 
