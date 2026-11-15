@@ -1,4 +1,5 @@
 import { toggleOverlay } from "./overlay.js";
+import { USAGE_STORAGE_KEY, forgetUrls } from "./usage.js";
 
 const paletteUrl = chrome.runtime.getURL("palette.html");
 
@@ -55,3 +56,9 @@ chrome.tabs.onActivated.addListener(async ({ tabId, windowId }) => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => chrome.storage.session.remove(String(tabId)));
+
+// 閲覧履歴から消したページは、パレットで選んだ記録からも消す。
+chrome.history.onVisitRemoved.addListener(async (removed) => {
+  const { [USAGE_STORAGE_KEY]: usage } = await chrome.storage.local.get(USAGE_STORAGE_KEY);
+  if (usage) await chrome.storage.local.set({ [USAGE_STORAGE_KEY]: forgetUrls(usage, removed) });
+});

@@ -3,6 +3,7 @@ import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
+import { USAGE_STORAGE_KEY, recordUsage, sortByUsage, usageKey } from "./usage.js";
 
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
@@ -63,6 +64,8 @@ let folderStack = [];
 let activeScope = null;
 // キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
 let scopes = [];
+// パレットで候補を選んだ記録。よく選ぶ候補を上に出すのに使う。
+let usage = {};
 const scopeIcons = new WeakMap();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
@@ -112,6 +115,23 @@ async function refreshScopes() {
   scopes.forEach(scopeIcon);
 }
 
+async function refreshUsage() {
+  const { [USAGE_STORAGE_KEY]: stored } = await chrome.storage.local.get(USAGE_STORAGE_KEY);
+  usage = stored ?? {};
+}
+
+// 別のパレットで選んだ記録を消さないよう、保存されている最新の記録に足す。
+async function rememberUsage(item) {
+  if (!usageKey(item)) return;
+  try {
+    const { [USAGE_STORAGE_KEY]: stored } = await chrome.storage.local.get(USAGE_STORAGE_KEY);
+    usage = recordUsage(stored ?? {}, item, Date.now());
+    await chrome.storage.local.set({ [USAGE_STORAGE_KEY]: usage });
+  } catch {
+    // 記録できなくても、選んだ候補は開く。
+  }
+}
+
 function availableCommands() {
   return COMMANDS.filter((command) => !command.needsTarget || ctx.target);
 }
@@ -120,16 +140,20 @@ function availableCommands() {
 const commandScope = {
   keyword: "",
   title: "コマンド",
-  search: async (query) => rankCommands(query, availableCommands()),
+  search: async (query) => rankCommands(query, availableCommands(), { usage }),
 };
 
 function emptyQueryResults() {
   const tabs = otherTabs().sort((a, b) => b.lastAccessed - a.lastAccessed).slice(0, RECENT_TAB_COUNT);
   return [
     ...tabs.map((tab) => ({ kind: "tab", key: `tab:${tab.id}`, title: tab.title || tab.url, subtitle: stripUrl(tab.url), url: tab.url, tab })),
-    ...availableCommands()
-      .filter((command) => command.featured)
-      .map((command) => commandItem(command)),
+    ...sortByUsage(
+      availableCommands()
+        .filter((command) => command.featured)
+        .map((command) => commandItem(command)),
+      usage,
+      Date.now(),
+    ),
   ];
 }
 
@@ -238,7 +262,7 @@ async function update() {
     return;
   }
   if (folderStack.length > 0) {
-    results = rankFolderContents(query, folderStack.at(-1).folder);
+    results = rankFolderContents(query, folderStack.at(-1).folder, { usage });
     render();
     return;
   }
@@ -248,7 +272,7 @@ async function update() {
     return;
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
-  const sources = { commands: availableCommands(), services: GOOGLE_SERVICES, tabs: otherTabs() };
+  const sources = { commands: availableCommands(), services: GOOGLE_SERVICES, tabs: otherTabs(), usage };
   results = rankResults(query, sources);
   render();
 
@@ -363,6 +387,7 @@ async function execute(item, { moveHere = false } = {}) {
   busy = true;
   try {
     await refreshTabs();
+    await rememberUsage(item);
     await runItem(item, { moveHere });
   } catch (error) {
     toast.textContent = error.message;
@@ -403,7 +428,7 @@ function handleKeydown(event) {
 
 async function reactivate() {
   input.focus();
-  await Promise.all([refreshTabs(), refreshScopes()]);
+  await Promise.all([refreshTabs(), refreshScopes(), refreshUsage()]);
   if (!input.value.trim()) update();
 }
 
@@ -443,7 +468,7 @@ async function init() {
       if (!event.target.closest(".palette")) leave();
     });
   }
-  await Promise.all([refreshTabs(), refreshScopes()]);
+  await Promise.all([refreshTabs(), refreshScopes(), refreshUsage()]);
   chrome.tabs.onActivated.addListener(closeWhenLeft);
   input.addEventListener("input", update);
   input.addEventListener("keydown", handleKeydown);
