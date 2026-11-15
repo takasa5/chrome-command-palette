@@ -1,11 +1,24 @@
 // 拡張機能を読み込んだ Chromium を起動し、パレットを操作するための共通処理。
 import { chromium } from "playwright-core";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const ext = resolve(import.meta.dirname, "..", "..");
 const output = join(import.meta.dirname, "..", ".output");
+
+// パレットを重ねる先のページの origin。
+export const HOST_ORIGIN = "https://host.test";
+
+// activeTab の権限はショートカットを押したときにしか付かず、拡張機能は host_permissions を持たない。
+// 重ねて開けるよう、拡張機能を写して HOST_ORIGIN の host_permissions を足したものを読み込む。
+const SKIP = new Set([".git", ".github", ".claude", "node_modules", "e2e", "tests", "scripts", "docs"]);
+function prepareExtension(dir) {
+  cpSync(ext, dir, { recursive: true, filter: (src) => src === ext || !SKIP.has(src.slice(ext.length + 1).split("/")[0]) });
+  const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
+  manifest.host_permissions = [`${HOST_ORIGIN}/*`];
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
+}
 
 // 外部サイトにはつながず、どの URL にもタイトルだけのページを返す。
 // URL の title がそのままページのタイトルになる。
@@ -19,13 +32,15 @@ export const pageUrl = (title, origin = "https://example.test") => `${origin}/?t
 
 export async function launch() {
   const profile = mkdtempSync(join(tmpdir(), "command-palette-e2e-"));
+  const extDir = mkdtempSync(join(tmpdir(), "command-palette-e2e-ext-"));
+  prepareExtension(extDir);
   const ctx = await chromium.launchPersistentContext(profile, {
     // 既定の headless shell は拡張機能を読み込めない。
     channel: "chromium",
     headless: true,
     args: [
-      `--disable-extensions-except=${ext}`,
-      `--load-extension=${ext}`,
+      `--disable-extensions-except=${extDir}`,
+      `--load-extension=${extDir}`,
       // 拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、名前解決を止めて外へ出られなくする。
       "--host-resolver-rules=MAP * ~NOTFOUND",
     ],
@@ -59,7 +74,7 @@ export async function launch() {
       return page;
     },
     // Cmd+Shift+S と同じく page の上にパレットを重ねる。ブラウザのショートカットは Playwright から押せないので、onCommand を直接起こす。
-    // activeTab の権限はショートカットを押したときにしか付かないので、page は host_permissions にある https://x.com に置く。
+    // page は HOST_ORIGIN に置く（prepareExtension を参照）。
     async openOverlay(page) {
       await page.bringToFront();
       await sw.evaluate(async () => {
@@ -81,6 +96,7 @@ export async function launch() {
     async close() {
       await ctx.close();
       rmSync(profile, { recursive: true, force: true });
+      rmSync(extDir, { recursive: true, force: true });
     },
   };
 }

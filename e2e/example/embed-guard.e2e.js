@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, describe, test } from "node:test";
-import { launch, saveScreenshot } from "../support/browser.js";
+import { HOST_ORIGIN, launch, saveScreenshot } from "../support/browser.js";
 
 describe("例ベース", () => {
   describe("他のサイトへの埋め込み", () => {
@@ -47,7 +47,7 @@ describe("例ベース", () => {
     });
 
     test("一度使った合言葉では、他のサイトに埋め込んでも動かない", async () => {
-      const host = await browser.openPage("Host Page", "https://x.com");
+      const host = await browser.openPage("Host Page", HOST_ORIGIN);
       await browser.openOverlay(host);
       const overlay = await browser.overlayFrame(host);
       await overlay.locator("#results li").first().waitFor();

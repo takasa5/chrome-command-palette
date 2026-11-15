@@ -3,12 +3,11 @@ import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
-import { xScope } from "./x-accounts.js";
 
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", account: "アカウント", readingList: "リーディングリスト" };
+const KIND_LABELS = { command: "コマンド", service: "Google", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", readingList: "リーディングリスト" };
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -63,7 +62,7 @@ let busy = false;
 let folderStack = [];
 let activeScope = null;
 // キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
-let scopes = [xScope];
+let scopes = [];
 const scopeIcons = new WeakMap();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
@@ -108,7 +107,7 @@ function otherTabs() {
 }
 
 async function refreshScopes() {
-  scopes = [xScope, ...(await getEngines()).map(siteSearchScope)];
+  scopes = (await getEngines()).map(siteSearchScope);
   // キーワードを打ち終える前に読み込んでおき、ヒントと同時に出せるようにする。
   scopes.forEach(scopeIcon);
 }
@@ -153,7 +152,7 @@ function renderIcon(item) {
   if (item.url && item.kind !== "url" && item.kind !== "siteSearch") return renderFavicon(item.url);
   const span = document.createElement("span");
   span.className = "icon";
-  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", account: "@", readingList: "📖" }[item.kind];
+  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", readingList: "📖" }[item.kind];
   return span;
 }
 
@@ -350,7 +349,6 @@ function runItem(item, { moveHere }) {
       return moveHere && isOtherWindowTab(item) ? moveTabHere(item.tab) : openTab(item.tab);
     case "folder":
       return enterFolder(item.folder);
-    case "account":
     case "readingList":
       return item.run(ctx);
     case "search":

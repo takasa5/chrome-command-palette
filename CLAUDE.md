@@ -12,7 +12,6 @@
 
 * Playwright の Chrome for Testing を、`--load-extension` と `--disable-extensions-except` を付けて起動する
 * パレットは `chrome-extension://<id>/palette.html?focus` を開く
-* x.com は自動ブラウザからの接続が拒否されるので、`chrome.history.addUrl` で履歴を用意して確認する
 
 ## E2E
 

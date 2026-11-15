@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
 import { after, afterEach, before, describe, test } from "node:test";
-import { launch, pageUrl, pressToClose, pressToCloseOverlay, saveScreenshot } from "../support/browser.js";
+import { HOST_ORIGIN, launch, pageUrl, pressToClose, pressToCloseOverlay, saveScreenshot } from "../support/browser.js";
 
 describe("例ベース", () => {
   describe("ページに重ねて開く", () => {
-    // 重ねて開くには host_permissions のあるページが要る。
-    const HOST = "https://x.com";
+    const HOST = HOST_ORIGIN;
 
     let browser;
     let page;

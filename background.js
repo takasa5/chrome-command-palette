@@ -1,11 +1,6 @@
 import { toggleOverlay } from "./overlay.js";
-import { switchAccount } from "./x-accounts.js";
 
 const paletteUrl = chrome.runtime.getURL("palette.html");
-
-chrome.runtime.onMessage.addListener(({ type, tabId, handle, openHome }) => {
-  if (type === "switch-x-account") switchAccount(tabId, handle, { openHome }).catch(console.error);
-});
 
 // 翻訳中のページから届いた文字列を、offscreen.html の Translator に渡す。
 let offscreenReady = null;
