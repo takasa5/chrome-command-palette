@@ -43,8 +43,13 @@ export async function syncTheme() {
       // 写せなくても、次に開いたときに一瞬システムの色になるだけ。
     }
   };
+  // 読み出しを待つ間に変更が届いたら、古い読み出しで上書きしない。
+  let changed = false;
   chrome.storage.sync.onChanged.addListener((changes) => {
-    if (changes.theme) set(changes.theme.newValue);
+    if (!changes.theme) return;
+    changed = true;
+    set(changes.theme.newValue);
   });
-  set(await getTheme());
+  const theme = await getTheme();
+  if (!changed) set(theme);
 }
