@@ -3,7 +3,7 @@ import { colorScheme, getTheme } from "./theme.js";
 import { USAGE_STORAGE_KEY, forgetUrls, recordUsage } from "./usage.js";
 
 // タブや履歴に残るパレットの URL。拡張機能の ID が入る。
-const paletteUrl = `${location.origin}/palette.html`;
+const paletteUrl = `chrome-extension://${chrome.runtime.id}/palette.html`;
 // ページに重ねる iframe の URL。use_dynamic_url により、ID の代わりに起動ごとに変わる値が入るので、
 // サイトが palette.html を読み込んで拡張機能を入れているか調べることはできない。
 const embedUrl = chrome.runtime.getURL("palette.html");

@@ -28,7 +28,8 @@ const list = document.getElementById("results");
 const toast = document.getElementById("toast");
 const breadcrumb = document.getElementById("breadcrumb");
 // タブや履歴に残るパレットの URL。runtime.getURL は use_dynamic_url により起動ごとに変わる値を返し、タブの URL と合わないので使わない。
-const paletteUrl = `${location.origin}/palette.html`;
+// ページに重ねた iframe の中でも拡張機能の ID になるよう、location ではなく runtime.id から作る。
+const paletteUrl = `chrome-extension://${chrome.runtime.id}/palette.html`;
 const params = new URLSearchParams(location.search);
 // ページの上に重ねて開いたときは、新規タブではなく、そのページのタブ（hostTabId）の中の iframe で動く。
 const overlayToken = params.get("overlay");
