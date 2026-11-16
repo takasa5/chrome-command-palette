@@ -114,6 +114,6 @@ E2E は押したあとも画面がモデルの状態のまま（入力、パン�
 * **外へつながない**：`support/browser.js` の route が、どの URL にもタイトルだけのページを返す。拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、`--host-resolver-rules` で名前解決も止めている。外す前に、本物のサイトにつながらないか確かめる
 * **Cmd+Shift+S は押せない**：ブラウザのショートカットは Playwright から押せないので、Service Worker で `chrome.commands.onCommand.dispatch` を呼ぶ。ドキュメントにない API なので、Chrome の更新で使えなくなったら、background.js の処理を関数に切り出して呼ぶ形に変える
 * **重ねる先は host.test**：`activeTab` はショートカットを押したときしか付かず、拡張機能に `host_permissions` もない。`support/browser.js` は拡張機能を一時フォルダへ写し、`manifest.json` に `https://host.test/*` の `host_permissions` を足して読み込む。重ねる先のページは `HOST_ORIGIN` に置く
-* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。タブが閉じるキーは `support/browser.js` の `pressToClose` で押す。重ねたパレットを閉じるキーも、iframe が外れて keyup が返ってこないことがあるので `pressToCloseOverlay` で押す。グラフベースでは、閉じる操作のキーは `replay.e2e.js` の `closeWith` で keydown だけを送る
+* **キーでタブが閉じる**：Enter や Esc でタブが閉じると、`page.keyboard.press` が失敗したり返ってこなかったりする。タブが閉じるキーは `support/browser.js` の `pressToClose` で押す。重ねたパレットを閉じるキーは `pressToCloseOverlay` で押す。パレットは keydown の処理の途中で閉じるよう頼むので、keydown の応答より先に iframe が外れると、keydown も keyup も返ってこない（CI でまれに起きる）。グラフベースでは、閉じる操作のキーは `replay.e2e.js` の `closeWith` で keydown だけを、応答を待たずに送る。閉じたかどうかは、そのあとで確かめる
 * **前のテストのタブが残る**：同じファイルのテストはブラウザを共有する。タブの名前はテストごとに変えるか、後片付けをする
 * **読み込み前に打ったキー**：重ねたパレットが読み込み終わる前のキーをためて渡す処理は、タイミング次第で通る道が変わるので E2E では確かめていない（`applyBufferedKeys` は単体テスト）

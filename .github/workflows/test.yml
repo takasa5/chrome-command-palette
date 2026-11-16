@@ -83,3 +83,5 @@ jobs:
         with:
           name: e2e-screenshots
           path: e2e/.output/
+          # 失敗したテストの画面（e2e/.output/ のスクリーンショット）を上げて、CI で落ちた原因を後から見られるようにする
+          include-hidden-files: true

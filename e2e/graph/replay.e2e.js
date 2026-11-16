@@ -52,14 +52,13 @@ after(() => browser.close());
 
 const overlayOpen = () => host.evaluate(() => document.querySelector("command-palette-overlay") !== null);
 
-// パレットを閉じるキーは keydown だけを送る。パレットは keydown で閉じるので、keyup は閉じたタブや外した iframe に届き、
-// 返ってこなかったり失敗したりする。押したままのキーは、閉じたのを確かめてから残っているページで離す。
+// パレットを閉じるキーは keydown だけを送り、その応答も待たない。パレットは keydown の処理の途中で閉じるよう頼むので、
+// 応答より先にタブや iframe が消えると、keydown も keyup も返ってこなかったり失敗したりする。
+// 閉じたかどうかは expectState が確かめる。押したままのキーは、閉じたのを確かめてから残っているページで離す。
 let heldKey = null;
-async function closeWith(key) {
+function closeWith(key) {
   const { page } = palette;
-  await page.keyboard.down(key).catch((error) => {
-    if (!page.isClosed()) throw error;
-  });
+  page.keyboard.down(key).catch(() => {});
   heldKey = { page, key };
 }
 

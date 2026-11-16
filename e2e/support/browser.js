@@ -114,10 +114,11 @@ export async function pressToClose(page, key) {
   await closed;
 }
 
-// 重ねたパレットを閉じるキーを押す。keydown でパレットの iframe が外れると、keyup が届かず press が返ってこないことがある。
-// keydown だけを送り、iframe が外れてからページで離す。
+// 重ねたパレットを閉じるキーを押す。パレットは keydown の処理の途中で閉じるよう頼むので、
+// keydown の応答より先に iframe が外れると、keydown も keyup も返ってこないことがある。
+// keydown は応答を待たずに送り、iframe が外れてからページで離す。
 export async function pressToCloseOverlay(page, key) {
-  await page.keyboard.down(key);
+  page.keyboard.down(key).catch(() => {});
   await page.waitForFunction(() => document.querySelector("command-palette-overlay") === null);
   await page.keyboard.up(key);
 }
