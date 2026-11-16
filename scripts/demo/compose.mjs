@@ -1,13 +1,15 @@
-// .work/raw の画面を stage.html に載せて 1 コマずつ書き出し、ffmpeg で GIF にする。
+// .work/<lang>/raw の画面を stage.html に載せて 1 コマずつ書き出し、ffmpeg で GIF にする。
+// 英語は docs/demo.gif、日本語は docs/demo.ja.gif に書き出す。
 import { chromium } from "playwright-core";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const here = import.meta.dirname;
-const work = join(here, ".work");
+const lang = process.argv[2] ?? "en";
+const work = join(here, ".work", lang);
 const repo = resolve(here, "../..");
-const out = process.argv[2] ?? join(repo, "docs/demo.gif");
+const out = process.argv[3] ?? join(repo, lang === "en" ? "docs/demo.gif" : `docs/demo.${lang}.gif`);
 const framesDir = join(work, "frames");
 rmSync(framesDir, { recursive: true, force: true });
 mkdirSync(framesDir, { recursive: true });
@@ -18,7 +20,7 @@ const logo = `data:image/svg+xml;base64,${readFileSync(join(repo, "icon.svg")).t
 // 押した瞬間と、パレットが開く瞬間だけ数コマ足して動きを付ける。
 const steps = [];
 for (const frame of frames) {
-  const base = { shot: `.work/raw/${frame.shot}`, caption: frame.caption, keys: frame.keys, tabs: frame.tabs };
+  const base = { shot: `.work/${lang}/raw/${frame.shot}`, caption: frame.caption, keys: frame.keys, tabs: frame.tabs };
   if (frame.event === "open") {
     steps.push({ ...base, dur: 0.05, keyScale: 1.18, pageOpacity: 0.25, pageScale: 0.985 });
     steps.push({ ...base, dur: 0.05, keyScale: 1.1, pageOpacity: 0.65, pageScale: 0.993 });

@@ -19,7 +19,7 @@
 
 ## デモ GIF
 
-`docs/demo.gif` は `scripts/demo` で `npm install` のあと `npm run record` で作り直せる。Playwright の Chromium と ffmpeg が必要。
+`docs/demo.gif`（英語）と `docs/demo.ja.gif`（日本語）は `scripts/demo` で `npm install` のあと `npm run record` で作り直せる。片方だけなら `npm run record:en` か `npm run record:ja`。Playwright の Chromium と ffmpeg が必要。
 
 ## ストア公開
 
@@ -34,6 +34,8 @@
 * そのうえで、PR Lens のレビューを待って指摘に対応する。手順は `pr-review` スキル（[.claude/skills/pr-review/SKILL.md](.claude/skills/pr-review/SKILL.md)）に従う
 
 ## README
+
+README は英語の `README.md` と日本語の `README.ja.md` がある。どちらかを変えたら、もう片方も同じ内容に直す。
 
 README は機能の概要だけを短く書く。機能を足すときも、次の方針で全体が長くならないようにする。
 

@@ -1,14 +1,26 @@
-// 実物の拡張機能を操作して、画面とタブの状態を .work/ に保存する。
+// 実物の拡張機能を操作して、画面とタブの状態を .work/<lang>/ に保存する。
+// 引数は en か ja。画面の言語、ブックマークの名前、キャプションをそろえる。
 import { chromium } from "playwright-core";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const here = import.meta.dirname;
-const ext = resolve(here, "../..");
-const work = join(here, ".work");
+const root = resolve(here, "../..");
+const lang = process.argv[2] ?? "en";
+if (!["en", "ja"].includes(lang)) throw new Error(`en か ja を指定してください: ${lang}`);
+const work = join(here, ".work", lang);
 const raw = join(work, "raw");
 const profile = mkdtempSync(join(tmpdir(), "command-palette-demo-"));
+
+// macOS の Chrome は --lang を無視してシステムの言語で文言を選ぶ。
+// 拡張機能をコピーして、録る言語の _locales だけを残し、それを既定の言語にする。
+const ext = mkdtempSync(join(tmpdir(), "command-palette-demo-ext-"));
+const SKIP = new Set(["node_modules", "scripts", "tests", "e2e", "docs", ".git", ".github", ".claude"]);
+cpSync(root, ext, { recursive: true, filter: (src) => src === root || !SKIP.has(src.slice(root.length + 1).split("/")[0]) });
+for (const locale of ["en", "ja"]) if (locale !== lang) rmSync(join(ext, "_locales", locale), { recursive: true });
+const manifest = JSON.parse(readFileSync(join(ext, "manifest.json"), "utf8"));
+writeFileSync(join(ext, "manifest.json"), JSON.stringify({ ...manifest, default_locale: lang }, null, 2));
 rmSync(raw, { recursive: true, force: true });
 mkdirSync(raw, { recursive: true });
 
@@ -16,18 +28,22 @@ const OPEN_TABS = [
   "https://github.com/takasa5/chrome-command-palette",
   "https://news.ycombinator.com/",
   "https://www.youtube.com/",
-  "https://developer.mozilla.org/ja/",
+  lang === "ja" ? "https://developer.mozilla.org/ja/" : "https://developer.mozilla.org/en-US/",
 ];
 // 仕事 / フロントエンド / ライブラリ のように階層をたどれるようにする。
+const NAMES = {
+  en: { work: "Work", frontend: "Frontend", libraries: "Libraries", backend: "Backend", infra: "Infrastructure" },
+  ja: { work: "仕事", frontend: "フロントエンド", libraries: "ライブラリ", backend: "バックエンド", infra: "インフラ" },
+}[lang];
 const BOOKMARK_TREE = {
-  仕事: {
-    フロントエンド: {
-      ライブラリ: { React: "https://github.com/facebook/react", "Next.js": "https://github.com/vercel/next.js", Playwright: "https://github.com/microsoft/playwright" },
-      "MDN Web Docs": "https://developer.mozilla.org/ja/",
+  [NAMES.work]: {
+    [NAMES.frontend]: {
+      [NAMES.libraries]: { React: "https://github.com/facebook/react", "Next.js": "https://github.com/vercel/next.js", Playwright: "https://github.com/microsoft/playwright" },
+      "MDN Web Docs": OPEN_TABS[3],
       "Can I use": "https://caniuse.com/",
     },
-    バックエンド: { "Node.js": "https://github.com/nodejs/node", Express: "https://github.com/expressjs/express" },
-    インフラ: { Kubernetes: "https://github.com/kubernetes/kubernetes" },
+    [NAMES.backend]: { "Node.js": "https://github.com/nodejs/node", Express: "https://github.com/expressjs/express" },
+    [NAMES.infra]: { Kubernetes: "https://github.com/kubernetes/kubernetes" },
   },
 };
 const collectUrls = (tree) => Object.values(tree).flatMap((v) => (typeof v === "string" ? [v] : collectUrls(v)));
@@ -36,11 +52,11 @@ const ctx = await chromium.launchPersistentContext(profile, {
   // 既定の headless shell は拡張機能を読み込めない。
   channel: "chromium",
   headless: true,
-  args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, "--lang=ja"],
+  args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, `--lang=${lang}`],
   viewport: { width: 720, height: 470 },
   deviceScaleFactor: 2,
   colorScheme: "dark",
-  locale: "ja-JP",
+  locale: lang === "ja" ? "ja-JP" : "en-US",
 });
 const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent("serviceworker"));
 const extId = new URL(sw.url()).host;
@@ -115,11 +131,19 @@ async function clear(page) {
 }
 
 const CAP = {
-  open: "「新しいタブ」を置き換え",
-  tab: "開いているタブへすぐ移動",
-  folder: "ブックマークをフォルダ階層でたどる",
-  site: "キーワード + Tab でサイト内検索",
-};
+  en: {
+    open: "Replaces the new tab page",
+    tab: "Jump straight to an open tab",
+    folder: "Browse bookmarks by folder",
+    site: "Keyword + Tab for site search",
+  },
+  ja: {
+    open: "「新しいタブ」を置き換え",
+    tab: "開いているタブへすぐ移動",
+    folder: "ブックマークをフォルダ階層でたどる",
+    site: "キーワード + Tab でサイト内検索",
+  },
+}[lang];
 
 // 1. いま見ているページから Cmd+T
 const startPage = tabs.at(-1);
@@ -140,7 +164,7 @@ await snap(repo, 0.8, { caption: CAP.tab, keys: ["Enter"], event: "switch" });
 // 3. フォルダ階層をたどる
 palette = await openPalette();
 await snap(palette, 0.45, { caption: CAP.folder, keys: ["⌘", "T"], event: "open" });
-await type(palette, "仕事", { caption: CAP.folder });
+await type(palette, NAMES.work.toLowerCase(), { caption: CAP.folder });
 await snap(palette, 0.8, { caption: CAP.folder });
 await palette.keyboard.press("Enter");
 await settle(250);
@@ -191,3 +215,4 @@ console.log("frames", timeline.length, "seconds", timeline.reduce((sum, f) => su
 console.log(timeline.at(-1).tabs.map((t) => `${t.title} | ${t.url}`).join("\n"));
 await ctx.close();
 rmSync(profile, { recursive: true, force: true });
+rmSync(ext, { recursive: true, force: true });

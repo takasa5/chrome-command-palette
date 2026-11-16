@@ -3,56 +3,56 @@
   Command Palette
 </h1>
 
-<p align="center">日本語 | <a href="README.en.md">English</a></p>
+<p align="center">English | <a href="README.ja.md">日本語</a></p>
 
-Arc のコマンドパレットの操作感を、Chrome のまま使うための拡張機能。`Cmd+T` でパレットを開き、ブラウザ操作、タブ切り替え、ブックマークと履歴の検索、URL を開く、Web 検索をキーボードで行える。
+A Chrome extension that brings the feel of Arc's command palette to Chrome. Press `Cmd+T` to open the palette and control the browser, switch tabs, search bookmarks and history, open URLs, and search the web from the keyboard.
 
-![Command Palette のデモ](docs/demo.gif)
+![Command Palette demo](docs/demo.gif)
 
-## インストール
+## Installation
 
-1. `chrome://extensions` を開き、右上の「デベロッパー モード」をオンにする
-2. 「パッケージ化されていない拡張機能を読み込む」でこのフォルダを選ぶ
-3. 新しいタブページの変更について確認が出たら、変更を維持する
+1. Open `chrome://extensions` and turn on "Developer mode" in the top right
+2. Click "Load unpacked" and select this folder
+3. If Chrome asks about the new tab page change, choose to keep it
 
-## 使い方
+## Usage
 
-| キー | 動作 |
+| Key | Action |
 |---|---|
-| `Cmd+T` | パレットを開く |
-| `Cmd+Shift+S` | 今のページの上にパレットを開く |
-| `↑` `↓` / `Ctrl+P` `Ctrl+N` | 候補を移動 |
-| `Enter` | 実行 |
-| `Shift+Enter` / `Shift+クリック` | 別ウィンドウのタブを、今のウィンドウへ移動して開く |
-| `Tab` | 空の入力でコマンドの絞り込み、登録したキーワードでサイト内検索に入る |
-| `Backspace` | 入力が空のとき、1 つ前に戻る |
-| `Esc` | 閉じて元のタブに戻る |
+| `Cmd+T` | Open the palette |
+| `Cmd+Shift+S` | Open the palette over the current page |
+| `↑` `↓` / `Ctrl+P` `Ctrl+N` | Move through results |
+| `Enter` | Run |
+| `Shift+Enter` / `Shift+Click` | Move a tab from another window into the current window and open it |
+| `Tab` | On empty input, filter to commands; after a registered keyword, start a site search |
+| `Backspace` | On empty input, go back one step |
+| `Esc` | Close and return to the previous tab |
 
-## 特徴
+## Features
 
-### Arc のような操作感
+### Feels like Arc
 
-* **新しいタブがパレットになる**: 新しいタブを開くと、アドレスバーの代わりにパレットが開く
-* **30 以上のブラウザ操作**: タブやウィンドウの操作、ズーム、Chrome の設定ページを開くなどを、パレットから名前で実行できる
-* **放置タブの一括クローズ**: `Archive Stale Tabs` で、しばらく見ていないタブを全ウィンドウからまとめて閉じる
-* **サイト内検索**: Chrome のカスタム検索のように、キーワードを入れてそのサイトを検索する
-* **お気に入りとピン**: Gmail のように開いておくサイトを、名前や `メール` などの別名で上位に出し、開いているタブがあればそこへ移る。Chrome のピンを Arc のお気に入りのように扱い、新しいウィンドウにも引き継ぐ
+* **New tab is the palette**: Opening a new tab opens the palette instead of the address bar
+* **30+ browser actions**: Run tab and window actions, zoom, open Chrome's settings pages, and more by name from the palette
+* **Archive stale tabs**: `Archive Stale Tabs` closes tabs you haven't looked at in a while, across all windows
+* **Site search**: Like Chrome's custom search engines, type a keyword to search that site
+* **Favorites and pins**: Sites you keep open, like Gmail, rank at the top by name or alias, and jump to the open tab if there is one. Chrome's pinned tabs work like Arc's favorites and carry over to new windows
 
-### Chrome の機能をそのまま使う
+### Built on Chrome, not around it
 
-* **ブックマークをフォルダでたどる**: Chrome のブックマークを、フォルダ名で絞り込んだり、フォルダの中に入って一覧したりできる
-* **リーディングリスト**: Chrome のリーディングリストへの追加、既読にする、一覧から開くをパレットから行える
-* **独自のデータを持たない**: タブ、ブックマーク、履歴、リーディングリストは Chrome のものを使うので、移行の手間がなく、拡張機能を外しても元のまま残る
-* **タブ移動**: 別ウィンドウのタブを、ページの状態を保ったまま今のウィンドウへ移動できる
+* **Browse bookmarks by folder**: Filter Chrome bookmarks by folder name, or step into a folder to list its contents
+* **Reading list**: Add to, mark as read, and open from Chrome's reading list in the palette
+* **No data of its own**: Tabs, bookmarks, history, and the reading list are Chrome's own, so there is nothing to migrate and everything stays as it was if you remove the extension
+* **Move tabs**: Move a tab from another window into the current one, keeping the page's state
 
-### そのほか
+### Also
 
-* **日本語と英語**: 画面はブラウザの言語に合わせて日本語か英語で表示する。どちらでも英語、日本語、ひらがなで検索できる
-* **よく選ぶ候補を優先**: パレットでよく選ぶページやコマンドほど、候補の上に出す
+* **Japanese and English**: The UI follows the browser's language, in Japanese or English. Either way, you can search in English, Japanese, or hiragana
+* **Frequent picks first**: Pages and commands you pick often in the palette rank higher
 
-設定は `Command Palette Settings` コマンドで開く。
+Open settings with the `Command Palette Settings` command.
 
-## テスト
+## Tests
 
 ```sh
 npm test

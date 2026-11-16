@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "record": "node capture.mjs && node compose.mjs"
+    "record": "npm run record:en && npm run record:ja",
+    "record:en": "node capture.mjs en && node compose.mjs en",
+    "record:ja": "node capture.mjs ja && node compose.mjs ja"
   },
   "devDependencies": {
     "playwright-core": "1.65.0"
