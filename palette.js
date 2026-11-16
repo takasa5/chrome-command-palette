@@ -3,6 +3,7 @@ import { GOOGLE_SERVICES, findServiceTab } from "./google-services.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
+import { syncTheme } from "./theme.js";
 import { USAGE_STORAGE_KEY, sortByUsage, usageKey } from "./usage.js";
 
 const DEBOUNCE_MS = 80;
@@ -458,6 +459,8 @@ async function takeBufferedKeys() {
 }
 
 async function init() {
+  // ページに重ねたときは、theme-init.js が URL のテーマを当てる。iframe の color-scheme と揃えるため、開いている間は変えない。
+  if (!overlay) syncTheme();
   if (overlay) {
     hostTabId = await claimHostTab();
     if (!hostTabId) return;

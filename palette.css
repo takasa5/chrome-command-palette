@@ -10,8 +10,13 @@
   color-scheme: light dark;
 }
 
+/* 設定でテーマを選んだときは、theme-init.js と theme.js が html に data-theme を付ける。 */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #18181b;
     --panel: #242428;
     --text: #ececf0;
@@ -21,6 +26,18 @@
     --accent: #8fb0ff;
     --error: #ff8a80;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #18181b;
+  --panel: #242428;
+  --text: #ececf0;
+  --muted: #a0a0a9;
+  --border: #3a3a40;
+  --selected: #33394a;
+  --accent: #8fb0ff;
+  --error: #ff8a80;
+  color-scheme: dark;
 }
 
 * {
@@ -193,6 +210,7 @@ kbd {
   white-space: pre-line;
 }
 
+#theme,
 #stale-hours,
 #site-search {
   padding: 4px 8px;
@@ -201,6 +219,10 @@ kbd {
   border-radius: 6px;
   color: inherit;
   font: inherit;
+}
+
+#theme {
+  justify-self: start;
 }
 
 #stale-hours {

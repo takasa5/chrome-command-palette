@@ -1,7 +1,9 @@
 import { getNewWindowPins } from "./commands.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
+import { getTheme, syncTheme } from "./theme.js";
 
+const theme = document.getElementById("theme");
 const input = document.getElementById("stale-hours");
 const newWindowPins = document.getElementById("new-window-pins");
 const siteSearch = document.getElementById("site-search");
@@ -11,9 +13,14 @@ const toast = document.getElementById("toast");
 const savedEngines = await getEngines();
 let savedEnginesJson = JSON.stringify(savedEngines);
 
+theme.value = await getTheme();
+syncTheme();
 input.value = await getStaleHours();
 newWindowPins.checked = await getNewWindowPins();
 siteSearch.value = formatEngines(savedEngines);
+
+// 保存すると syncTheme が storage の変更を受けて、この画面にも当てる。
+theme.addEventListener("change", () => chrome.storage.sync.set({ theme: theme.value }));
 
 newWindowPins.addEventListener("change", () => chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
 
