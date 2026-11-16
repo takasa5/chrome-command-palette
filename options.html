@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="theme-init.js"></script>
     <title data-i18n="optionsTitle"></title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
@@ -9,45 +10,113 @@
     <script type="module" src="options.js"></script>
   </head>
   <body>
+    <!-- 各項目の右の図（.preview）には翻訳の要る文字を入れない。アイコン、数字、登録した名前だけで表す。 -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20h8M12 16v4" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" /></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 4 4H6l4-4-1-6zM12 14v6" /></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></symbol>
+    </svg>
     <main class="palette options">
       <section>
-        <label for="theme" data-i18n="themeLabel"></label>
-        <select id="theme">
-          <option value="system" data-i18n="themeSystem"></option>
-          <option value="light" data-i18n="themeLight"></option>
-          <option value="dark" data-i18n="themeDark"></option>
-        </select>
-      </section>
-      <section>
-        <label for="stale-hours" data-i18n="staleHoursLabel"></label>
-        <div>
-          <input id="stale-hours" type="number" min="0" step="any" required />
-          <span data-i18n="staleHoursUnit"></span>
+        <div class="field">
+          <label for="theme" data-i18n="themeLabel"></label>
+          <select id="theme">
+            <option value="system" data-i18n="themeSystem"></option>
+            <option value="light" data-i18n="themeLight"></option>
+            <option value="dark" data-i18n="themeDark"></option>
+          </select>
+        </div>
+        <div class="preview theme-preview">
+          <button type="button" class="swatch" data-theme-value="system" data-i18n-aria-label="themeSystem">
+            <span class="screen system"><span></span><span></span></span>
+            <svg class="i"><use href="#i-monitor" /></svg>
+          </button>
+          <button type="button" class="swatch" data-theme-value="light" data-i18n-aria-label="themeLight">
+            <span class="screen light"><span></span><span></span></span>
+            <svg class="i"><use href="#i-sun" /></svg>
+          </button>
+          <button type="button" class="swatch" data-theme-value="dark" data-i18n-aria-label="themeDark">
+            <span class="screen dark"><span></span><span></span></span>
+            <svg class="i"><use href="#i-moon" /></svg>
+          </button>
         </div>
       </section>
       <section>
-        <label><input id="new-window-pins" type="checkbox" /> <span data-i18n="newWindowPinsLabel"></span></label>
+        <div class="field">
+          <label for="stale-hours" data-i18n="staleHoursLabel"></label>
+          <div class="inline">
+            <input id="stale-hours" type="number" min="0" step="any" required aria-describedby="stale-hours-error" />
+            <span data-i18n="staleHoursUnit"></span>
+          </div>
+          <output id="stale-hours-error"></output>
+        </div>
+        <div class="preview stale-preview" aria-hidden="true">
+          <div class="stale-zone"></div>
+          <div class="stale-tabs"></div>
+          <div class="stale-axis"><span class="now"></span></div>
+          <svg class="i stale-eye"><use href="#i-eye" /></svg>
+          <div class="stale-line"></div>
+          <div class="stale-label"><svg class="i"><use href="#i-clock" /></svg><span></span></div>
+        </div>
       </section>
       <section>
-        <label for="favorites" data-i18n="favoritesLabel"></label>
-        <textarea id="favorites" rows="6" spellcheck="false" aria-describedby="favorites-note"></textarea>
-        <p id="favorites-note" data-i18n="favoritesNote"></p>
-        <div><button id="reset-favorites" type="button" data-i18n="resetFavorites"></button></div>
-        <output id="favorites-errors"></output>
+        <div class="field">
+          <label class="switch"><input id="new-window-pins" type="checkbox" role="switch" /> <span data-i18n="newWindowPinsLabel"></span></label>
+        </div>
+        <div class="preview pins-preview" aria-hidden="true">
+          <div class="window">
+            <div class="strip"><span class="pin a"></span><span class="pin b"></span><span class="tab"></span></div>
+            <div class="body"><svg class="i"><use href="#i-pin" /></svg></div>
+          </div>
+          <svg class="i arrow"><use href="#i-arrow" /></svg>
+          <div class="window new">
+            <div class="strip"><span class="pin a copied"></span><span class="pin b copied"></span><span class="tab"></span></div>
+            <div class="body"></div>
+          </div>
+        </div>
       </section>
       <section>
-        <label for="site-search" data-i18n="siteSearchLabel"></label>
-        <textarea
-          id="site-search"
-          rows="4"
-          spellcheck="false"
-          placeholder="gh GitHub https://github.com/search?q=%s"
-          aria-describedby="site-search-note"
-        ></textarea>
-        <p id="site-search-note" data-i18n="siteSearchNote"></p>
-        <output id="site-search-errors"></output>
+        <div class="field">
+          <label for="favorites" data-i18n="favoritesLabel"></label>
+          <textarea id="favorites" rows="6" spellcheck="false" aria-describedby="favorites-note"></textarea>
+          <p id="favorites-note" class="note" data-i18n="favoritesNote"></p>
+          <div><button id="reset-favorites" type="button" data-i18n="resetFavorites"></button></div>
+          <output id="favorites-errors"></output>
+        </div>
+        <div class="preview favorites-preview" aria-hidden="true">
+          <div class="mini-input"><svg class="i"><use href="#i-search" /></svg><span class="query"></span><span class="caret"></span></div>
+          <div class="mini-hit"><svg class="i"><use href="#i-star" /></svg><span class="title"></span><svg class="i"><use href="#i-arrow" /></svg></div>
+          <div class="mini-line"></div>
+          <div class="mini-line short"></div>
+        </div>
       </section>
-      <output id="toast"></output>
+      <section>
+        <div class="field">
+          <label for="site-search" data-i18n="siteSearchLabel"></label>
+          <textarea
+            id="site-search"
+            rows="4"
+            spellcheck="false"
+            placeholder="gh GitHub https://github.com/search?q=%s"
+            aria-describedby="site-search-note"
+          ></textarea>
+          <p id="site-search-note" class="note" data-i18n="siteSearchNote"></p>
+          <output id="site-search-errors"></output>
+        </div>
+        <div class="preview site-search-preview" aria-hidden="true">
+          <div class="keys"><span class="mini-input keyword"></span><span class="plus">+</span><kbd>Tab ⇥</kbd></div>
+          <svg class="i down"><use href="#i-down" /></svg>
+          <div class="mini-input"><span class="chip"></span><span class="mini-line"></span></div>
+        </div>
+      </section>
     </main>
     <script src="localize.js"></script>
   </body>

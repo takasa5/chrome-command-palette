@@ -228,19 +228,19 @@
     "message": "New Window で今のウィンドウのピンも開く"
   },
   "favoritesLabel": {
-    "message": "お気に入り（1 行に「名前 URL 別名…」）"
+    "message": "お気に入り"
   },
   "favoritesNote": {
-    "message": "名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。不正な行は保存されません。"
+    "message": "1 行に `名前 URL 別名…`。名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。"
   },
   "resetFavorites": {
     "message": "初期値に戻す"
   },
   "siteSearchLabel": {
-    "message": "サイト内検索（1 行に「キーワード 名前 URL」）"
+    "message": "サイト内検索"
   },
   "siteSearchNote": {
-    "message": "URL の検索語の位置に %s を入れます。Chrome に登録済みのカスタム検索は拡張機能から読み取れないので、ここにも登録してください。不正な行は保存されません。"
+    "message": "1 行に `キーワード 名前 URL`。URL の `%s` が検索語に置き換わります。"
   },
   "saveFailed": {
     "message": "保存できませんでした: $ERROR$",

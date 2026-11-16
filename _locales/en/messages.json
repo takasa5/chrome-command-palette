@@ -228,19 +228,19 @@
     "message": "New Window also opens the current window's pinned tabs"
   },
   "favoritesLabel": {
-    "message": "Favorites (one per line: name URL aliases…)"
+    "message": "Favorites"
   },
   "favoritesNote": {
-    "message": "Typing a name or alias puts the favorite near the top. If a tab whose URL starts with it is open, the palette switches to that tab. Invalid lines are not saved."
+    "message": "One per line: `name URL aliases…`. Typing a name or alias puts the favorite near the top. If a tab whose URL starts with it is open, the palette switches to that tab."
   },
   "resetFavorites": {
     "message": "Reset to Defaults"
   },
   "siteSearchLabel": {
-    "message": "Site Search (one per line: keyword name URL)"
+    "message": "Site Search"
   },
   "siteSearchNote": {
-    "message": "Put %s where the search term goes in the URL. Extensions can't read Chrome's site search shortcuts, so add them here as well. Invalid lines are not saved."
+    "message": "One per line: `keyword name URL`. `%s` in the URL is replaced with the search term."
   },
   "saveFailed": {
     "message": "Couldn't save: $ERROR$",

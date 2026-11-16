@@ -100,3 +100,15 @@ test("お気に入りの初期値は、日本語の環境でだけ日本語の�
   assert.ok(en.every((favorite) => favorite.keywords.every((keyword) => /^[\x20-\x7e]+$/.test(keyword))));
   assert.deepEqual(en.find((favorite) => favorite.title === "Google Calendar").keywords, ["calendar", "gcal"]);
 });
+
+// localize.js は data-i18n の文言の `…` をコードの見た目で出す。t() や属性に入る文言では ` がそのまま出てしまう。
+test("` を含む文言は対になっていて、HTML の data-i18n でだけ使う", () => {
+  const html = ["palette.html", "options.html"].map(read).join("\n");
+  for (const locale of LOCALES) {
+    for (const [key, { message }] of Object.entries(loadMessages(locale))) {
+      if (!message.includes("`")) continue;
+      assert.equal(message.split("`").length % 2, 1, `${locale} ${key}`);
+      assert.ok(html.includes(`data-i18n="${key}"`), `${locale} ${key}`);
+    }
+  }
+});
