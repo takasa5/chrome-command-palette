@@ -1,7 +1,7 @@
 // お気に入り: 1 つのタブで開いておくサイト。開いているタブがあればそこへ移り、なければ開く。
 // 名前と別名で引け、同じ当たり方のタブやブックマークより上に出る。設定画面で編集でき、未設定のうちは初期値を使う。
 
-import { isJapanese, t } from "./i18n.js";
+import { isJapanese } from "./i18n.js";
 
 // Google ドキュメントなどは、個別のファイルのタブをホームの代わりにしないよう、ホームの URL にしておく。
 export const DEFAULT_FAVORITES = [
@@ -19,7 +19,7 @@ export const DEFAULT_FAVORITES = [
 
 // 日本語の別名は、日本語の環境でだけ初期値に入れる。ほかの言語の設定画面に日本語が並ばないようにする。
 const JAPANESE = /[\u3040-\u30ff\u3400-\u9fff]/;
-export function defaultFavorites(japanese = isJapanese()) {
+export function defaultFavorites(japanese) {
   if (japanese) return DEFAULT_FAVORITES;
   return DEFAULT_FAVORITES.map((favorite) => ({ ...favorite, keywords: favorite.keywords.filter((keyword) => !JAPANESE.test(keyword)) }));
 }
@@ -31,7 +31,8 @@ function isWebUrl(text) {
 
 // 1 行に「名前 URL 別名…」。名前には空白を含められ、最初の URL より前を名前、後ろを別名とする。
 // 不正な行は favorites に入れず、行番号付きの理由を errors に返す。同じ URL は先の行を残す。
-export function parseFavorites(text) {
+// t は文言を作る関数（i18n.js の t）。
+export function parseFavorites(text, t) {
   const favorites = [];
   const errors = [];
   const used = new Set();
@@ -56,7 +57,7 @@ export function formatFavorites(favorites) {
 
 export async function getFavorites() {
   const { favorites } = await chrome.storage.sync.get("favorites");
-  return favorites ?? defaultFavorites();
+  return favorites ?? defaultFavorites(isJapanese());
 }
 
 // Google のサービスは /u/0/、/u/1/ のようにパスにアカウントの番号が入るので、番号を区別せずに比べる。

@@ -1,7 +1,6 @@
 // キーワード + Tab で入るサイト内検索。
 // 拡張機能の API ではブラウザのカスタム検索を読み取れないので、設定画面で登録してもらう。
 
-import { t } from "./i18n.js";
 import { isSameOrigin, normalize } from "./search.js";
 
 const VISITED_PAGE_LIMIT = 100;
@@ -10,7 +9,7 @@ export function buildSearchUrl(template, query) {
   return template.replaceAll("%s", () => encodeURIComponent(query.trim()));
 }
 
-function urlError(template) {
+function urlError(template, t) {
   if (!template.includes("%s")) return t("siteSearchNoPlaceholder");
   // %s のままだと URL として読めない位置もあるので、置き換えてから確かめる。
   // javascript: などは開くとページ内でスクリプトが動くので、http と https だけを許す。
@@ -21,7 +20,8 @@ function urlError(template) {
 
 // 1 行に「キーワード 名前 URL」。名前には空白を含められる。
 // 不正な行は engines に入れず、行番号付きの理由を errors に返す。重複は先の行を残す。
-export function parseEngines(text, reservedKeywords = []) {
+// t は文言を作る関数（i18n.js の t）。
+export function parseEngines(text, t, reservedKeywords = []) {
   const engines = [];
   const errors = [];
   const used = new Set(reservedKeywords);
@@ -31,7 +31,7 @@ export function parseEngines(text, reservedKeywords = []) {
     const [keyword, ...rest] = line.trim().split(/\s+/);
     if (rest.length < 2) return fail(t("siteSearchMissingFields"));
     const url = rest.pop();
-    const error = urlError(url);
+    const error = urlError(url, t);
     if (error) return fail(error);
     // パレットは正規化した入力と比べるので、同じ形で持つ。
     const normalized = normalize(keyword);
@@ -67,7 +67,7 @@ export async function getEngines() {
   return siteSearchEngines;
 }
 
-export function siteSearchScope({ keyword, name, url }) {
+export function siteSearchScope({ keyword, name, url }, t) {
   return {
     keyword,
     title: t("siteSearchTitle", name),

@@ -1,6 +1,6 @@
 import { getNewWindowPins } from "./commands.js";
 import { defaultFavorites, formatFavorites, getFavorites, parseFavorites } from "./favorites.js";
-import { t } from "./i18n.js";
+import { isJapanese, t } from "./i18n.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
 import { getTheme, syncTheme } from "./theme.js";
@@ -37,10 +37,10 @@ favorites.value = formatFavorites(await getFavorites());
 newWindowPins.addEventListener("change", () => chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
 
 // 1 つでも直すと初期値ではなく、この一覧を保存して使う。空にすればお気に入りはなくなる。
-let savedFavoritesJson = JSON.stringify(parseFavorites(favorites.value).favorites);
+let savedFavoritesJson = JSON.stringify(parseFavorites(favorites.value, t).favorites);
 
 async function saveFavorites() {
-  const parsed = parseFavorites(favorites.value);
+  const parsed = parseFavorites(favorites.value, t);
   favoritesErrors.textContent = parsed.errors.join("\n");
   const json = JSON.stringify(parsed.favorites);
   if (json === savedFavoritesJson) return;
@@ -55,15 +55,15 @@ async function saveFavorites() {
 favorites.addEventListener("input", saveFavorites);
 
 resetFavorites.addEventListener("click", async () => {
-  favorites.value = formatFavorites(defaultFavorites());
+  favorites.value = formatFavorites(defaultFavorites(isJapanese()));
   favoritesErrors.textContent = "";
   // 初期値が変わったときに追いつけるよう、保存した一覧を消して初期値に任せる。
   await chrome.storage.sync.remove("favorites");
-  savedFavoritesJson = JSON.stringify(defaultFavorites());
+  savedFavoritesJson = JSON.stringify(defaultFavorites(isJapanese()));
 });
 
 siteSearch.addEventListener("input", async () => {
-  const { engines, errors } = parseEngines(siteSearch.value);
+  const { engines, errors } = parseEngines(siteSearch.value, t);
   siteSearchErrors.textContent = errors.join("\n");
   // storage.sync は書き込み回数に上限があるので、登録内容が変わったときだけ保存する。
   const json = JSON.stringify(engines);

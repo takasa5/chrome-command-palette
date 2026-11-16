@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import "./support/i18n.js";
+import { translator } from "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
 import { commandItem, rankCommands, rankFolderContents, rankResults } from "../search.js";
 import { MAX_USAGE_BONUS, forgetUrls, recordUsage, sortByUsage, usageBonus, usageKey } from "../usage.js";
+
+const t = translator("ja");
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = 1_800_000_000_000;
@@ -13,7 +15,7 @@ test("usageKey は同じページをタブ、ブックマーク、履歴で同�
   assert.equal(usageKey({ kind: "tab", url }), `url:${url}`);
   assert.equal(usageKey({ kind: "bookmark", url }), `url:${url}`);
   assert.equal(usageKey({ kind: "history", url }), `url:${url}`);
-  assert.equal(usageKey(commandItem(COMMANDS[0])), `command:${COMMANDS[0].id}`);
+  assert.equal(usageKey(commandItem(COMMANDS[0], t)), `command:${COMMANDS[0].id}`);
   assert.equal(usageKey({ kind: "folder", folder: { id: "7" } }), "folder:7");
 });
 
@@ -75,9 +77,9 @@ test("よく選ぶページが、同じくらい一致するほかの候補よ�
     { id: "1", title: "Project Alpha", url: "https://a.example/", visitCount: 50 },
     { id: "2", title: "Project Beta", url: "https://b.example/", visitCount: 1 },
   ];
-  assert.equal(rankResults("project", { history, now: NOW })[0].url, "https://a.example/");
+  assert.equal(rankResults("project", { t, history, now: NOW })[0].url, "https://a.example/");
   const usage = { "url:https://b.example/": { count: 5, lastUsed: NOW - DAY } };
-  assert.equal(rankResults("project", { history, usage, now: NOW })[0].url, "https://b.example/");
+  assert.equal(rankResults("project", { t, history, usage, now: NOW })[0].url, "https://b.example/");
 });
 
 test("よく選ぶ候補でも、ずっとよく一致する候補は追い越さない", () => {
@@ -86,7 +88,7 @@ test("よく選ぶ候補でも、ずっとよく一致する候補は追い越�
     { id: 2, title: "Team meeting notes", url: "https://meeting.example/" },
   ];
   const usage = { "url:https://meeting.example/": { count: 1000, lastUsed: NOW } };
-  assert.equal(rankResults("notes", { tabs, usage, now: NOW })[0].tab.id, 1);
+  assert.equal(rankResults("notes", { t, tabs, usage, now: NOW })[0].tab.id, 1);
 });
 
 test("選んでからしばらくたつと、効きが弱まって元の順に戻る", () => {
@@ -96,17 +98,17 @@ test("選んでからしばらくたつと、効きが弱まって元の順に�
   ];
   const usage = { "url:https://docs2.example/": { count: 1, lastUsed: NOW } };
   // 同点なら元の順のまま。
-  assert.equal(rankResults("docs", { tabs, now: NOW })[0].tab.id, 1);
-  assert.equal(rankResults("docs", { tabs, usage, now: NOW })[0].tab.id, 2);
-  assert.ok(rankResults("docs", { tabs, usage, now: NOW + 365 * DAY })[0].boost < 0.01);
+  assert.equal(rankResults("docs", { t, tabs, now: NOW })[0].tab.id, 1);
+  assert.equal(rankResults("docs", { t, tabs, usage, now: NOW })[0].tab.id, 2);
+  assert.ok(rankResults("docs", { t, tabs, usage, now: NOW + 365 * DAY })[0].boost < 0.01);
 });
 
 test("よく選ぶコマンドが上に出る", () => {
   const reload = COMMANDS.find((command) => command.id === "reload");
   const usage = { "command:reload": { count: 3, lastUsed: NOW } };
-  assert.equal(rankCommands("", COMMANDS, { usage, now: NOW })[0].command.id, "reload");
+  assert.equal(rankCommands("", COMMANDS, { t, usage, now: NOW })[0].command.id, "reload");
   assert.deepEqual(
-    rankCommands("", COMMANDS, { now: NOW }).map((item) => item.command.id),
+    rankCommands("", COMMANDS, { t, now: NOW }).map((item) => item.command.id),
     COMMANDS.map((command) => command.id),
   );
   assert.ok(reload);
@@ -121,9 +123,9 @@ test("フォルダの中でも、よく選ぶブックマークが上に出る",
       { id: "2", title: "Wiki Search", url: "https://wiki.example/search" },
     ],
   };
-  assert.equal(rankFolderContents("wiki", folder, { now: NOW })[0].url, "https://wiki.example/");
+  assert.equal(rankFolderContents("wiki", folder, { t, now: NOW })[0].url, "https://wiki.example/");
   const usage = { "url:https://wiki.example/search": { count: 2, lastUsed: NOW } };
-  assert.equal(rankFolderContents("wiki", folder, { usage, now: NOW })[0].url, "https://wiki.example/search");
+  assert.equal(rankFolderContents("wiki", folder, { t, usage, now: NOW })[0].url, "https://wiki.example/search");
 });
 
 test("sortByUsage は記録のない候補の順番を保つ", () => {

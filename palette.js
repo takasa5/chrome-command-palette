@@ -124,7 +124,7 @@ function otherTabs() {
 
 // 設定画面で編集されたときに追いつけるよう、サイト内検索と一緒に読み直す。
 async function refreshScopes() {
-  [scopes, favorites] = await Promise.all([getEngines().then((engines) => engines.map(siteSearchScope)), getFavorites()]);
+  [scopes, favorites] = await Promise.all([getEngines().then((engines) => engines.map((engine) => siteSearchScope(engine, t))), getFavorites()]);
   // キーワードを打ち終える前に読み込んでおき、ヒントと同時に出せるようにする。
   scopes.forEach(scopeIcon);
 }
@@ -153,7 +153,7 @@ function availableCommands() {
 const commandScope = {
   keyword: "",
   title: t("commandScopeTitle"),
-  search: async (query) => rankCommands(query, availableCommands(), { usage }),
+  search: async (query) => rankCommands(query, availableCommands(), { t, usage }),
 };
 
 function emptyQueryResults() {
@@ -163,7 +163,7 @@ function emptyQueryResults() {
     ...sortByUsage(
       availableCommands()
         .filter((command) => command.featured)
-        .map((command) => commandItem(command)),
+        .map((command) => commandItem(command, t)),
       usage,
       Date.now(),
     ),
@@ -275,7 +275,7 @@ async function update() {
     return;
   }
   if (folderStack.length > 0) {
-    results = rankFolderContents(query, folderStack.at(-1).folder, { usage });
+    results = rankFolderContents(query, folderStack.at(-1).folder, { t, usage });
     render();
     return;
   }
@@ -285,7 +285,7 @@ async function update() {
     return;
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
-  const sources = { commands: availableCommands(), favorites, tabs: otherTabs(), usage };
+  const sources = { t, commands: availableCommands(), favorites, tabs: otherTabs(), usage };
   results = rankResults(query, sources);
   render();
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { test } from "node:test";
-import { loadMessages, useLocale } from "./support/i18n.js";
+import { loadMessages, translator } from "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
 import { DEFAULT_FAVORITES, defaultFavorites, parseFavorites } from "../favorites.js";
 import { formatMessage, isJapanese } from "../i18n.js";
@@ -60,32 +60,34 @@ test("コマンドの説明はどの言語にもあり、日本語では今ま�
   for (const command of COMMANDS) assert.equal(ja[`command_${command.id.replaceAll("-", "_")}`].message, command.ja, command.id);
 });
 
-test("英語の環境では文言が英語になり、日本語の名前やひらがなでも引ける", (t) => {
-  useLocale("en");
-  t.after(() => useLocale("ja"));
-  assert.equal(rankResults("しーくれっと", { commands: COMMANDS })[0].command.id, "incognito");
-  assert.equal(rankCommands("incognito", COMMANDS)[0].subtitle, "Open a private window");
-  const results = rankResults("example.com", {});
+test("英語の環境では文言が英語になり、日本語の名前やひらがなでも引ける", () => {
+  const t = translator("en");
+  assert.equal(rankResults("しーくれっと", { t, commands: COMMANDS })[0].command.id, "incognito");
+  assert.equal(rankCommands("incognito", COMMANDS, { t })[0].subtitle, "Open a private window");
   assert.deepEqual(
-    results.map(({ title, subtitle }) => [title, subtitle]),
+    rankResults("example.com", { t }).map(({ title, subtitle }) => [title, subtitle]),
     [
       ["Open https://example.com", "URL"],
       ["Search for “example.com”", "Default search engine"],
     ],
   );
-  assert.deepEqual(parseFavorites("https://a.example/").errors, ["Line 1: Enter a name before the URL"]);
-  assert.deepEqual(parseEngines("gh https://github.com/search?q=%s").errors, ["Line 1: Enter a keyword, a name, and a URL separated by spaces"]);
-  const scope = siteSearchScope({ keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" });
+  assert.deepEqual(parseFavorites("https://a.example/", t).errors, ["Line 1: Enter a name before the URL"]);
+  assert.deepEqual(parseEngines("gh https://github.com/search?q=%s", t).errors, ["Line 1: Enter a keyword, a name, and a URL separated by spaces"]);
+  const scope = siteSearchScope({ keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" }, t);
   assert.equal(scope.hint, "Press Tab to search GitHub");
-  assert.equal(linkCountLabel(1), "1 item");
-  assert.equal(linkCountLabel(3), "3 items");
-  assert.deepEqual(defaultFavorites(), defaultFavorites(false));
+  assert.equal(linkCountLabel(1, t), "1 item");
+  assert.equal(linkCountLabel(3, t), "3 items");
 });
 
 test("日本語の環境では今と同じ文言になる", () => {
-  assert.equal(rankCommands("incognito", COMMANDS)[0].subtitle, "シークレットウィンドウ");
-  assert.equal(rankResults("foo", {}).at(-1).title, "「foo」を検索");
-  assert.equal(linkCountLabel(1), "1 件");
+  const t = translator("ja");
+  assert.equal(rankCommands("incognito", COMMANDS, { t })[0].subtitle, "シークレットウィンドウ");
+  assert.equal(rankResults("foo", { t }).at(-1).title, "「foo」を検索");
+  assert.equal(linkCountLabel(1, t), "1 件");
+});
+
+test("純粋関数を置くファイルは chrome.i18n を使う i18n.js を読み込まない", () => {
+  for (const file of ["search.js", "site-search.js"]) assert.doesNotMatch(read(file), /from "\.\/i18n\.js"/, file);
 });
 
 test("お気に入りの初期値は、日本語の環境でだけ日本語の別名を含む", () => {

@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import "./support/i18n.js";
+import { translator } from "./support/i18n.js";
 import { buildSearchUrl, formatEngines, parseEngines, pickVisitedPage, siteSearchScope } from "../site-search.js";
+
+const t = translator("ja");
 
 const GITHUB = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };
 
@@ -14,47 +16,47 @@ test("buildSearchUrl は %s をすべて置き換え、検索語の $ を特別�
 });
 
 test("parseEngines はキーワード、空白を含む名前、URL を読む", () => {
-  assert.deepEqual(parseEngines("gh GitHub https://github.com/search?q=%s\n\n  mdn MDN Web Docs  https://developer.mozilla.org/search?q=%s  "), {
+  assert.deepEqual(parseEngines("gh GitHub https://github.com/search?q=%s\n\n  mdn MDN Web Docs  https://developer.mozilla.org/search?q=%s  ", t), {
     engines: [GITHUB, { keyword: "mdn", name: "MDN Web Docs", url: "https://developer.mozilla.org/search?q=%s" }],
     errors: [],
   });
 });
 
 test("parseEngines はパレットの入力と比べられるようにキーワードを正規化する", () => {
-  assert.equal(parseEngines("ＧＨ GitHub https://github.com/search?q=%s").engines[0].keyword, "gh");
+  assert.equal(parseEngines("ＧＨ GitHub https://github.com/search?q=%s", t).engines[0].keyword, "gh");
 });
 
 test("parseEngines は項目が足りない行を保存しない", () => {
-  assert.deepEqual(parseEngines("gh https://github.com/search?q=%s"), {
+  assert.deepEqual(parseEngines("gh https://github.com/search?q=%s", t), {
     engines: [],
     errors: ["1 行目: キーワード、名前、URL を空白で区切って入力してください"],
   });
 });
 
 test("parseEngines は %s のない URL を保存しない", () => {
-  assert.deepEqual(parseEngines("gh GitHub https://github.com/search"), { engines: [], errors: ["1 行目: URL に %s がありません"] });
+  assert.deepEqual(parseEngines("gh GitHub https://github.com/search", t), { engines: [], errors: ["1 行目: URL に %s がありません"] });
 });
 
 test("parseEngines は http と https 以外の URL を保存しない", () => {
   for (const url of ["javascript:alert(%s)", "chrome://%s", "github.com/search?q=%s"]) {
-    assert.deepEqual(parseEngines(`gh GitHub ${url}`), { engines: [], errors: ["1 行目: URL は http:// か https:// で始めてください"] });
+    assert.deepEqual(parseEngines(`gh GitHub ${url}`, t), { engines: [], errors: ["1 行目: URL は http:// か https:// で始めてください"] });
   }
 });
 
 test("parseEngines は重複したキーワードの先の行を残す", () => {
-  assert.deepEqual(parseEngines("gh GitHub https://github.com/search?q=%s\nGH Other https://other.example/?q=%s"), {
+  assert.deepEqual(parseEngines("gh GitHub https://github.com/search?q=%s\nGH Other https://other.example/?q=%s", t), {
     engines: [GITHUB],
     errors: ["2 行目: キーワード gh はすでに使われています"],
   });
 });
 
 test("parseEngines は予約済みのキーワードを保存しない", () => {
-  assert.deepEqual(parseEngines("x Example https://example.com/?q=%s", ["x"]), { engines: [], errors: ["1 行目: キーワード x はすでに使われています"] });
+  assert.deepEqual(parseEngines("x Example https://example.com/?q=%s", t, ["x"]), { engines: [], errors: ["1 行目: キーワード x はすでに使われています"] });
 });
 
 test("formatEngines の出力は parseEngines で元に戻る", () => {
   const engines = [GITHUB, { keyword: "mdn", name: "MDN Web Docs", url: "https://developer.mozilla.org/search?q=%s" }];
-  assert.deepEqual(parseEngines(formatEngines(engines)), { engines, errors: [] });
+  assert.deepEqual(parseEngines(formatEngines(engines), t), { engines, errors: [] });
 });
 
 test("pickVisitedPage はパスの先頭が同じページを優先する", () => {
@@ -71,11 +73,11 @@ test("pickVisitedPage は別オリジンのページを選ばない", () => {
 });
 
 test("siteSearchScope は入力が空なら候補を出さない", async () => {
-  assert.deepEqual(await siteSearchScope(GITHUB).search("  "), []);
+  assert.deepEqual(await siteSearchScope(GITHUB, t).search("  "), []);
 });
 
 test("siteSearchScope は検索結果の URL を持つ候補を返す", async () => {
-  const [item] = await siteSearchScope(GITHUB).search("foo bar");
+  const [item] = await siteSearchScope(GITHUB, t).search("foo bar");
   assert.equal(item.kind, "siteSearch");
   assert.equal(item.title, "「foo bar」を検索");
   assert.equal(item.url, "https://github.com/search?q=foo%20bar");
