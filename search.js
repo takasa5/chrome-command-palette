@@ -1,5 +1,6 @@
-// 検索とランキング。Chrome API に依存しない純粋関数だけを置く。
+// 検索とランキング。Chrome API に依存しない純粋関数だけを置く（文言は i18n.js の t で引く）。
 
+import { t } from "./i18n.js";
 import { itemUsageBonus, sortByUsage } from "./usage.js";
 
 const KIND_BONUS = { command: 3, favorite: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
@@ -107,8 +108,12 @@ function bookmarkItem(query, bookmark) {
   return { kind: "bookmark", key: `bookmark:${bookmark.id}`, title: bookmark.title || bookmark.url, subtitle, url: bookmark.url, score };
 }
 
+export function linkCountLabel(count) {
+  return count === 1 ? t("folderLinkCountOne") : t("folderLinkCount", count);
+}
+
 function folderItem(folder, score) {
-  const subtitle = [...folder.folders.slice(-1), `${countLinks(folder)} 件`].join(" · ");
+  const subtitle = [...folder.folders.slice(-1), linkCountLabel(countLinks(folder))].join(" · ");
   return { kind: "folder", key: `folder:${folder.id}`, title: folder.title, subtitle, folder, score };
 }
 
@@ -150,8 +155,13 @@ function commandFields(command) {
   ];
 }
 
+// 説明は表示の言語で出す。日本語の名前（ja）は、どの言語でも検索に使う。
+export function commandDescription(command) {
+  return t(`command_${command.id.replaceAll("-", "_")}`);
+}
+
 export function commandItem(command, score) {
-  return { kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command, score };
+  return { kind: "command", key: `command:${command.id}`, title: command.title, subtitle: commandDescription(command), command, score };
 }
 
 // コマンドだけに絞っているときの結果。入力が空なら全件を、よく選ぶ順に返す。
@@ -221,10 +231,10 @@ export function rankResults(query, { commands = [], favorites = [], tabs = [], b
 
   const url = toUrl(query);
   if (url) {
-    const item = { kind: "url", key: "url", title: `${url} を開く`, subtitle: "URL", url, score: SCORE_URL_ITEM };
+    const item = { kind: "url", key: "url", title: t("openUrl", url), subtitle: "URL", url, score: SCORE_URL_ITEM };
     const index = ranked.findIndex((entry) => rankScore(entry) < SCORE_URL_ITEM);
     ranked.splice(index === -1 ? ranked.length : index, 0, item);
   }
-  ranked.push({ kind: "search", key: "search", title: `「${query.trim()}」を検索`, subtitle: "既定の検索エンジン", text: query.trim(), score: 0 });
+  ranked.push({ kind: "search", key: "search", title: t("searchFor", query.trim()), subtitle: t("defaultSearchEngine"), text: query.trim(), score: 0 });
   return ranked;
 }

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
 import { DEFAULT_FAVORITES, findFavoriteTab, formatFavorites, parseFavorites, withoutAccountNumber } from "../favorites.js";
 import { rankResults } from "../search.js";

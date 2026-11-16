@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ja">
+<html>
   <head>
     <meta charset="utf-8" />
     <!-- CSS の後に置くと読み込みを待ってから移動するので、先頭に置く。 -->
     <script src="redirect.js"></script>
-    <title>コマンドパレット</title>
+    <title data-i18n="paletteTitle"></title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="palette.css" />
     <script type="module" src="palette.js"></script>
@@ -15,24 +15,26 @@
       <input
         id="query"
         type="text"
-        placeholder="コマンド、タブ、ブックマーク、履歴を検索"
+        data-i18n-placeholder="searchPlaceholder"
         autocomplete="off"
         spellcheck="false"
         role="combobox"
         aria-expanded="true"
         aria-controls="results"
-        aria-label="コマンドパレット"
+        data-i18n-aria-label="paletteTitle"
       />
       <!-- module の読み込みを待たずにフォーカスする。 -->
       <script src="focus.js"></script>
       <ul id="results" role="listbox"></ul>
       <footer>
-        <span><kbd>↑</kbd><kbd>↓</kbd> 移動</span>
-        <span><kbd>Enter</kbd> 実行</span>
-        <span><kbd>⌫</kbd> フォルダを戻る</span>
-        <span><kbd>Esc</kbd> 閉じる</span>
+        <span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="footerMove"></span></span>
+        <span><kbd>Enter</kbd> <span data-i18n="footerRun"></span></span>
+        <span><kbd>⌫</kbd> <span data-i18n="footerBack"></span></span>
+        <span><kbd>Esc</kbd> <span data-i18n="footerClose"></span></span>
         <output id="toast"></output>
       </footer>
     </main>
+    <!-- 描画の前に文言を入れる。 -->
+    <script src="localize.js"></script>
   </body>
 </html>

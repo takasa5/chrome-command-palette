@@ -1,4 +1,5 @@
 import { COMMANDS } from "./commands.js";
+import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
@@ -8,7 +9,18 @@ import { USAGE_STORAGE_KEY, sortByUsage, usageKey } from "./usage.js";
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", favorite: "お気に入り", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", readingList: "リーディングリスト" };
+const KIND_LABELS = {
+  command: "kindCommand",
+  favorite: "kindFavorite",
+  tab: "kindTab",
+  folder: "kindFolder",
+  bookmark: "kindBookmark",
+  history: "kindHistory",
+  url: "kindUrl",
+  search: "kindSearch",
+  siteSearch: "kindSiteSearch",
+  readingList: "kindReadingList",
+};
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -139,7 +151,7 @@ function availableCommands() {
 // 何も入力せずに Tab を押すと入る。キーワードがないので scopes には入れない。
 const commandScope = {
   keyword: "",
-  title: "コマンド",
+  title: t("commandScopeTitle"),
   search: async (query) => rankCommands(query, availableCommands(), { usage }),
 };
 
@@ -185,9 +197,9 @@ function isOtherWindowTab(item) {
 }
 
 function kindLabel(item) {
-  if (!isOtherWindowTab(item)) return KIND_LABELS[item.kind];
-  if (item.key !== selectedKey) return "別ウィンドウのタブ";
-  return `Enter そのウィンドウへ / Shift+Enter ${item.tab.pinned ? "ここで開く" : "ここへ移動"}`;
+  if (!isOtherWindowTab(item)) return t(KIND_LABELS[item.kind]);
+  if (item.key !== selectedKey) return t("kindOtherWindowTab");
+  return t("otherWindowHint", t(item.tab.pinned ? "otherWindowOpenHere" : "otherWindowMoveHere"));
 }
 
 function renderRow(item) {

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
 import { commandItem, rankCommands, rankFolderContents, rankResults } from "../search.js";
 import { MAX_USAGE_BONUS, forgetUrls, recordUsage, sortByUsage, usageBonus, usageKey } from "../usage.js";

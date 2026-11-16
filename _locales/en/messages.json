@@ -1,0 +1,355 @@
+{
+  "locale": {
+    "message": "en",
+    "description": "文言の言語。表示の言語で処理を分けるときに使う。"
+  },
+  "extName": {
+    "message": "Command Palette"
+  },
+  "extDescription": {
+    "message": "A command palette that opens with Cmd+T. Control the browser, switch tabs, and search history and bookmarks from the keyboard."
+  },
+  "openPaletteDescription": {
+    "message": "Open the palette over the current page"
+  },
+  "paletteTitle": {
+    "message": "Command Palette"
+  },
+  "searchPlaceholder": {
+    "message": "Search commands, tabs, bookmarks, and history"
+  },
+  "footerMove": {
+    "message": "Move"
+  },
+  "footerRun": {
+    "message": "Open"
+  },
+  "footerBack": {
+    "message": "Back"
+  },
+  "footerClose": {
+    "message": "Close"
+  },
+  "kindCommand": {
+    "message": "Command"
+  },
+  "kindFavorite": {
+    "message": "Favorite"
+  },
+  "kindTab": {
+    "message": "Tab"
+  },
+  "kindFolder": {
+    "message": "Folder"
+  },
+  "kindBookmark": {
+    "message": "Bookmark"
+  },
+  "kindHistory": {
+    "message": "History"
+  },
+  "kindUrl": {
+    "message": "URL"
+  },
+  "kindSearch": {
+    "message": "Search"
+  },
+  "kindSiteSearch": {
+    "message": "Site Search"
+  },
+  "kindReadingList": {
+    "message": "Reading List"
+  },
+  "kindOtherWindowTab": {
+    "message": "Tab in Another Window"
+  },
+  "otherWindowHint": {
+    "message": "Enter Go to Window / Shift+Enter $ACTION$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "otherWindowOpenHere": {
+    "message": "Open Here"
+  },
+  "otherWindowMoveHere": {
+    "message": "Move Here"
+  },
+  "commandScopeTitle": {
+    "message": "Commands"
+  },
+  "folderLinkCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "folderLinkCountOne": {
+    "message": "1 item"
+  },
+  "openUrl": {
+    "message": "Open $URL$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchFor": {
+    "message": "Search for “$QUERY$”",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultSearchEngine": {
+    "message": "Default search engine"
+  },
+  "lineError": {
+    "message": "Line $LINE$: $MESSAGE$",
+    "placeholders": {
+      "line": {
+        "content": "$1"
+      },
+      "message": {
+        "content": "$2"
+      }
+    }
+  },
+  "favoritesNoUrl": {
+    "message": "Enter a URL that starts with http:// or https://"
+  },
+  "favoritesNoName": {
+    "message": "Enter a name before the URL"
+  },
+  "favoritesDuplicateUrl": {
+    "message": "$URL$ is already added",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteSearchMissingFields": {
+    "message": "Enter a keyword, a name, and a URL separated by spaces"
+  },
+  "siteSearchNoPlaceholder": {
+    "message": "The URL has no %s"
+  },
+  "siteSearchBadScheme": {
+    "message": "The URL must start with http:// or https://"
+  },
+  "siteSearchDuplicateKeyword": {
+    "message": "The keyword $KEYWORD$ is already in use",
+    "placeholders": {
+      "keyword": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteSearchTitle": {
+    "message": "Search $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteSearchHint": {
+    "message": "Press Tab to search $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "readingListTitle": {
+    "message": "Reading List"
+  },
+  "readingListEmpty": {
+    "message": "Your reading list is empty"
+  },
+  "readingListEmptyHint": {
+    "message": "Use Add to Reading List to save the current page"
+  },
+  "readingListRead": {
+    "message": "Read"
+  },
+  "readingListUnread": {
+    "message": "Unread"
+  },
+  "readingListCannotAdd": {
+    "message": "This page can't be added to the reading list"
+  },
+  "readingListNotFound": {
+    "message": "This page isn't in your reading list"
+  },
+  "noClosedTabs": {
+    "message": "No recently closed tabs"
+  },
+  "noStaleTabs": {
+    "message": "No tabs have gone unviewed for $HOURS$ hours or more",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsTitle": {
+    "message": "Command Palette Settings"
+  },
+  "staleHoursLabel": {
+    "message": "Archive Stale Tabs closes tabs not viewed for"
+  },
+  "staleHoursUnit": {
+    "message": "hours or more"
+  },
+  "staleHoursInvalid": {
+    "message": "Enter a number greater than 0"
+  },
+  "newWindowPinsLabel": {
+    "message": "New Window also opens the current window's pinned tabs"
+  },
+  "favoritesLabel": {
+    "message": "Favorites (one per line: name URL aliases…)"
+  },
+  "favoritesNote": {
+    "message": "Typing a name or alias puts the favorite near the top. If a tab whose URL starts with it is open, the palette switches to that tab. Invalid lines are not saved."
+  },
+  "resetFavorites": {
+    "message": "Reset to Defaults"
+  },
+  "siteSearchLabel": {
+    "message": "Site Search (one per line: keyword name URL)"
+  },
+  "siteSearchNote": {
+    "message": "Put %s where the search term goes in the URL. Extensions can't read Chrome's site search shortcuts, so add them here as well. Invalid lines are not saved."
+  },
+  "saveFailed": {
+    "message": "Couldn't save: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "command_new_window": {
+    "message": "Open a new window"
+  },
+  "command_incognito": {
+    "message": "Open a private window"
+  },
+  "command_new_tab": {
+    "message": "Chrome's standard New Tab page"
+  },
+  "command_reopen_tab": {
+    "message": "Bring back the last closed tab"
+  },
+  "command_close_tab": {
+    "message": "Close the current tab"
+  },
+  "command_close_other_tabs": {
+    "message": "Close all unpinned tabs except this one"
+  },
+  "command_close_right_tabs": {
+    "message": "Close unpinned tabs to the right"
+  },
+  "command_archive_stale_tabs": {
+    "message": "Close tabs you haven't viewed in a while"
+  },
+  "command_palette_settings": {
+    "message": "Open this extension's settings"
+  },
+  "command_close_window": {
+    "message": "Close this window"
+  },
+  "command_reload": {
+    "message": "Reload the current page"
+  },
+  "command_hard_reload": {
+    "message": "Reload, ignoring the cache"
+  },
+  "command_back": {
+    "message": "Go to the previous page"
+  },
+  "command_forward": {
+    "message": "Go to the next page"
+  },
+  "command_duplicate": {
+    "message": "Open a copy of the current tab"
+  },
+  "command_pin": {
+    "message": "Pin or unpin the current tab"
+  },
+  "command_mute": {
+    "message": "Mute or unmute the current tab"
+  },
+  "command_move_to_window": {
+    "message": "Move the current tab to a new window"
+  },
+  "command_copy_url": {
+    "message": "Copy the current page's URL"
+  },
+  "command_bookmark": {
+    "message": "Add the current page to bookmarks"
+  },
+  "command_add_to_reading_list": {
+    "message": "Save the current page to read later"
+  },
+  "command_mark_as_read": {
+    "message": "Mark the current page as read in the reading list"
+  },
+  "command_reading_list": {
+    "message": "Browse your reading list"
+  },
+  "command_zoom_in": {
+    "message": "Make the page larger"
+  },
+  "command_zoom_out": {
+    "message": "Make the page smaller"
+  },
+  "command_zoom_reset": {
+    "message": "Reset the zoom to 100%"
+  },
+  "command_fullscreen": {
+    "message": "Enter or exit full screen"
+  },
+  "command_maximize": {
+    "message": "Maximize or restore the window"
+  },
+  "command_minimize": {
+    "message": "Minimize the window"
+  },
+  "command_history": {
+    "message": "Open Chrome history"
+  },
+  "command_bookmarks": {
+    "message": "Open the bookmark manager"
+  },
+  "command_downloads": {
+    "message": "Open Chrome downloads"
+  },
+  "command_settings": {
+    "message": "Open Chrome settings"
+  },
+  "command_extensions": {
+    "message": "Manage extensions"
+  },
+  "command_shortcuts": {
+    "message": "Manage extension keyboard shortcuts"
+  },
+  "command_clear_data": {
+    "message": "Delete history, cookies, and cache"
+  },
+  "command_passwords": {
+    "message": "Open Google Password Manager"
+  },
+  "command_flags": {
+    "message": "Experimental Chrome features"
+  }
+}

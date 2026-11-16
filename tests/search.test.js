@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
 import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, scoreFields, toUrl } from "../search.js";
 

@@ -1,9 +1,17 @@
 // ストアに上げる zip に入れるファイルを決める。テストや開発用のファイルは入れない。
 
-// 拡張機能が読み込むのは、ルートに置いたページとスクリプト、manifest.json、icons/ の PNG だけ。
+// 拡張機能が読み込むのは、ルートに置いたページとスクリプト、manifest.json、icons/ の PNG、_locales/ の文言だけ。
 // ルートに開発用のスクリプトを置くとそれも入るので、開発用はルート以外に置く。
 export function selectPackageFiles(files) {
-  return files.filter((file) => file === "manifest.json" || /^[^/]+\.(js|html|css|svg)$/.test(file) || /^icons\/[^/]+\.png$/.test(file)).sort();
+  return files
+    .filter(
+      (file) =>
+        file === "manifest.json" ||
+        /^[^/]+\.(js|html|css|svg)$/.test(file) ||
+        /^icons\/[^/]+\.png$/.test(file) ||
+        /^_locales\/[^/]+\/messages\.json$/.test(file),
+    )
+    .sort();
 }
 
 // manifest.json が指すファイル。
@@ -14,6 +22,7 @@ export function manifestReferences(manifest) {
     manifest.options_ui?.page,
     ...Object.values(manifest.chrome_url_overrides ?? {}),
     ...(manifest.web_accessible_resources ?? []).flatMap((entry) => entry.resources),
+    manifest.default_locale && `_locales/${manifest.default_locale}/messages.json`,
   ].filter(Boolean);
 }
 

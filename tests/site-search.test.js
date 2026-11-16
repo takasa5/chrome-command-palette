@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import "./support/i18n.js";
 import { buildSearchUrl, formatEngines, parseEngines, pickVisitedPage, siteSearchScope } from "../site-search.js";
 
 const GITHUB = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };

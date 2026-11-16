@@ -1,6 +1,7 @@
 // キーワード + Tab で入るサイト内検索。
 // 拡張機能の API ではブラウザのカスタム検索を読み取れないので、設定画面で登録してもらう。
 
+import { t } from "./i18n.js";
 import { isSameOrigin, normalize } from "./search.js";
 
 const VISITED_PAGE_LIMIT = 100;
@@ -10,11 +11,11 @@ export function buildSearchUrl(template, query) {
 }
 
 function urlError(template) {
-  if (!template.includes("%s")) return "URL に %s がありません";
+  if (!template.includes("%s")) return t("siteSearchNoPlaceholder");
   // %s のままだと URL として読めない位置もあるので、置き換えてから確かめる。
   // javascript: などは開くとページ内でスクリプトが動くので、http と https だけを許す。
   const url = buildSearchUrl(template, "test");
-  if (!URL.canParse(url) || !/^https?:$/.test(new URL(url).protocol)) return "URL は http:// か https:// で始めてください";
+  if (!URL.canParse(url) || !/^https?:$/.test(new URL(url).protocol)) return t("siteSearchBadScheme");
   return null;
 }
 
@@ -25,16 +26,16 @@ export function parseEngines(text, reservedKeywords = []) {
   const errors = [];
   const used = new Set(reservedKeywords);
   text.split("\n").forEach((line, index) => {
-    const fail = (message) => errors.push(`${index + 1} 行目: ${message}`);
+    const fail = (message) => errors.push(t("lineError", index + 1, message));
     if (!line.trim()) return;
     const [keyword, ...rest] = line.trim().split(/\s+/);
-    if (rest.length < 2) return fail("キーワード、名前、URL を空白で区切って入力してください");
+    if (rest.length < 2) return fail(t("siteSearchMissingFields"));
     const url = rest.pop();
     const error = urlError(url);
     if (error) return fail(error);
     // パレットは正規化した入力と比べるので、同じ形で持つ。
     const normalized = normalize(keyword);
-    if (used.has(normalized)) return fail(`キーワード ${normalized} はすでに使われています`);
+    if (used.has(normalized)) return fail(t("siteSearchDuplicateKeyword", normalized));
     used.add(normalized);
     engines.push({ keyword: normalized, name: rest.join(" "), url });
   });
@@ -69,12 +70,12 @@ export async function getEngines() {
 export function siteSearchScope({ keyword, name, url }) {
   return {
     keyword,
-    title: `${name} を検索`,
-    hint: `Tab で ${name} を検索`,
+    title: t("siteSearchTitle", name),
+    hint: t("siteSearchHint", name),
     findVisitedPage: () => findVisitedPage(buildSearchUrl(url, "test")),
     search: async (query) => {
       if (!query.trim()) return [];
-      return [{ kind: "siteSearch", key: `site-search:${keyword}`, title: `「${query.trim()}」を検索`, subtitle: name, url: buildSearchUrl(url, query) }];
+      return [{ kind: "siteSearch", key: `site-search:${keyword}`, title: t("searchFor", query.trim()), subtitle: name, url: buildSearchUrl(url, query) }];
     },
   };
 }

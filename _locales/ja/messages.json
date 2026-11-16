@@ -1,0 +1,355 @@
+{
+  "locale": {
+    "message": "ja",
+    "description": "文言の言語。表示の言語で処理を分けるときに使う。"
+  },
+  "extName": {
+    "message": "Command Palette"
+  },
+  "extDescription": {
+    "message": "Cmd+T で開くコマンドパレット。ブラウザ操作、タブ切り替え、履歴・ブックマーク検索をキーボードで行う。"
+  },
+  "openPaletteDescription": {
+    "message": "今のページの上にパレットを開く"
+  },
+  "paletteTitle": {
+    "message": "コマンドパレット"
+  },
+  "searchPlaceholder": {
+    "message": "コマンド、タブ、ブックマーク、履歴を検索"
+  },
+  "footerMove": {
+    "message": "移動"
+  },
+  "footerRun": {
+    "message": "実行"
+  },
+  "footerBack": {
+    "message": "フォルダを戻る"
+  },
+  "footerClose": {
+    "message": "閉じる"
+  },
+  "kindCommand": {
+    "message": "コマンド"
+  },
+  "kindFavorite": {
+    "message": "お気に入り"
+  },
+  "kindTab": {
+    "message": "タブ"
+  },
+  "kindFolder": {
+    "message": "フォルダ"
+  },
+  "kindBookmark": {
+    "message": "ブックマーク"
+  },
+  "kindHistory": {
+    "message": "履歴"
+  },
+  "kindUrl": {
+    "message": "URL"
+  },
+  "kindSearch": {
+    "message": "検索"
+  },
+  "kindSiteSearch": {
+    "message": "サイト内検索"
+  },
+  "kindReadingList": {
+    "message": "リーディングリスト"
+  },
+  "kindOtherWindowTab": {
+    "message": "別ウィンドウのタブ"
+  },
+  "otherWindowHint": {
+    "message": "Enter そのウィンドウへ / Shift+Enter $ACTION$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "otherWindowOpenHere": {
+    "message": "ここで開く"
+  },
+  "otherWindowMoveHere": {
+    "message": "ここへ移動"
+  },
+  "commandScopeTitle": {
+    "message": "コマンド"
+  },
+  "folderLinkCount": {
+    "message": "$COUNT$ 件",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "folderLinkCountOne": {
+    "message": "1 件"
+  },
+  "openUrl": {
+    "message": "$URL$ を開く",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchFor": {
+    "message": "「$QUERY$」を検索",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultSearchEngine": {
+    "message": "既定の検索エンジン"
+  },
+  "lineError": {
+    "message": "$LINE$ 行目: $MESSAGE$",
+    "placeholders": {
+      "line": {
+        "content": "$1"
+      },
+      "message": {
+        "content": "$2"
+      }
+    }
+  },
+  "favoritesNoUrl": {
+    "message": "http:// か https:// で始まる URL を入れてください"
+  },
+  "favoritesNoName": {
+    "message": "URL の前に名前を入れてください"
+  },
+  "favoritesDuplicateUrl": {
+    "message": "$URL$ はすでに登録されています",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteSearchMissingFields": {
+    "message": "キーワード、名前、URL を空白で区切って入力してください"
+  },
+  "siteSearchNoPlaceholder": {
+    "message": "URL に %s がありません"
+  },
+  "siteSearchBadScheme": {
+    "message": "URL は http:// か https:// で始めてください"
+  },
+  "siteSearchDuplicateKeyword": {
+    "message": "キーワード $KEYWORD$ はすでに使われています",
+    "placeholders": {
+      "keyword": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteSearchTitle": {
+    "message": "$NAME$ を検索",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "siteSearchHint": {
+    "message": "Tab で $NAME$ を検索",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "readingListTitle": {
+    "message": "リーディングリスト"
+  },
+  "readingListEmpty": {
+    "message": "リーディングリストは空です"
+  },
+  "readingListEmptyHint": {
+    "message": "Add to Reading List で今のページを追加する"
+  },
+  "readingListRead": {
+    "message": "既読"
+  },
+  "readingListUnread": {
+    "message": "未読"
+  },
+  "readingListCannotAdd": {
+    "message": "このページはリーディングリストに追加できません"
+  },
+  "readingListNotFound": {
+    "message": "このページはリーディングリストにありません"
+  },
+  "noClosedTabs": {
+    "message": "閉じたタブはありません"
+  },
+  "noStaleTabs": {
+    "message": "$HOURS$ 時間以上見ていないタブはありません",
+    "placeholders": {
+      "hours": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsTitle": {
+    "message": "コマンドパレットの設定"
+  },
+  "staleHoursLabel": {
+    "message": "Archive Stale Tabs で閉じるタブ"
+  },
+  "staleHoursUnit": {
+    "message": "時間以上見ていないタブ"
+  },
+  "staleHoursInvalid": {
+    "message": "0 より大きい数を入力してください"
+  },
+  "newWindowPinsLabel": {
+    "message": "New Window で今のウィンドウのピンも開く"
+  },
+  "favoritesLabel": {
+    "message": "お気に入り（1 行に「名前 URL 別名…」）"
+  },
+  "favoritesNote": {
+    "message": "名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。不正な行は保存されません。"
+  },
+  "resetFavorites": {
+    "message": "初期値に戻す"
+  },
+  "siteSearchLabel": {
+    "message": "サイト内検索（1 行に「キーワード 名前 URL」）"
+  },
+  "siteSearchNote": {
+    "message": "URL の検索語の位置に %s を入れます。Chrome に登録済みのカスタム検索は拡張機能から読み取れないので、ここにも登録してください。不正な行は保存されません。"
+  },
+  "saveFailed": {
+    "message": "保存できませんでした: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "command_new_window": {
+    "message": "新しいウィンドウ"
+  },
+  "command_incognito": {
+    "message": "シークレットウィンドウ"
+  },
+  "command_new_tab": {
+    "message": "標準の新しいタブページ"
+  },
+  "command_reopen_tab": {
+    "message": "閉じたタブを開き直す"
+  },
+  "command_close_tab": {
+    "message": "タブを閉じる"
+  },
+  "command_close_other_tabs": {
+    "message": "他のタブを閉じる"
+  },
+  "command_close_right_tabs": {
+    "message": "右側のタブを閉じる"
+  },
+  "command_archive_stale_tabs": {
+    "message": "しばらく見ていないタブを閉じる"
+  },
+  "command_palette_settings": {
+    "message": "コマンドパレットの設定"
+  },
+  "command_close_window": {
+    "message": "ウィンドウを閉じる"
+  },
+  "command_reload": {
+    "message": "再読み込み"
+  },
+  "command_hard_reload": {
+    "message": "キャッシュを無視して再読み込み"
+  },
+  "command_back": {
+    "message": "前のページへ戻る"
+  },
+  "command_forward": {
+    "message": "次のページへ進む"
+  },
+  "command_duplicate": {
+    "message": "タブを複製"
+  },
+  "command_pin": {
+    "message": "タブの固定を切り替え"
+  },
+  "command_mute": {
+    "message": "タブのミュートを切り替え"
+  },
+  "command_move_to_window": {
+    "message": "タブを新しいウィンドウへ移動"
+  },
+  "command_copy_url": {
+    "message": "URL をコピー"
+  },
+  "command_bookmark": {
+    "message": "このページをブックマーク"
+  },
+  "command_add_to_reading_list": {
+    "message": "リーディングリストに追加"
+  },
+  "command_mark_as_read": {
+    "message": "リーディングリストで既読にする"
+  },
+  "command_reading_list": {
+    "message": "リーディングリスト"
+  },
+  "command_zoom_in": {
+    "message": "拡大"
+  },
+  "command_zoom_out": {
+    "message": "縮小"
+  },
+  "command_zoom_reset": {
+    "message": "ズームをリセット"
+  },
+  "command_fullscreen": {
+    "message": "フルスクリーンを切り替え"
+  },
+  "command_maximize": {
+    "message": "ウィンドウの最大化を切り替え"
+  },
+  "command_minimize": {
+    "message": "ウィンドウを最小化"
+  },
+  "command_history": {
+    "message": "履歴"
+  },
+  "command_bookmarks": {
+    "message": "ブックマークマネージャ"
+  },
+  "command_downloads": {
+    "message": "ダウンロード"
+  },
+  "command_settings": {
+    "message": "設定"
+  },
+  "command_extensions": {
+    "message": "拡張機能"
+  },
+  "command_shortcuts": {
+    "message": "拡張機能のショートカット"
+  },
+  "command_clear_data": {
+    "message": "閲覧履歴データの削除"
+  },
+  "command_passwords": {
+    "message": "パスワードマネージャ"
+  },
+  "command_flags": {
+    "message": "試験運用機能"
+  }
+}

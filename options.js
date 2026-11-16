@@ -1,5 +1,6 @@
 import { getNewWindowPins } from "./commands.js";
-import { DEFAULT_FAVORITES, formatFavorites, getFavorites, parseFavorites } from "./favorites.js";
+import { defaultFavorites, formatFavorites, getFavorites, parseFavorites } from "./favorites.js";
+import { t } from "./i18n.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
 
@@ -34,18 +35,18 @@ async function saveFavorites() {
     await chrome.storage.sync.set({ favorites: parsed.favorites });
     savedFavoritesJson = json;
   } catch (error) {
-    favoritesErrors.textContent = `保存できませんでした: ${error.message}`;
+    favoritesErrors.textContent = t("saveFailed", error.message);
   }
 }
 
 favorites.addEventListener("input", saveFavorites);
 
 resetFavorites.addEventListener("click", async () => {
-  favorites.value = formatFavorites(DEFAULT_FAVORITES);
+  favorites.value = formatFavorites(defaultFavorites());
   favoritesErrors.textContent = "";
   // 初期値が変わったときに追いつけるよう、保存した一覧を消して初期値に任せる。
   await chrome.storage.sync.remove("favorites");
-  savedFavoritesJson = JSON.stringify(DEFAULT_FAVORITES);
+  savedFavoritesJson = JSON.stringify(defaultFavorites());
 });
 
 siteSearch.addEventListener("input", async () => {
@@ -58,14 +59,14 @@ siteSearch.addEventListener("input", async () => {
     await chrome.storage.sync.set({ siteSearchEngines: engines });
     savedEnginesJson = json;
   } catch (error) {
-    siteSearchErrors.textContent = `保存できませんでした: ${error.message}`;
+    siteSearchErrors.textContent = t("saveFailed", error.message);
   }
 });
 
 input.addEventListener("input", async () => {
   // 0 以下だと実行のたびにほとんどのタブが閉じてしまう。
   if (!(input.valueAsNumber > 0)) {
-    toast.textContent = "0 より大きい数を入力してください";
+    toast.textContent = t("staleHoursInvalid");
     return;
   }
   toast.textContent = "";

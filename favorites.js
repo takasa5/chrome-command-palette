@@ -1,6 +1,8 @@
 // お気に入り: 1 つのタブで開いておくサイト。開いているタブがあればそこへ移り、なければ開く。
 // 名前と別名で引け、同じ当たり方のタブやブックマークより上に出る。設定画面で編集でき、未設定のうちは初期値を使う。
 
+import { isJapanese, t } from "./i18n.js";
+
 // Google ドキュメントなどは、個別のファイルのタブをホームの代わりにしないよう、ホームの URL にしておく。
 export const DEFAULT_FAVORITES = [
   { title: "Gmail", url: "https://mail.google.com/", keywords: ["mail", "メール"] },
@@ -15,6 +17,13 @@ export const DEFAULT_FAVORITES = [
   { title: "Google Translate", url: "https://translate.google.com/", keywords: ["translate", "翻訳", "ほんやく"] },
 ];
 
+// 日本語の別名は、日本語の環境でだけ初期値に入れる。ほかの言語の設定画面に日本語が並ばないようにする。
+const JAPANESE = /[\u3040-\u30ff\u3400-\u9fff]/;
+export function defaultFavorites(japanese = isJapanese()) {
+  if (japanese) return DEFAULT_FAVORITES;
+  return DEFAULT_FAVORITES.map((favorite) => ({ ...favorite, keywords: favorite.keywords.filter((keyword) => !JAPANESE.test(keyword)) }));
+}
+
 // javascript: などは開くとページ内でスクリプトが動くので、http と https だけを URL とみなす。
 function isWebUrl(text) {
   return URL.canParse(text) && /^https?:$/.test(new URL(text).protocol);
@@ -27,14 +36,14 @@ export function parseFavorites(text) {
   const errors = [];
   const used = new Set();
   text.split("\n").forEach((line, index) => {
-    const fail = (message) => errors.push(`${index + 1} 行目: ${message}`);
+    const fail = (message) => errors.push(t("lineError", index + 1, message));
     const tokens = line.trim().split(/\s+/).filter(Boolean);
     if (tokens.length === 0) return;
     const at = tokens.findIndex(isWebUrl);
-    if (at === -1) return fail("http:// か https:// で始まる URL を入れてください");
-    if (at === 0) return fail("URL の前に名前を入れてください");
+    if (at === -1) return fail(t("favoritesNoUrl"));
+    if (at === 0) return fail(t("favoritesNoName"));
     const url = tokens[at];
-    if (used.has(url)) return fail(`${url} はすでに登録されています`);
+    if (used.has(url)) return fail(t("favoritesDuplicateUrl", url));
     used.add(url);
     favorites.push({ title: tokens.slice(0, at).join(" "), url, keywords: tokens.slice(at + 1) });
   });
@@ -47,7 +56,7 @@ export function formatFavorites(favorites) {
 
 export async function getFavorites() {
   const { favorites } = await chrome.storage.sync.get("favorites");
-  return favorites ?? DEFAULT_FAVORITES;
+  return favorites ?? defaultFavorites();
 }
 
 // Google のサービスは /u/0/、/u/1/ のようにパスにアカウントの番号が入るので、番号を区別せずに比べる。
