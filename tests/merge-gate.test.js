@@ -21,6 +21,7 @@ const classify = (files, headPackage = PKG) => classifyPaths({ files, basePackag
 
 test("README と docs/ だけなら docs", () => {
   assert.equal(classify([file("README.md"), file("docs/demo.gif")]).tier, "docs");
+  assert.equal(classify([file("README.ja.md"), file("docs/demo.ja.gif")]).tier, "docs");
 });
 
 test("コードやテストは LLM に回す", () => {

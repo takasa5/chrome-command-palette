@@ -13,7 +13,7 @@ export const KINDS = ["docs", "test", "refactor", "fix", "feature", "infra", "ri
 
 // .claude/settings.json には、Claude が /approve をコメントできないようにする deny ルールがある。
 const HUMAN_PATHS = [/^\.github\//, /^manifest\.json$/, /^e2e\/graph\/palette\.qnt$/, /^\.claude\/settings\.json$/];
-const DOCS_PATHS = [/^README\.md$/, /^docs\//];
+const DOCS_PATHS = [/^README(\.ja)?\.md$/, /^docs\//];
 const DEPENDENCY_KEYS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "bundleDependencies", "overrides"];
 // npm install や npm ci のときに動くスクリプト。
 const INSTALL_SCRIPTS = ["preinstall", "install", "postinstall", "prepare", "preprepare", "postprepare"];
