@@ -758,3 +758,14 @@ body:has(> .options) {
     gap: 14px;
   }
 }
+
+/* 説明文の中の書式や %s。localize.js が文言の `…` を code にする。 */
+.options .note code {
+  padding: 1px 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}

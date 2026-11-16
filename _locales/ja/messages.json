@@ -231,7 +231,7 @@
     "message": "お気に入り"
   },
   "favoritesNote": {
-    "message": "1 行に「名前 URL 別名…」。名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。"
+    "message": "1 行に `名前 URL 別名…`。名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。"
   },
   "resetFavorites": {
     "message": "初期値に戻す"
@@ -240,7 +240,7 @@
     "message": "サイト内検索"
   },
   "siteSearchNote": {
-    "message": "1 行に「キーワード 名前 URL」。URL の検索語の位置に %s を入れます。"
+    "message": "1 行に `キーワード 名前 URL`。URL の `%s` が検索語に置き換わります。"
   },
   "saveFailed": {
     "message": "保存できませんでした: $ERROR$",
