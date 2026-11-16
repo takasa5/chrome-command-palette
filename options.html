@@ -29,6 +29,15 @@
         <label><input id="new-window-pins" type="checkbox" /> New Window で今のウィンドウのピンも開く</label>
       </section>
       <section>
+        <label for="favorites">お気に入り（1 行に「名前 URL 別名…」）</label>
+        <textarea id="favorites" rows="6" spellcheck="false" aria-describedby="favorites-note"></textarea>
+        <p id="favorites-note">
+          名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。不正な行は保存されません。
+        </p>
+        <div><button id="reset-favorites" type="button">初期値に戻す</button></div>
+        <output id="favorites-errors"></output>
+      </section>
+      <section>
         <label for="site-search">サイト内検索（1 行に「キーワード 名前 URL」）</label>
         <textarea
           id="site-search"
