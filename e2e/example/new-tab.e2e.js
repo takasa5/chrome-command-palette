@@ -57,5 +57,25 @@ describe("例ベース", () => {
       assert.ok(!titles.includes("Close Me"));
       assert.ok(titles.includes("Keep Page"));
     });
+
+    // パレットのタブも「閉じたタブ」に記録されるので、それを飛ばしてページを開き直す。
+    // パレットかどうかはタブの URL で見分けるので、拡張機能の URL の扱いが変わると壊れる（use_dynamic_url など）。
+    test("閉じたタブを開き直すコマンドは、パレットではなく閉じたページを開き直す", async () => {
+      const closedPage = await browser.openPage("Closed Page");
+      await browser.sw.evaluate(async (url) => {
+        const [tab] = await chrome.tabs.query({ url });
+        await chrome.tabs.remove(tab.id);
+      }, closedPage.url());
+      page = await browser.openPalette();
+      await pressToClose(page, "Escape");
+
+      page = await browser.openPalette();
+      await page.keyboard.type("reopen");
+      await page.locator('#results li[aria-selected="true"] .title', { hasText: /^(Reopen Closed Tab|閉じたタブを開き直す)$/ }).waitFor();
+      await pressToClose(page, "Enter");
+
+      const active = await browser.activeTab();
+      assert.equal(active.title, "Closed Page");
+    });
   });
 });
