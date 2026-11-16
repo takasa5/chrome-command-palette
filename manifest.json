@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Command Palette",
+  "name": "__MSG_extName__",
   "version": "0.1.0",
-  "description": "Cmd+T で開くコマンドパレット。ブラウザ操作、タブ切り替え、履歴・ブックマーク検索をキーボードで行う。",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "minimum_chrome_version": "121",
   "icons": {
     "16": "icons/icon-16.png",
@@ -14,7 +15,7 @@
   "commands": {
     "open-palette": {
       "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },
-      "description": "今のページの上にパレットを開く"
+      "description": "__MSG_openPaletteDescription__"
     }
   },
   "web_accessible_resources": [

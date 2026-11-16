@@ -1,6 +1,7 @@
 // パレットから実行できるブラウザ操作。
 // needsTarget のコマンドは、パレットを開く直前に見ていたタブ（ctx.target）を操作する。
 
+import { t } from "./i18n.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
 
@@ -70,7 +71,7 @@ export const COMMANDS = [
       // パレット自身も「閉じたタブ」に記録されるので読み飛ばす。
       const closed = await chrome.sessions.getRecentlyClosed();
       const entry = closed.find((c) => !c.tab || !ctx.isPalette(c.tab));
-      if (!entry) throw new Error("閉じたタブはありません");
+      if (!entry) throw new Error(t("noClosedTabs"));
       await chrome.sessions.restore((entry.tab ?? entry.window).sessionId);
       await ctx.leave(null);
     },
@@ -116,7 +117,7 @@ export const COMMANDS = [
     run: async (ctx) => {
       const [tabs, hours, leftAt] = await Promise.all([chrome.tabs.query({}), getStaleHours(), chrome.storage.session.get(null)]);
       const stale = findStaleTabs(tabs, { now: Date.now(), hours, leftAt, keepTabId: ctx.target?.id });
-      if (stale.length === 0) throw new Error(`${hours} 時間以上見ていないタブはありません`);
+      if (stale.length === 0) throw new Error(t("noStaleTabs", hours));
       await chrome.tabs.remove(stale.map((tab) => tab.id));
       await ctx.leave();
     },

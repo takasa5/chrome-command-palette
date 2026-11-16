@@ -47,7 +47,7 @@ A Chrome extension that brings the feel of Arc's command palette to Chrome. Pres
 
 ### Also
 
-* **Japanese search**: Search in English, Japanese, or hiragana
+* **Japanese and English**: The UI follows the browser's language, in Japanese or English. Either way, you can search in English, Japanese, or hiragana
 * **Frequent picks first**: Pages and commands you pick often in the palette rank higher
 
 Open settings with the `Command Palette Settings` command.
