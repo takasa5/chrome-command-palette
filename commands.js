@@ -341,7 +341,7 @@ export const COMMANDS = [
     },
   },
   chromePage("history", "History", "履歴", ["りれき"], "chrome://history", true),
-  chromePage("bookmarks", "Bookmarks", "ブックマークマネージャ", ["favorites", "お気に入り"], "chrome://bookmarks", true),
+  chromePage("bookmarks", "Bookmarks", "ブックマークマネージャ", [], "chrome://bookmarks", true),
   chromePage("downloads", "Downloads", "ダウンロード", ["dl"], "chrome://downloads", true),
   chromePage("settings", "Settings", "設定", ["preferences", "options"], "chrome://settings", true),
   chromePage("extensions", "Extensions", "拡張機能", ["addons"], "chrome://extensions"),
