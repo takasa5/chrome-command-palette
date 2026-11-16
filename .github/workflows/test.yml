@@ -83,3 +83,5 @@ jobs:
         with:
           name: e2e-screenshots
           path: e2e/.output/
+          # .output は隠しフォルダなので、指定しないと何も上がらない
+          include-hidden-files: true
