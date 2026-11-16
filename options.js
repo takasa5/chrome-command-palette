@@ -14,7 +14,7 @@ const siteSearchErrors = document.getElementById("site-search-errors");
 const favorites = document.getElementById("favorites");
 const favoritesErrors = document.getElementById("favorites-errors");
 const resetFavorites = document.getElementById("reset-favorites");
-const toast = document.getElementById("toast");
+const staleHoursError = document.getElementById("stale-hours-error");
 const swatches = [...document.querySelectorAll("[data-theme-value]")];
 const stalePreview = document.querySelector(".stale-preview");
 const pinsPreview = document.querySelector(".pins-preview");
@@ -27,8 +27,11 @@ function drawTheme() {
 }
 
 const TAB_COLORS = ["#378add", "#1d9e75", "#d4537e", "#7f77dd"];
+// 不正な値は保存しないので、図は保存してある値のまま残し、薄くして「まだ効いていない」ことを示す。
 function drawStaleTabs() {
-  if (!(input.valueAsNumber > 0)) return;
+  const valid = input.valueAsNumber > 0;
+  stalePreview.classList.toggle("sample", !valid);
+  if (!valid) return;
   const { threshold, tabs } = staleTabsPreview(input.valueAsNumber);
   stalePreview.style.setProperty("--x", threshold);
   stalePreview.querySelector(".stale-label span").textContent = formatHours(input.valueAsNumber);
@@ -151,10 +154,11 @@ siteSearch.addEventListener("input", async () => {
 input.addEventListener("input", async () => {
   // 0 以下だと実行のたびにほとんどのタブが閉じてしまう。
   if (!(input.valueAsNumber > 0)) {
-    toast.textContent = t("staleHoursInvalid");
+    staleHoursError.textContent = t("staleHoursInvalid");
+    drawStaleTabs();
     return;
   }
-  toast.textContent = "";
+  staleHoursError.textContent = "";
   drawStaleTabs();
   await chrome.storage.sync.set({ staleHours: input.valueAsNumber });
 });

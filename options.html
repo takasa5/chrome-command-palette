@@ -53,9 +53,10 @@
         <div class="field">
           <label for="stale-hours" data-i18n="staleHoursLabel"></label>
           <div class="inline">
-            <input id="stale-hours" type="number" min="0" step="any" required />
+            <input id="stale-hours" type="number" min="0" step="any" required aria-describedby="stale-hours-error" />
             <span data-i18n="staleHoursUnit"></span>
           </div>
+          <output id="stale-hours-error"></output>
         </div>
         <div class="preview stale-preview" aria-hidden="true">
           <div class="stale-zone"></div>
@@ -116,7 +117,6 @@
           <div class="mini-input"><span class="chip"></span><span class="mini-line"></span></div>
         </div>
       </section>
-      <output id="toast"></output>
     </main>
     <script src="localize.js"></script>
   </body>

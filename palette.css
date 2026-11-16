@@ -232,6 +232,7 @@ body:has(> .options) {
   font-size: 12px;
 }
 
+#stale-hours-error,
 #favorites-errors,
 #site-search-errors {
   color: var(--error);
@@ -240,7 +241,7 @@ body:has(> .options) {
 
 #favorites-errors:empty,
 #site-search-errors:empty,
-#toast:empty {
+#stale-hours-error:empty {
   display: none;
 }
 
