@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { findMissingFiles, isPackageName, manifestReferences, selectPackageFiles, sourceReferences } from "../scripts/store/package-files.js";
 
-test("selectPackageFiles はルートのページとスクリプト、manifest.json、icons の PNG だけを選ぶ", () => {
+test("selectPackageFiles はルートのページとスクリプト、manifest.json、icons の PNG、_locales の文言だけを選ぶ", () => {
   const files = [
     "palette.js",
     "palette.html",
@@ -10,6 +10,9 @@ test("selectPackageFiles はルートのページとスクリプト、manifest.j
     "icon.svg",
     "manifest.json",
     "icons/icon-128.png",
+    "_locales/en/messages.json",
+    "_locales/ja/messages.json",
+    "_locales/README.md",
     "package.json",
     "package-lock.json",
     "README.md",
@@ -22,6 +25,8 @@ test("selectPackageFiles はルートのページとスクリプト、manifest.j
     "docs/store/screenshot-1.png",
   ];
   assert.deepEqual(selectPackageFiles(files), [
+    "_locales/en/messages.json",
+    "_locales/ja/messages.json",
     "icon.svg",
     "icons/icon-128.png",
     "manifest.json",
@@ -38,8 +43,17 @@ test("manifestReferences は manifest.json が指すファイルを集める", (
     options_ui: { page: "options.html" },
     chrome_url_overrides: { newtab: "palette.html" },
     web_accessible_resources: [{ resources: ["palette.html"], matches: ["<all_urls>"] }],
+    default_locale: "en",
   };
-  assert.deepEqual(manifestReferences(manifest), ["icons/icon-16.png", "icons/icon-128.png", "background.js", "options.html", "palette.html", "palette.html"]);
+  assert.deepEqual(manifestReferences(manifest), [
+    "icons/icon-16.png",
+    "icons/icon-128.png",
+    "background.js",
+    "options.html",
+    "palette.html",
+    "palette.html",
+    "_locales/en/messages.json",
+  ]);
 });
 
 test("manifestReferences は無い項目を飛ばす", () => {

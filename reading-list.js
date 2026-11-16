@@ -1,5 +1,6 @@
 // Chrome のリーディングリスト。リーディングリストに入れられるのは http と https のページだけ。
 
+import { t } from "./i18n.js";
 import { normalize, scoreFields, stripUrl } from "./search.js";
 
 export function canAddToReadingList(url) {
@@ -14,7 +15,7 @@ export function rankReadingList(query, entries) {
 }
 
 export async function addToReadingList(tab) {
-  if (!canAddToReadingList(tab.url)) throw new Error("このページはリーディングリストに追加できません");
+  if (!canAddToReadingList(tab.url)) throw new Error(t("readingListCannotAdd"));
   const existing = await chrome.readingList.query({ url: tab.url });
   if (existing.length === 0) {
     await chrome.readingList.addEntry({ title: tab.title || tab.url, url: tab.url, hasBeenRead: false });
@@ -23,24 +24,26 @@ export async function addToReadingList(tab) {
 
 export async function markAsRead(tab) {
   const [entry] = await chrome.readingList.query({ url: tab.url });
-  if (!entry) throw new Error("このページはリーディングリストにありません");
+  if (!entry) throw new Error(t("readingListNotFound"));
   if (!entry.hasBeenRead) await chrome.readingList.updateEntry({ url: tab.url, hasBeenRead: true });
 }
 
 // コマンドから入る。キーワードはないので、Backspace で戻ると入力は空になる。
 export const readingListScope = {
   keyword: "",
-  title: "リーディングリスト",
+  get title() {
+    return t("readingListTitle");
+  },
   search: async (query) => {
     const entries = await chrome.readingList.query({});
     if (entries.length === 0) {
-      return [{ kind: "readingList", key: "readingList:empty", title: "リーディングリストは空です", subtitle: "Add to Reading List で今のページを追加する", run: () => {} }];
+      return [{ kind: "readingList", key: "readingList:empty", title: t("readingListEmpty"), subtitle: t("readingListEmptyHint"), run: () => {} }];
     }
     return rankReadingList(query, entries).map((entry) => ({
       kind: "readingList",
       key: `readingList:${entry.url}`,
       title: entry.title || entry.url,
-      subtitle: `${entry.hasBeenRead ? "既読" : "未読"} · ${stripUrl(entry.url)}`,
+      subtitle: `${t(entry.hasBeenRead ? "readingListRead" : "readingListUnread")} · ${stripUrl(entry.url)}`,
       url: entry.url,
       run: (ctx) => ctx.navigate(entry.url),
     }));

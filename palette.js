@@ -1,4 +1,5 @@
 import { COMMANDS } from "./commands.js";
+import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
@@ -9,7 +10,18 @@ import { USAGE_STORAGE_KEY, sortByUsage, usageKey } from "./usage.js";
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const KIND_LABELS = { command: "コマンド", favorite: "お気に入り", tab: "タブ", folder: "フォルダ", bookmark: "ブックマーク", history: "履歴", url: "URL", search: "検索", siteSearch: "サイト内検索", readingList: "リーディングリスト" };
+const KIND_LABELS = {
+  command: "kindCommand",
+  favorite: "kindFavorite",
+  tab: "kindTab",
+  folder: "kindFolder",
+  bookmark: "kindBookmark",
+  history: "kindHistory",
+  url: "kindUrl",
+  search: "kindSearch",
+  siteSearch: "kindSiteSearch",
+  readingList: "kindReadingList",
+};
 
 const input = document.getElementById("query");
 const list = document.getElementById("results");
@@ -112,7 +124,7 @@ function otherTabs() {
 
 // 設定画面で編集されたときに追いつけるよう、サイト内検索と一緒に読み直す。
 async function refreshScopes() {
-  [scopes, favorites] = await Promise.all([getEngines().then((engines) => engines.map(siteSearchScope)), getFavorites()]);
+  [scopes, favorites] = await Promise.all([getEngines().then((engines) => engines.map((engine) => siteSearchScope(engine, t))), getFavorites()]);
   // キーワードを打ち終える前に読み込んでおき、ヒントと同時に出せるようにする。
   scopes.forEach(scopeIcon);
 }
@@ -140,8 +152,8 @@ function availableCommands() {
 // 何も入力せずに Tab を押すと入る。キーワードがないので scopes には入れない。
 const commandScope = {
   keyword: "",
-  title: "コマンド",
-  search: async (query) => rankCommands(query, availableCommands(), { usage }),
+  title: t("commandScopeTitle"),
+  search: async (query) => rankCommands(query, availableCommands(), { t, usage }),
 };
 
 function emptyQueryResults() {
@@ -151,7 +163,7 @@ function emptyQueryResults() {
     ...sortByUsage(
       availableCommands()
         .filter((command) => command.featured)
-        .map((command) => commandItem(command)),
+        .map((command) => commandItem(command, t)),
       usage,
       Date.now(),
     ),
@@ -186,9 +198,9 @@ function isOtherWindowTab(item) {
 }
 
 function kindLabel(item) {
-  if (!isOtherWindowTab(item)) return KIND_LABELS[item.kind];
-  if (item.key !== selectedKey) return "別ウィンドウのタブ";
-  return `Enter そのウィンドウへ / Shift+Enter ${item.tab.pinned ? "ここで開く" : "ここへ移動"}`;
+  if (!isOtherWindowTab(item)) return t(KIND_LABELS[item.kind]);
+  if (item.key !== selectedKey) return t("kindOtherWindowTab");
+  return t("otherWindowHint", t(item.tab.pinned ? "otherWindowOpenHere" : "otherWindowMoveHere"));
 }
 
 function renderRow(item) {
@@ -263,7 +275,7 @@ async function update() {
     return;
   }
   if (folderStack.length > 0) {
-    results = rankFolderContents(query, folderStack.at(-1).folder, { usage });
+    results = rankFolderContents(query, folderStack.at(-1).folder, { t, usage });
     render();
     return;
   }
@@ -273,7 +285,7 @@ async function update() {
     return;
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
-  const sources = { commands: availableCommands(), favorites, tabs: otherTabs(), usage };
+  const sources = { t, commands: availableCommands(), favorites, tabs: otherTabs(), usage };
   results = rankResults(query, sources);
   render();
 

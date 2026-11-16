@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ja">
+<html>
   <head>
     <meta charset="utf-8" />
     <script src="theme-init.js"></script>
-    <title>コマンドパレットの設定</title>
+    <title data-i18n="optionsTitle"></title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="palette.css" />
     <script type="module" src="options.js"></script>
@@ -11,34 +11,32 @@
   <body>
     <main class="palette options">
       <section>
-        <label for="theme">テーマ</label>
+        <label for="theme" data-i18n="themeLabel"></label>
         <select id="theme">
-          <option value="system">システムに合わせる</option>
-          <option value="light">ライト</option>
-          <option value="dark">ダーク</option>
+          <option value="system" data-i18n="themeSystem"></option>
+          <option value="light" data-i18n="themeLight"></option>
+          <option value="dark" data-i18n="themeDark"></option>
         </select>
       </section>
       <section>
-        <label for="stale-hours">Archive Stale Tabs で閉じるタブ</label>
+        <label for="stale-hours" data-i18n="staleHoursLabel"></label>
         <div>
           <input id="stale-hours" type="number" min="0" step="any" required />
-          時間以上見ていないタブ
+          <span data-i18n="staleHoursUnit"></span>
         </div>
       </section>
       <section>
-        <label><input id="new-window-pins" type="checkbox" /> New Window で今のウィンドウのピンも開く</label>
+        <label><input id="new-window-pins" type="checkbox" /> <span data-i18n="newWindowPinsLabel"></span></label>
       </section>
       <section>
-        <label for="favorites">お気に入り（1 行に「名前 URL 別名…」）</label>
+        <label for="favorites" data-i18n="favoritesLabel"></label>
         <textarea id="favorites" rows="6" spellcheck="false" aria-describedby="favorites-note"></textarea>
-        <p id="favorites-note">
-          名前か別名で引くと候補の上位に出て、URL で始まるタブが開いていればそこへ移ります。不正な行は保存されません。
-        </p>
-        <div><button id="reset-favorites" type="button">初期値に戻す</button></div>
+        <p id="favorites-note" data-i18n="favoritesNote"></p>
+        <div><button id="reset-favorites" type="button" data-i18n="resetFavorites"></button></div>
         <output id="favorites-errors"></output>
       </section>
       <section>
-        <label for="site-search">サイト内検索（1 行に「キーワード 名前 URL」）</label>
+        <label for="site-search" data-i18n="siteSearchLabel"></label>
         <textarea
           id="site-search"
           rows="4"
@@ -46,12 +44,11 @@
           placeholder="gh GitHub https://github.com/search?q=%s"
           aria-describedby="site-search-note"
         ></textarea>
-        <p id="site-search-note">
-          URL の検索語の位置に %s を入れます。Chrome に登録済みのカスタム検索は拡張機能から読み取れないので、ここにも登録してください。不正な行は保存されません。
-        </p>
+        <p id="site-search-note" data-i18n="siteSearchNote"></p>
         <output id="site-search-errors"></output>
       </section>
       <output id="toast"></output>
     </main>
+    <script src="localize.js"></script>
   </body>
 </html>

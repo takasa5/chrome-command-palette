@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { translator } from "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
 import { DEFAULT_FAVORITES, findFavoriteTab, formatFavorites, parseFavorites, withoutAccountNumber } from "../favorites.js";
 import { rankResults } from "../search.js";
 
+const t = translator("ja");
+
 const favorite = (title) => DEFAULT_FAVORITES.find((f) => f.title === title);
-const top = (query, sources = {}) => rankResults(query, { commands: COMMANDS, favorites: DEFAULT_FAVORITES, ...sources })[0];
+const top = (query, sources = {}) => rankResults(query, { t, commands: COMMANDS, favorites: DEFAULT_FAVORITES, ...sources })[0];
 
 test("英語・日本語・打ちかけの入力でお気に入りが先頭に来る", () => {
   for (const [query, id] of [
@@ -45,7 +48,7 @@ test("既存のコマンドは順位を奪われない", () => {
 
 test("お気に入りと同じ URL のブックマークは 1 つにまとまる", () => {
   const bookmarks = [{ id: "b", title: "Mail", url: "https://mail.google.com/", folders: [] }];
-  const hits = rankResults("mail", { favorites: DEFAULT_FAVORITES, bookmarks }).filter((r) => r.url === "https://mail.google.com/");
+  const hits = rankResults("mail", { t, favorites: DEFAULT_FAVORITES, bookmarks }).filter((r) => r.url === "https://mail.google.com/");
   assert.deepEqual(hits.map((r) => r.kind), ["favorite"]);
 });
 
@@ -65,7 +68,7 @@ test("個別のファイルのタブはドキュメントのホームとして�
 });
 
 test("1 行に名前、URL、別名を読む。名前には空白を含められる", () => {
-  const { favorites, errors } = parseFavorites("Slack https://app.slack.com/ chat チャット\n\nGoogle Calendar https://calendar.google.com/\n");
+  const { favorites, errors } = parseFavorites("Slack https://app.slack.com/ chat チャット\n\nGoogle Calendar https://calendar.google.com/\n", t);
   assert.deepEqual(errors, []);
   assert.deepEqual(favorites, [
     { title: "Slack", url: "https://app.slack.com/", keywords: ["chat", "チャット"] },
@@ -74,7 +77,7 @@ test("1 行に名前、URL、別名を読む。名前には空白を含められ
 });
 
 test("不正な行は保存せず、行番号付きで理由を返す", () => {
-  const { favorites, errors } = parseFavorites(["Slack", "https://app.slack.com/", "Evil javascript:alert(1)", "A https://a.example/", "B https://a.example/"].join("\n"));
+  const { favorites, errors } = parseFavorites(["Slack", "https://app.slack.com/", "Evil javascript:alert(1)", "A https://a.example/", "B https://a.example/"].join("\n"), t);
   assert.deepEqual(favorites, [{ title: "A", url: "https://a.example/", keywords: [] }]);
   assert.deepEqual(errors, [
     "1 行目: http:// か https:// で始まる URL を入れてください",
@@ -85,7 +88,7 @@ test("不正な行は保存せず、行番号付きで理由を返す", () => {
 });
 
 test("書き出した内容を読み直すと同じ一覧になる", () => {
-  assert.deepEqual(parseFavorites(formatFavorites(DEFAULT_FAVORITES)), { favorites: DEFAULT_FAVORITES, errors: [] });
+  assert.deepEqual(parseFavorites(formatFavorites(DEFAULT_FAVORITES), t), { favorites: DEFAULT_FAVORITES, errors: [] });
 });
 
 test("別のアカウント（/u/1/）で開いているホームのタブも再利用する", () => {

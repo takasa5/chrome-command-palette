@@ -38,7 +38,10 @@ export async function launch() {
     // 既定の headless shell は拡張機能を読み込めない。
     channel: "chromium",
     headless: true,
+    // 画面の文言はブラウザの言語で変わる。テストは日本語の文言で確かめるので、日本語に固定する。
+    locale: "ja-JP",
     args: [
+      "--lang=ja",
       `--disable-extensions-except=${extDir}`,
       `--load-extension=${extDir}`,
       // 拡張機能が開いたタブの最初の読み込みは route に届かないことがあるので、名前解決を止めて外へ出られなくする。

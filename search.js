@@ -1,4 +1,5 @@
 // 検索とランキング。Chrome API に依存しない純粋関数だけを置く。
+// 候補の文言は、呼び出し側から受け取る t（キーと置き換える値から文言を返す関数）で作る。
 
 import { itemUsageBonus, sortByUsage } from "./usage.js";
 
@@ -107,8 +108,12 @@ function bookmarkItem(query, bookmark) {
   return { kind: "bookmark", key: `bookmark:${bookmark.id}`, title: bookmark.title || bookmark.url, subtitle, url: bookmark.url, score };
 }
 
-function folderItem(folder, score) {
-  const subtitle = [...folder.folders.slice(-1), `${countLinks(folder)} 件`].join(" · ");
+export function linkCountLabel(count, t) {
+  return count === 1 ? t("folderLinkCountOne") : t("folderLinkCount", count);
+}
+
+function folderItem(folder, score, t) {
+  const subtitle = [...folder.folders.slice(-1), linkCountLabel(countLinks(folder), t)].join(" · ");
   return { kind: "folder", key: `folder:${folder.id}`, title: folder.title, subtitle, folder, score };
 }
 
@@ -127,17 +132,17 @@ function withUsage(items, usage, now) {
 }
 
 // フォルダの中に入っているときの結果。入力が空なら直下の項目をフォルダ、リンクの順に返す。
-export function rankFolderContents(query, folder, { usage = {}, now = Date.now() } = {}) {
+export function rankFolderContents(query, folder, { t, usage = {}, now = Date.now() }) {
   const nodes = flattenBookmarks(folder.children ?? [], 2);
   if (!normalize(query)) {
     const direct = nodes.filter((node) => node.folders.length === 0);
     return [
-      ...direct.filter((node) => !node.url).map((node) => folderItem(node, 0)),
+      ...direct.filter((node) => !node.url).map((node) => folderItem(node, 0, t)),
       ...direct.filter((node) => node.url).map((node) => bookmarkItem(query, node)),
     ];
   }
   const items = nodes
-    .map((node) => (node.url ? bookmarkItem(query, node) : folderItem(node, scoreFields(query, [{ text: node.title }, ...folderFields(node)]))))
+    .map((node) => (node.url ? bookmarkItem(query, node) : folderItem(node, scoreFields(query, [{ text: node.title }, ...folderFields(node)]), t)))
     .filter((item) => item.score > 0);
   return withUsage(items, usage, now).sort(byScore);
 }
@@ -150,14 +155,19 @@ function commandFields(command) {
   ];
 }
 
-export function commandItem(command, score) {
-  return { kind: "command", key: `command:${command.id}`, title: command.title, subtitle: command.ja, command, score };
+// 説明は表示の言語で出す。日本語の名前（ja）は、どの言語でも検索に使う。
+export function commandDescription(command, t) {
+  return t(`command_${command.id.replaceAll("-", "_")}`);
+}
+
+export function commandItem(command, t, score) {
+  return { kind: "command", key: `command:${command.id}`, title: command.title, subtitle: commandDescription(command, t), command, score };
 }
 
 // コマンドだけに絞っているときの結果。入力が空なら全件を、よく選ぶ順に返す。
-export function rankCommands(query, commands, { usage = {}, now = Date.now() } = {}) {
-  if (!normalize(query)) return sortByUsage(commands.map((command) => commandItem(command)), usage, now);
-  return rankResults(query, { commands, usage, now }).filter((item) => item.kind === "command");
+export function rankCommands(query, commands, { t, usage = {}, now = Date.now() }) {
+  if (!normalize(query)) return sortByUsage(commands.map((command) => commandItem(command, t)), usage, now);
+  return rankResults(query, { t, commands, usage, now }).filter((item) => item.kind === "command");
 }
 
 // URL として開けそうな入力を完全な URL にする。そうでなければ null。
@@ -188,11 +198,11 @@ function dedupeByUrl(entries) {
 
 // 入力に対して表示する結果を、スコアの高い順に返す。
 // usage はパレットで選んだ記録（usage.js）。よく選ぶ候補ほど、同じくらい一致するほかの候補より上に出す。
-export function rankResults(query, { commands = [], favorites = [], tabs = [], bookmarks = [], history = [], usage = {}, now = Date.now() }) {
+export function rankResults(query, { t, commands = [], favorites = [], tabs = [], bookmarks = [], history = [], usage = {}, now = Date.now() }) {
   const entries = [];
   for (const command of commands) {
     const score = scoreFields(query, commandFields(command), { fuzzy: true });
-    if (score > 0) entries.push(commandItem(command, score));
+    if (score > 0) entries.push(commandItem(command, t, score));
   }
   for (const favorite of favorites) {
     // 別名も重みを下げず、同じ当たり方のタブやブックマークより上に出す。
@@ -207,7 +217,7 @@ export function rankResults(query, { commands = [], favorites = [], tabs = [], b
     // フォルダの行は、親フォルダの名前で当たったときだけ出す（Top と打つと First, Second が並ぶ）。
     const item = bookmark.url
       ? bookmarkItem(query, bookmark)
-      : folderItem(bookmark, scoreFields(query, [{ text: bookmark.folders.at(-1), weight: 0.8 }]));
+      : folderItem(bookmark, scoreFields(query, [{ text: bookmark.folders.at(-1), weight: 0.8 }]), t);
     if (item.score > 0) entries.push(item);
   }
   for (const page of history) {
@@ -221,10 +231,10 @@ export function rankResults(query, { commands = [], favorites = [], tabs = [], b
 
   const url = toUrl(query);
   if (url) {
-    const item = { kind: "url", key: "url", title: `${url} を開く`, subtitle: "URL", url, score: SCORE_URL_ITEM };
+    const item = { kind: "url", key: "url", title: t("openUrl", url), subtitle: "URL", url, score: SCORE_URL_ITEM };
     const index = ranked.findIndex((entry) => rankScore(entry) < SCORE_URL_ITEM);
     ranked.splice(index === -1 ? ranked.length : index, 0, item);
   }
-  ranked.push({ kind: "search", key: "search", title: `「${query.trim()}」を検索`, subtitle: "既定の検索エンジン", text: query.trim(), score: 0 });
+  ranked.push({ kind: "search", key: "search", title: t("searchFor", query.trim()), subtitle: t("defaultSearchEngine"), text: query.trim(), score: 0 });
   return ranked;
 }
