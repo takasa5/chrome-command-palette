@@ -203,6 +203,18 @@
   "optionsTitle": {
     "message": "Command Palette Settings"
   },
+  "themeLabel": {
+    "message": "Theme"
+  },
+  "themeSystem": {
+    "message": "Match System"
+  },
+  "themeLight": {
+    "message": "Light"
+  },
+  "themeDark": {
+    "message": "Dark"
+  },
   "staleHoursLabel": {
     "message": "Archive Stale Tabs closes tabs not viewed for"
   },

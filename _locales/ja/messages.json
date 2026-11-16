@@ -203,6 +203,18 @@
   "optionsTitle": {
     "message": "コマンドパレットの設定"
   },
+  "themeLabel": {
+    "message": "テーマ"
+  },
+  "themeSystem": {
+    "message": "システムに合わせる"
+  },
+  "themeLight": {
+    "message": "ライト"
+  },
+  "themeDark": {
+    "message": "ダーク"
+  },
   "staleHoursLabel": {
     "message": "Archive Stale Tabs で閉じるタブ"
   },

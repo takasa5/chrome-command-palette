@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <script src="theme-init.js"></script>
     <title data-i18n="optionsTitle"></title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="palette.css" />
@@ -9,6 +10,14 @@
   </head>
   <body>
     <main class="palette options">
+      <section>
+        <label for="theme" data-i18n="themeLabel"></label>
+        <select id="theme">
+          <option value="system" data-i18n="themeSystem"></option>
+          <option value="light" data-i18n="themeLight"></option>
+          <option value="dark" data-i18n="themeDark"></option>
+        </select>
+      </section>
       <section>
         <label for="stale-hours" data-i18n="staleHoursLabel"></label>
         <div>

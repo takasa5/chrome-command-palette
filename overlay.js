@@ -13,7 +13,8 @@ export function applyBufferedKeys(keys) {
 }
 
 // 開いていれば閉じる。パレットの iframe とは chrome.runtime のメッセージでやり取りし、ページからは偽装できないようにする。
-export function toggleOverlay(src) {
+// colorScheme は iframe の color-scheme。パレットのテーマと揃える（theme.js の colorScheme）。
+export function toggleOverlay(src, colorScheme = "light dark") {
   if (window.__commandPalette) {
     window.__commandPalette.close();
     return "closed";
@@ -55,7 +56,7 @@ export function toggleOverlay(src) {
       border: 0;
       background: transparent;
       /* パレットと揃えないと、Chrome が iframe を不透明に塗る。 */
-      color-scheme: light dark;
+      color-scheme: ${colorScheme};
     }
   `;
   const dialog = document.createElement("dialog");
