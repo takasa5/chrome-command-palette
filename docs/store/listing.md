@@ -17,15 +17,17 @@
 
 ## ストアの掲載情報
 
+**カテゴリ**: 仕事効率化 > ツール
+
+**言語**: 日本語、英語。ダッシュボードの「ストアの掲載情報」で言語を切り替え、それぞれに下の名前、概要、説明を入れる。名前と言語の一覧は `manifest.json` と `_locales/` から読まれる。
+
+### 日本語
+
 **名前**: Command Palette
 
 **概要**（132 文字まで）:
 
 > Cmd+T（Windows は Ctrl+T）で開くコマンドパレット。タブ切り替え、ブックマークと履歴の検索、ブラウザ操作をキーボードだけで行う。
-
-**カテゴリ**: 仕事効率化 > ツール
-
-**言語**: 日本語
 
 **説明**:
 
@@ -42,6 +44,30 @@
 > 読み取ったタブ、履歴、ブックマークはブラウザの中だけで使い、外部へは送りません。
 >
 > インストールすると、新しいタブページがコマンドパレットに置き換わります。Chrome から確認が出たら「変更を維持」を選んでください。
+
+### 英語
+
+**名前**: Command Palette
+
+**概要**（132 文字まで）:
+
+> A command palette that opens with Cmd+T (Ctrl+T on Windows). Switch tabs, search bookmarks and history, and control the browser.
+
+**説明**:
+
+> Open a new tab and the command palette appears. Run the browser actions you use most, right from the keyboard.
+>
+> • Search open tabs, bookmarks, and history in one place, and press Enter to jump there
+> • Find and run browser actions like closing, pinning, muting, or moving a tab to a new window
+> • Narrow bookmarks by folder name, and step into a folder to browse it
+> • Open Favorites like Gmail or Calendar by name or alias, and switch to the tab if it's already open
+> • Type a keyword and press Tab to search a site you've added
+> • Move a tab from another window into the current one without losing its state
+> • Press Cmd+Shift+S (Ctrl+Shift+S on Windows) to open the palette over the page you're viewing
+>
+> Tabs, history, and bookmarks are used only inside your browser and are never sent anywhere.
+>
+> After you install, the command palette replaces the New Tab page. If Chrome asks, choose "Keep it".
 
 **プライバシー ポリシーの URL**: <https://github.com/takasa5/chrome-command-palette/blob/main/PRIVACY.md>
 
