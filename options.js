@@ -2,7 +2,9 @@ import { getNewWindowPins } from "./commands.js";
 import { DEFAULT_FAVORITES, formatFavorites, getFavorites, parseFavorites } from "./favorites.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleHours } from "./stale-tabs.js";
+import { getTheme, syncTheme } from "./theme.js";
 
+const theme = document.getElementById("theme");
 const input = document.getElementById("stale-hours");
 const newWindowPins = document.getElementById("new-window-pins");
 const siteSearch = document.getElementById("site-search");
@@ -12,9 +14,20 @@ const favoritesErrors = document.getElementById("favorites-errors");
 const resetFavorites = document.getElementById("reset-favorites");
 const toast = document.getElementById("toast");
 
+// 読み込みを待つ間に選ばれても保存できるよう、どの await よりも先にリスナーを付ける。
+// 保存すると syncTheme が storage の変更を受けて、この画面にも当てる。
+let themeChosen = false;
+theme.addEventListener("change", () => {
+  themeChosen = true;
+  chrome.storage.sync.set({ theme: theme.value });
+});
+syncTheme();
+
 const savedEngines = await getEngines();
 let savedEnginesJson = JSON.stringify(savedEngines);
 
+const savedTheme = await getTheme();
+if (!themeChosen) theme.value = savedTheme;
 input.value = await getStaleHours();
 newWindowPins.checked = await getNewWindowPins();
 siteSearch.value = formatEngines(savedEngines);

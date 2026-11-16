@@ -1,4 +1,5 @@
 import { toggleOverlay } from "./overlay.js";
+import { colorScheme, getTheme } from "./theme.js";
 import { USAGE_STORAGE_KEY, forgetUrls, recordUsage } from "./usage.js";
 
 const paletteUrl = chrome.runtime.getURL("palette.html");
@@ -10,12 +11,13 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
   if ((tab.url ?? tab.pendingUrl ?? "").startsWith(paletteUrl)) return;
   const token = crypto.randomUUID();
   const key = `overlay:${token}`;
-  await chrome.storage.session.set({ [key]: tab.id });
+  // ページに重ねたパレットは localStorage が分けられることがあるので、テーマは URL で渡す。
+  const [theme] = await Promise.all([getTheme(), chrome.storage.session.set({ [key]: tab.id })]);
   try {
     const [{ result }] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: toggleOverlay,
-      args: [`${paletteUrl}?overlay=${token}`],
+      args: [`${paletteUrl}?overlay=${token}&theme=${theme}`, colorScheme(theme)],
     });
     if (result === "closed") await chrome.storage.session.remove(key);
   } catch {

@@ -19,7 +19,7 @@ Command Palette（以下「本拡張機能」）が扱うデータについて�
 
 ## 保存するデータ
 
-設定画面で入力した内容（タブを閉じるまでの時間、お気に入りやサイト内検索の登録など）は `chrome.storage.sync` に保存します。Chrome の同期をオンにしている場合は、Google アカウントを通じてお使いの他の端末にも同期されます。開発者がこのデータを見ることはありません。
+設定画面で入力した内容（タブを閉じるまでの時間、お気に入りやサイト内検索の登録など）は `chrome.storage.sync` に保存します。Chrome の同期をオンにしている場合は、Google アカウントを通じてお使いの他の端末にも同期されます。開発者がこのデータを見ることはありません。選んだテーマは、開いた瞬間に色を合わせるため、この端末の拡張機能のページの `localStorage` にも写します。
 
 タブを最後に見た時刻は `chrome.storage.session` に保存し、Chrome を終了すると消えます。
 
@@ -45,7 +45,7 @@ Command Palette ("the extension") does not send any data to the developer or to 
 
 - **Tabs, history, bookmarks, reading list, recently closed tabs**: read to show search results in the palette and to run the command you choose.
 - **Palette usage**: the pages, commands and bookmark folders you pick in the palette, with how often and when, are stored in `chrome.storage.local` on this device only to rank them higher. Removing a page from your history also removes its record.
-- **Settings** you enter are stored in `chrome.storage.sync` and may be synced to your other devices through your Google account if Chrome sync is on. The developer cannot see them.
+- **Settings** you enter are stored in `chrome.storage.sync` and may be synced to your other devices through your Google account if Chrome sync is on. The developer cannot see them. The chosen theme is also copied to the extension's `localStorage` on this device so pages open in the right colors.
 - **Web search** sends your query to the default search engine you set in Chrome, the same as searching from the address bar.
 
 Questions: <https://github.com/takasa5/chrome-command-palette/issues>

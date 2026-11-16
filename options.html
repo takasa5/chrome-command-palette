@@ -2,6 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
+    <script src="theme-init.js"></script>
     <title>コマンドパレットの設定</title>
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="palette.css" />
@@ -9,6 +10,14 @@
   </head>
   <body>
     <main class="palette options">
+      <section>
+        <label for="theme">テーマ</label>
+        <select id="theme">
+          <option value="system">システムに合わせる</option>
+          <option value="light">ライト</option>
+          <option value="dark">ダーク</option>
+        </select>
+      </section>
       <section>
         <label for="stale-hours">Archive Stale Tabs で閉じるタブ</label>
         <div>
