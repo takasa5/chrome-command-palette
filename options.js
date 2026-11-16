@@ -14,18 +14,24 @@ const favoritesErrors = document.getElementById("favorites-errors");
 const resetFavorites = document.getElementById("reset-favorites");
 const toast = document.getElementById("toast");
 
+// 読み込みを待つ間に選ばれても保存できるよう、どの await よりも先にリスナーを付ける。
+// 保存すると syncTheme が storage の変更を受けて、この画面にも当てる。
+let themeChosen = false;
+theme.addEventListener("change", () => {
+  themeChosen = true;
+  chrome.storage.sync.set({ theme: theme.value });
+});
+syncTheme();
+
 const savedEngines = await getEngines();
 let savedEnginesJson = JSON.stringify(savedEngines);
 
-theme.value = await getTheme();
-syncTheme();
+const savedTheme = await getTheme();
+if (!themeChosen) theme.value = savedTheme;
 input.value = await getStaleHours();
 newWindowPins.checked = await getNewWindowPins();
 siteSearch.value = formatEngines(savedEngines);
 favorites.value = formatFavorites(await getFavorites());
-
-// 保存すると syncTheme が storage の変更を受けて、この画面にも当てる。
-theme.addEventListener("change", () => chrome.storage.sync.set({ theme: theme.value }));
 
 newWindowPins.addEventListener("change", () => chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
 
