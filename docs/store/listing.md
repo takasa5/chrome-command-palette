@@ -6,18 +6,18 @@
 
 | 項目 | ファイル | 作り方 |
 |---|---|---|
-| パッケージ | `dist/command-palette-<version>.zip` | `npm run package` |
+| パッケージ | `command-palette-<version>.zip` | GitHub のリリース `v<version>` に添付されたものを落とす（下の「GitHub のリリース」） |
 | アイコン（128×128） | `icons/icon-128.png` | `npm run icons`（`icon.svg` から作る） |
 | スクリーンショット（1280×800） | `docs/store/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
 | 小さいプロモーション タイル（440×280） | `docs/store/promo-small.png` | `npm run store-assets` |
 
-`npm run package` は git で管理しているファイルだけを zip に入れるので、新しいファイルを足したら先に `git add` する。manifest.json や HTML、JS が指すファイルが zip に入らないときは、zip を作らずに止まる。
+手元で確かめるときは `npm run package` で `dist/` に同じ zip を作れる。ストアに上げるのはリリースの zip にする。
 
-バージョンを上げるときは `manifest.json` の `version` を変えてから zip を作る。
+`npm run package` は git で管理しているファイルだけを zip に入れるので、新しいファイルを足したら先に `git add` する。manifest.json や HTML、JS が指すファイルが zip に入らないときは、zip を作らずに止まる。
 
 ### GitHub のリリース
 
-ストアに上げる zip は GitHub のリリースでも管理する。
+ストアに上げる zip は GitHub のリリースで管理する。バージョンを上げるときは、`manifest.json` の `version` を変える PR を作る。
 
 `manifest.json` の `version` を上げる PR をマージすると、`release` ワークフローが `v<version>` のタグでリリースを作り、`npm run package` で作った zip を添付する。タグもリリースも手で作らない。
 

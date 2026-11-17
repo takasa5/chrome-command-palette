@@ -8,7 +8,7 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 
 | 項目 | ファイル | 作り方 |
 |---|---|---|
-| パッケージ | `dist/command-palette-<version>.zip` | `npm run package`（Chrome と同じ zip） |
+| パッケージ | `command-palette-<version>.zip` | GitHub のリリース `v<version>` に添付されたもの（Chrome と同じ zip。[listing.md](listing.md#github-のリリース)） |
 | ロゴ（300×300） | `docs/store/edge-logo.png` | `npm run icons`（`icon.svg` から作る） |
 | スクリーンショット（1280×800、6 枚まで） | `docs/store/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
 | 小さいプロモーション タイル（440×280） | `docs/store/promo-small.png` | `npm run store-assets` |
@@ -35,7 +35,7 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 
 ## Store listings
 
-`_locales/` に日本語と英語があるので、両方の言語が並ぶ。名前と短い説明（Short description）は `_locales/*/messages.json` の `extName` と `extDescription` から読まれ、Partner Center では変えられない。変えるときは `messages.json` を直して zip を上げ直す。
+`_locales/` に日本語と英語があるので、両方の言語が並ぶ。名前と短い説明（Short description）は `_locales/*/messages.json` の `extName` と `extDescription` から読まれ、Partner Center では変えられない。変えるときは `messages.json` を直し、`version` を上げてできたリリースの zip を上げ直す。
 
 説明は 250 文字以上、10,000 文字まで。検索語は 7 個まで、1 個 30 文字まで、合わせて 21 語まで。
 
