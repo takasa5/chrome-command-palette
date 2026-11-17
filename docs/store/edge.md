@@ -10,10 +10,10 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 |---|---|---|
 | パッケージ | `command-palette-<version>.zip` | GitHub のリリース `v<version>` に添付されたもの（Chrome と同じ zip。[listing.md](listing.md#github-のリリース)） |
 | ロゴ（300×300） | `docs/store/edge-logo.png` | `npm run icons`（`icon.svg` から作る） |
-| スクリーンショット（1280×800、6 枚まで） | `docs/store/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
-| 小さいプロモーション タイル（440×280） | `docs/store/promo-small.png` | `npm run store-assets` |
+| スクリーンショット（1280×800、6 枚まで） | `docs/store/<lang>/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
+| 小さいプロモーション タイル（440×280） | `docs/store/<lang>/promo-small.png` | `npm run store-assets` |
 
-ロゴ、タイル、スクリーンショットは言語ごとに上げる。1 つの言語に上げたあと「Duplicate」で他の言語に写せる。大きいプロモーション タイル（1400×560）は任意なので作っていない。
+ロゴ、タイル、スクリーンショットは言語ごとに上げる。ロゴは 1 つの言語に上げたあと「Duplicate」で他の言語に写せる。タイルとスクリーンショットは文言が言語ごとに違うので、Japanese には `ja/`、English には `en/` のものを上げる。大きいプロモーション タイル（1400×560）は任意なので作っていない。
 
 ## Availability
 

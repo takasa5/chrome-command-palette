@@ -1,4 +1,4 @@
-// ストアの小さいプロモーション タイル（440×280）を docs/store/promo-small.png に書き出す。
+// ストアの小さいプロモーション タイル（440×280）を、言語ごとに docs/store/<lang>/promo-small.png に書き出す。
 import { chromium } from "playwright-core";
 import { mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -7,7 +7,13 @@ const root = resolve(import.meta.dirname, "..", "..");
 const svg = readFileSync(join(root, "icon.svg"), "utf8");
 const out = join(root, "docs", "store");
 
-const html = `<!doctype html>
+// 下の一行は言語ごとに変える。
+const TAGLINES = {
+  ja: "<kbd>⌘T</kbd> でタブ、ブックマーク、履歴をまとめて検索",
+  en: "<kbd>⌘T</kbd> to search tabs, bookmarks, and history",
+};
+
+const html = (tagline) => `<!doctype html>
 <meta charset="utf-8">
 <style>
   html, body { margin: 0; }
@@ -30,14 +36,16 @@ const html = `<!doctype html>
 </style>
 ${svg}
 <h1>Command Palette</h1>
-<p><kbd>⌘T</kbd> でタブ、ブックマーク、履歴をまとめて検索</p>`;
+<p>${tagline}</p>`;
 
-mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ channel: "chromium" });
 try {
   const page = await browser.newPage({ viewport: { width: 440, height: 280 } });
-  await page.setContent(html);
-  await page.screenshot({ path: join(out, "promo-small.png") });
+  for (const [lang, tagline] of Object.entries(TAGLINES)) {
+    mkdirSync(join(out, lang), { recursive: true });
+    await page.setContent(html(tagline));
+    await page.screenshot({ path: join(out, lang, "promo-small.png") });
+  }
 } finally {
   await browser.close();
 }

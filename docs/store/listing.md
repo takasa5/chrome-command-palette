@@ -8,8 +8,10 @@
 |---|---|---|
 | パッケージ | `command-palette-<version>.zip` | GitHub のリリース `v<version>` に添付されたものを落とす（下の「GitHub のリリース」） |
 | アイコン（128×128） | `icons/icon-128.png` | `npm run icons`（`icon.svg` から作る） |
-| スクリーンショット（1280×800） | `docs/store/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
-| 小さいプロモーション タイル（440×280） | `docs/store/promo-small.png` | `npm run store-assets` |
+| スクリーンショット（1280×800） | `docs/store/<lang>/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
+| 小さいプロモーション タイル（440×280） | `docs/store/<lang>/promo-small.png` | `npm run store-assets` |
+
+スクリーンショットとタイルは、日本語（`ja/`）と英語（`en/`）で文言が違う。ダッシュボードで言語ごとに上げられるなら、その言語のものを上げる。1 組しか上げられないときは英語のものを上げる。
 
 手元で確かめるときは `npm run package` で `dist/` に同じ zip を作れる。ストアに上げるのはリリースの zip にする。
 
