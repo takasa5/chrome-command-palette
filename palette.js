@@ -1,7 +1,7 @@
 import { COMMANDS } from "./commands.js";
 import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
-import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, stripUrl } from "./search.js";
+import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
 import { syncTheme } from "./theme.js";
@@ -82,6 +82,8 @@ let favorites = [];
 // パレットで候補を選んだ記録。よく選ぶ候補を上に出すのに使う。
 let usage = {};
 const scopeIcons = new WeakMap();
+// パレットで履歴から消した URL。消す前に始まった検索の結果に、消したページが戻ってこないようにする。
+const deletedUrls = new Set();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
 // ウィンドウ最後のタブなら、閉じるとウィンドウごと消えるので開いたままにする。
@@ -255,6 +257,10 @@ function renderBreadcrumb() {
   breadcrumb.hidden = !text;
 }
 
+function selectedItem() {
+  return results.find((item) => item.key === selectedKey);
+}
+
 function moveSelection(delta) {
   if (results.length === 0) return;
   const index = results.findIndex((item) => item.key === selectedKey);
@@ -301,7 +307,7 @@ async function update() {
   results = rankResults(query, {
     ...sources,
     bookmarks: flattenBookmarks(bookmarkTree),
-    history: history.filter((page) => !page.url.startsWith(paletteUrl)),
+    history: history.filter((page) => !page.url.startsWith(paletteUrl) && !deletedUrls.has(page.url)),
   });
   render();
 }
@@ -411,6 +417,19 @@ async function execute(item, { moveHere = false } = {}) {
   }
 }
 
+// 履歴の候補を履歴から消す。パレットは閉じず、候補からも外して次の行を選ぶ。
+async function deleteFromHistory(item) {
+  try {
+    await chrome.history.deleteUrl({ url: item.url });
+  } catch (error) {
+    toast.textContent = error.message;
+    return;
+  }
+  deletedUrls.add(item.url);
+  ({ results, selectedKey } = removeResult(results, item.key, selectedKey));
+  render();
+}
+
 function handleKeydown(event) {
   // 日本語入力の確定 Enter でコマンドを実行しない。
   if (event.isComposing || event.keyCode === 229) return;
@@ -423,7 +442,7 @@ function handleKeydown(event) {
     moveSelection(-1);
   } else if (event.key === "Enter") {
     event.preventDefault();
-    execute(results.find((item) => item.key === selectedKey), { moveHere: event.shiftKey });
+    execute(selectedItem(), { moveHere: event.shiftKey });
   } else if (event.key === "Tab") {
     // 入るところがなくても、入力欄からフォーカスを外さない。
     event.preventDefault();
@@ -435,6 +454,10 @@ function handleKeydown(event) {
   } else if (event.key === "Backspace" && !input.value && folderStack.length > 0) {
     event.preventDefault();
     exitFolder();
+  } else if (event.key === "Delete" && event.shiftKey && selectedItem()?.kind === "history") {
+    // 履歴以外の候補では、入力欄の既定の動き（切り取りなど）のままにする。
+    event.preventDefault();
+    deleteFromHistory(selectedItem());
   } else if (event.key === "Escape") {
     event.preventDefault();
     leave();
@@ -471,7 +494,7 @@ async function takeBufferedKeys() {
   const { text, submit } = applyBufferedKeys(keys ?? []);
   input.value = text;
   update();
-  if (submit) execute(results.find((item) => item.key === selectedKey));
+  if (submit) execute(selectedItem());
 }
 
 async function init() {

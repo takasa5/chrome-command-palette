@@ -44,6 +44,22 @@ describe("例ベース", () => {
       assert.equal(await page.title(), "Release Notes");
     });
 
+    test("履歴の候補で Shift+Delete を押すと、パレットを閉じずに履歴と候補から消す", async () => {
+      const url = pageUrl("Forget Me", "https://forget.example.test");
+      await browser.sw.evaluate((url) => chrome.history.addUrl({ url }), url);
+      page = await browser.openPalette();
+
+      await page.keyboard.type("forget");
+      await page.locator('#results li[aria-selected="true"] .kind', { hasText: "履歴" }).waitFor();
+      await page.keyboard.press("Shift+Delete");
+
+      await page.locator("#results li .subtitle", { hasText: "forget.example.test" }).waitFor({ state: "detached" });
+      assert.equal(await page.inputValue("#query"), "forget");
+      assert.equal(await page.locator('#results li[aria-selected="true"]').count(), 1);
+      const visits = await browser.sw.evaluate((url) => chrome.history.getVisits({ url }), url);
+      assert.equal(visits.length, 0);
+    });
+
     test("タブを閉じるコマンドは直前に見ていたタブを閉じる", async () => {
       await browser.openPage("Keep Page");
       await browser.openPage("Close Me");

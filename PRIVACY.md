@@ -11,7 +11,7 @@ Command Palette（以下「本拡張機能」）が扱うデータについて�
 | データ | 使い道 |
 |---|---|
 | 開いているタブの URL とタイトル | 候補に出し、選んだタブへ移動する。タブの操作（閉じる、ピン、移動など）をする |
-| 閲覧履歴 | 入力した語に合うページを候補に出す |
+| 閲覧履歴 | 入力した語に合うページを候補に出す。候補で選んだページを履歴から消す |
 | ブックマーク | 入力した語やフォルダ名に合うブックマークを候補に出す。今のページをブックマークに加える |
 | リーディングリスト | 候補に出し、ページを加えたり既読にしたりする |
 | 最近閉じたタブ | 閉じたタブを開き直す |
@@ -43,7 +43,7 @@ Command Palette（以下「本拡張機能」）が扱うデータについて�
 
 Command Palette ("the extension") does not send any data to the developer or to third parties. It does not collect, sell, or use data for advertising. Everything it reads stays in your browser.
 
-- **Tabs, history, bookmarks, reading list, recently closed tabs**: read to show search results in the palette and to run the command you choose.
+- **Tabs, history, bookmarks, reading list, recently closed tabs**: read to show search results in the palette and to run the command you choose. A history result you choose to remove is deleted from your history.
 - **Palette usage**: the pages, commands and bookmark folders you pick in the palette, with how often and when, are stored in `chrome.storage.local` on this device only to rank them higher. Removing a page from your history also removes its record.
 - **Settings** you enter are stored in `chrome.storage.sync` and may be synced to your other devices through your Google account if Chrome sync is on. The developer cannot see them. The chosen theme is also copied to the extension's `localStorage` on this device so pages open in the right colors.
 - **Web search** sends your query to the default search engine you set in Chrome, the same as searching from the address bar.

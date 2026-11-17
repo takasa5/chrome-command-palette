@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
 import { COMMANDS } from "../commands.js";
-import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, scoreFields, toUrl } from "../search.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, scoreFields, toUrl } from "../search.js";
 
 const t = translator("ja");
 
@@ -202,4 +202,18 @@ test("rankCommands はコマンドだけを返し、Web 検索や URL の候補�
   const items = rankCommands("example.com", COMMANDS, { t });
   assert.ok(items.every((item) => item.kind === "command"));
   assert.ok(rankCommands("New Window", COMMANDS, { t }).some((item) => item.title === "New Window"));
+});
+
+test("removeResult は選んでいた行を外し、同じ位置の次の行を選ぶ", () => {
+  const results = ["a", "b", "c"].map((key) => ({ key }));
+  assert.deepEqual(removeResult(results, "b", "b"), { results: [{ key: "a" }, { key: "c" }], selectedKey: "c" });
+  assert.deepEqual(removeResult(results, "c", "c"), { results: [{ key: "a" }, { key: "b" }], selectedKey: "b" });
+  assert.deepEqual(removeResult([{ key: "a" }], "a", "a"), { results: [], selectedKey: null });
+  assert.deepEqual(results.map((item) => item.key), ["a", "b", "c"]);
+});
+
+test("removeResult は選んでいない行を外しても選択を変えず、ない行なら何もしない", () => {
+  const results = ["a", "b", "c"].map((key) => ({ key }));
+  assert.deepEqual(removeResult(results, "a", "c"), { results: [{ key: "b" }, { key: "c" }], selectedKey: "c" });
+  assert.deepEqual(removeResult(results, "x", "b"), { results, selectedKey: "b" });
 });

@@ -196,6 +196,15 @@ function dedupeByUrl(entries) {
   return entries.filter((entry) => !entry.url || kept.has(entry));
 }
 
+// 候補から key の行を外す。外した行を選んでいたときは、同じ位置にくる次の行（末尾なら 1 つ上）を選ぶ。
+export function removeResult(results, key, selectedKey) {
+  const index = results.findIndex((item) => item.key === key);
+  if (index === -1) return { results, selectedKey };
+  const rest = results.toSpliced(index, 1);
+  if (key !== selectedKey) return { results: rest, selectedKey };
+  return { results: rest, selectedKey: rest[Math.min(index, rest.length - 1)]?.key ?? null };
+}
+
 // 入力に対して表示する結果を、スコアの高い順に返す。
 // usage はパレットで選んだ記録（usage.js）。よく選ぶ候補ほど、同じくらい一致するほかの候補より上に出す。
 export function rankResults(query, { t, commands = [], favorites = [], tabs = [], bookmarks = [], history = [], usage = {}, now = Date.now() }) {
