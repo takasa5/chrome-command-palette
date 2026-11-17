@@ -63,10 +63,18 @@ jobs:
       - run: npm run model
       - run: git diff --exit-code -- e2e/graph/generated
 
-  e2e:
+  # Chromium と Edge で同じ E2E を並列に流す。
+  # matrix のジョブはチェック名が「e2e-browser (chromium)」のようになり、skip したときは展開されない名前で届く。
+  # 必須チェックの名前を変えずに済むよう、必須チェックには下の e2e ジョブで結果をまとめて報告する。
+  e2e-browser:
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.e2e != 'false' }}
     runs-on: ubuntu-latest
+    strategy:
+      # 片方で落ちても、もう片方の結果を見られるようにする
+      fail-fast: false
+      matrix:
+        channel: [chromium, msedge]
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -76,12 +84,28 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright-core install --with-deps chromium
+      - run: npx playwright-core install --with-deps ${{ matrix.channel }}
       - run: npm run e2e
+        env:
+          E2E_CHANNEL: ${{ matrix.channel }}
       - uses: actions/upload-artifact@v7.0.2
         if: failure()
         with:
-          name: e2e-screenshots
+          name: e2e-screenshots-${{ matrix.channel }}
           path: e2e/.output/
           # 失敗したテストの画面（e2e/.output/ のスクリーンショット）を上げて、CI で落ちた原因を後から見られるようにする
           include-hidden-files: true
+
+  # main の必須チェック。e2e-browser がどのブラウザでも通ったか、変更が E2E に関係なく skip したときだけ成功にする。
+  # e2e-browser が失敗、キャンセルしたときに必須チェックが skip で届いて満たされないよう、always() で必ず動かす。
+  e2e:
+    needs: [changes, e2e-browser]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULT: ${{ needs.e2e-browser.result }}
+        run: |
+          echo "e2e-browser: $RESULT"
+          [ "$RESULT" = success ] || [ "$RESULT" = skipped ]

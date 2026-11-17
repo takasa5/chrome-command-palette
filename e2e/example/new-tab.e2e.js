@@ -90,8 +90,9 @@ describe("例ベース", () => {
       await page.locator('#results li[aria-selected="true"] .title', { hasText: /^(Reopen Closed Tab|閉じたタブを開き直す)$/ }).waitFor();
       await pressToClose(page, "Enter");
 
+      // タイトルではなく URL で確かめる。Edge は開き直したタブを読み込む途中で、一時的にタイトルをホスト名にするため。
       const active = await browser.activeTab();
-      assert.equal(active.title, "Closed Page");
+      assert.equal(active.url, pageUrl("Closed Page"));
     });
   });
 });

@@ -34,7 +34,7 @@ E2E に分岐の網羅を持ち込まない。分岐が増えたら、純粋関�
 
 ### 時間の予算
 
-CI の `e2e` ジョブで 5 分以内。足す前に、どの既存のテストで代わりにならないかを考える。
+CI の `e2e-browser` ジョブ（Chromium と Edge で並列に流す）のそれぞれで 5 分以内。足す前に、どの既存のテストで代わりにならないかを考える。
 
 ### 書く時期と、壊して確かめること
 
@@ -70,7 +70,7 @@ e2e/
       labels.js         操作と状態を人が読む言葉にする（図、表、テスト結果で使う）
   property/             プロパティベース
     palette.e2e.js      操作、小さなモデル、確かめる性質
-  .output/              失敗時の出力（git に入れない。CI では artifact）
+  .output/<channel>/    失敗時の出力。chromium と msedge に分かれる（git に入れない。CI では artifact）
     example/            例ベースの失敗時の画面
     graph/              グラフベースの失敗時の画面（経路と何番目の操作か）
     property/           プロパティベースの失敗時の画面（縮めた最小の反例）
@@ -107,13 +107,14 @@ E2E は押したあとも画面がモデルの状態のまま（入力、パン�
 | コマンド | 中身 |
 | --- | --- |
 | `npm run e2e` | 例ベース、グラフベース、プロパティベースの全部（CI と同じ） |
+| `E2E_CHANNEL=msedge npm run e2e` | Edge で流す。CI は Chromium と並列にこれも流す |
 | `npm run e2e:example` | 例ベースだけ |
 | `npm run e2e:graph` | グラフベースだけ |
 | `npm run e2e:property` | プロパティベースだけ。シードは毎回変わる。`E2E_PROPERTY_RUNS=500` で本数を増やせる。失敗したら表示された `E2E_PROPERTY_SEED` と `E2E_PROPERTY_PATH` を付けて実行すると、縮めた反例を再生する |
 | `npm run e2e:walk -- [シード]` | 乱数で 5 本 × 40 操作を作って再生する。失敗したら表示されたシードを渡すと再現できる |
 | `npm run model` | `palette.qnt` から `generated/` を作り直す |
 
-初回は `npx playwright-core install chromium` が必要。
+初回は `npx playwright-core install chromium` が必要。Edge で流すなら `npx playwright-core install msedge` も要る（macOS では管理者のパスワードを聞かれる）。
 
 ## 落とし穴
 

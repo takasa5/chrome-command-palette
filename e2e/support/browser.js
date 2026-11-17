@@ -5,7 +5,10 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const ext = resolve(import.meta.dirname, "..", "..");
-const output = join(import.meta.dirname, "..", ".output");
+// E2E_CHANNEL=msedge のように指定すると、Chromium 以外のブラウザでも同じ流れが動くか確かめられる。
+const channel = process.env.E2E_CHANNEL || "chromium";
+// 失敗した画面はブラウザごとに分けて残す。手元で Chromium と Edge を続けて流したとき、同じテストが両方で落ちても上書きしない。
+const output = join(import.meta.dirname, "..", ".output", channel);
 
 // パレットを重ねる先のページの origin。
 export const HOST_ORIGIN = "https://host.test";
@@ -36,7 +39,7 @@ export async function launch() {
   prepareExtension(extDir);
   const ctx = await chromium.launchPersistentContext(profile, {
     // 既定の headless shell は拡張機能を読み込めない。
-    channel: "chromium",
+    channel,
     headless: true,
     // 画面の文言はブラウザの言語で変わる。テストは日本語の文言で確かめるので、日本語に固定する。
     locale: "ja-JP",
@@ -123,7 +126,7 @@ export async function pressToCloseOverlay(page, key) {
   await page.keyboard.up(key);
 }
 
-// 失敗したときの画面を e2e/.output/<group>/<name>.png に残し、CI の artifact から見られるようにする。
+// 失敗したときの画面を e2e/.output/<channel>/<group>/<name>.png に残し、CI の artifact から見られるようにする。
 export async function saveScreenshot(page, group, name) {
   if (!page || page.isClosed()) return;
   mkdirSync(join(output, group), { recursive: true });
