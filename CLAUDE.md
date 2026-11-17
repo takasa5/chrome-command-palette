@@ -23,7 +23,7 @@
 
 ## ストア公開
 
-申請に使う zip、アイコン、スクリーンショット、ダッシュボードに入力する文面は [docs/store/listing.md](docs/store/listing.md) にまとめてある。権限を足したり、扱うデータが変わったりしたら、`listing.md` の権限の理由と `PRIVACY.md` も直す。
+申請に使う zip、アイコン、スクリーンショット、ダッシュボードに入力する文面は [docs/store/listing.md](docs/store/listing.md)（Chrome ウェブストア）と [docs/store/edge.md](docs/store/edge.md)（Edge アドオン）にまとめてある。権限を足したり、扱うデータが変わったりしたら、`listing.md` の権限の理由と `PRIVACY.md` も直す。説明文を変えたら、`edge.md` の説明も揃える。
 
 ## Git
 
