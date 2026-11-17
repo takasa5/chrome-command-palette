@@ -83,6 +83,7 @@ let favorites = [];
 let usage = {};
 const scopeIcons = new WeakMap();
 // パレットで履歴から消した URL。消す前に始まった検索の結果に、消したページが戻ってこないようにする。
+// 消したあとにまた訪れたページは履歴に戻るので、onVisited で外す。
 const deletedUrls = new Set();
 
 // パレットのタブを閉じて focusTabId のタブへ戻る。
@@ -510,6 +511,7 @@ async function init() {
   }
   await Promise.all([refreshTabs(), refreshScopes(), refreshUsage()]);
   chrome.tabs.onActivated.addListener(closeWhenLeft);
+  chrome.history.onVisited.addListener(({ url }) => deletedUrls.delete(url));
   input.addEventListener("input", update);
   input.addEventListener("keydown", handleKeydown);
   window.addEventListener("focus", reactivate);
