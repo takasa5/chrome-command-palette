@@ -10,10 +10,11 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 |---|---|---|
 | パッケージ | `command-palette-<version>.zip` | GitHub のリリース `v<version>` に添付されたもの（Chrome と同じ zip。[listing.md](listing.md#github-のリリース)） |
 | ロゴ（300×300） | `docs/store/edge-logo.png` | `npm run icons`（`icon.svg` から作る） |
-| スクリーンショット（1280×800、6 枚まで） | `docs/store/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
-| 小さいプロモーション タイル（440×280） | `docs/store/promo-small.png` | `npm run store-assets` |
+| スクリーンショット（1280×800、6 枚まで） | `docs/store/<lang>/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
+| 小さいプロモーション タイル（440×280） | `docs/store/<lang>/promo-small.png` | `npm run store-assets` |
+| 大きいプロモーション タイル（1400×560） | `docs/store/<lang>/promo-large.png` | `npm run store-assets` |
 
-ロゴ、タイル、スクリーンショットは言語ごとに上げる。1 つの言語に上げたあと「Duplicate」で他の言語に写せる。大きいプロモーション タイル（1400×560）は任意なので作っていない。
+ロゴ、タイル、スクリーンショットは言語ごとに上げる。ロゴは 1 つの言語に上げたあと「Duplicate」で他の言語に写せる。タイルとスクリーンショットは文言が言語ごとに違うので、Japanese には `ja/`、English には `en/` のものを上げる。
 
 ## Availability
 
@@ -41,6 +42,13 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 
 ### 日本語
 
+**スクリーンショットのキャプション**:
+
+1. 開いているタブ、ブックマーク、履歴をまとめて検索
+2. タブを閉じる、ピン留め、ミュートなどの操作を探して実行
+3. ブックマークをフォルダ階層でたどる
+4. キーワード + Tab でサイト内検索
+
 **説明**:
 
 > 新しいタブを開くと、コマンドパレットが表示されます。キーボードだけで、ブラウザのよく使う操作をすばやく実行できます。
@@ -61,6 +69,13 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 
 ### 英語
 
+**スクリーンショットのキャプション**:
+
+1. Search open tabs, bookmarks, and history at once
+2. Find and run browser actions like closing, pinning, or muting tabs
+3. Browse bookmarks by folder from the keyboard
+4. Type a keyword and press Tab to search a site
+
 **説明**:
 
 > Open a new tab and the command palette appears. Run the browser actions you use most, right from the keyboard.
@@ -77,7 +92,7 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 >
 > After you install, the command palette replaces the New Tab page. If Edge asks, choose to keep the changes.
 
-**Search terms**: command palette, tab switcher, tab search, bookmark search, history search, keyboard shortcuts, new tab page
+**Search terms**: tab manager, tab switcher, tab search, bookmark search, history search, keyboard shortcuts, new tab page
 
 ## Notes for certification
 
