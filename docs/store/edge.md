@@ -12,8 +12,9 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 | ロゴ（300×300） | `docs/store/edge-logo.png` | `npm run icons`（`icon.svg` から作る） |
 | スクリーンショット（1280×800、6 枚まで） | `docs/store/<lang>/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
 | 小さいプロモーション タイル（440×280） | `docs/store/<lang>/promo-small.png` | `npm run store-assets` |
+| 大きいプロモーション タイル（1400×560） | `docs/store/<lang>/promo-large.png` | `npm run store-assets` |
 
-ロゴ、タイル、スクリーンショットは言語ごとに上げる。ロゴは 1 つの言語に上げたあと「Duplicate」で他の言語に写せる。タイルとスクリーンショットは文言が言語ごとに違うので、Japanese には `ja/`、English には `en/` のものを上げる。大きいプロモーション タイル（1400×560）は任意なので作っていない。
+ロゴ、タイル、スクリーンショットは言語ごとに上げる。ロゴは 1 つの言語に上げたあと「Duplicate」で他の言語に写せる。タイルとスクリーンショットは文言が言語ごとに違うので、Japanese には `ja/`、English には `en/` のものを上げる。
 
 ## Availability
 
@@ -41,6 +42,13 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 
 ### 日本語
 
+**スクリーンショットのキャプション**:
+
+1. 開いているタブ、ブックマーク、履歴をまとめて検索
+2. タブを閉じる、ピン留め、ミュートなどの操作を探して実行
+3. ブックマークをフォルダ階層でたどる
+4. キーワード + Tab でサイト内検索
+
 **説明**:
 
 > 新しいタブを開くと、コマンドパレットが表示されます。キーボードだけで、ブラウザのよく使う操作をすばやく実行できます。
@@ -60,6 +68,13 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 **検索語**: コマンドパレット, タブ切り替え, タブ検索, ブックマーク検索, 履歴検索, キーボード操作, 新しいタブ
 
 ### 英語
+
+**スクリーンショットのキャプション**:
+
+1. Search open tabs, bookmarks, and history at once
+2. Find and run browser actions like closing, pinning, or muting tabs
+3. Browse bookmarks by folder from the keyboard
+4. Type a keyword and press Tab to search a site
 
 **説明**:
 
