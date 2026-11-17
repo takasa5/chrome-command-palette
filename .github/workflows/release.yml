@@ -1,0 +1,45 @@
+name: release
+
+# GitHub でリリースを publish したら、ストアに上げる zip を作ってそのリリースに添付する。
+# どのコードから作った zip かを分かるように、zip はリリースのタグを付けたコミットから作る。
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      # zip をリリースに添付するため
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      # タグと manifest.json の version がずれていると、リリースと違うバージョンをストアに上げてしまう。
+      # ずれていたら zip を添付せずに止め、manifest.json を直してからタグを付け直してもらう。
+      - name: タグと manifest.json の version を比べる
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version=$(node -p 'require("./manifest.json").version')
+          echo "tag: $TAG, manifest.json: $version"
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "::error::タグ $TAG と manifest.json の version $version が一致しません。manifest.json を上げた PR をマージしてから v$version のタグでリリースを作ってください。"
+            exit 1
+          fi
+      # package.js は Node の標準モジュールしか使わないので npm ci は要らない
+      - run: npm run package
+      - name: zip をリリースに添付する
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        # 同じリリースで workflow を再実行したときに失敗しないよう、同じ名前の zip は置き換える
+        run: gh release upload "$TAG" dist/command-palette-*.zip --clobber --repo "$GITHUB_REPOSITORY"
