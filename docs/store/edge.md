@@ -92,7 +92,7 @@ Partner Center に入力する内容と、上げるファイルをまとめる�
 >
 > After you install, the command palette replaces the New Tab page. If Edge asks, choose to keep the changes.
 
-**Search terms**: command palette, tab switcher, tab search, bookmark search, history search, keyboard shortcuts, new tab page
+**Search terms**: tab manager, tab switcher, tab search, bookmark search, history search, keyboard shortcuts, new tab page
 
 ## Notes for certification
 
