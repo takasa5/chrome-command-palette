@@ -1,0 +1,57 @@
+name: release
+
+# manifest.json の version を上げて main にマージしたら、v<version> のタグでリリースを作り、ストアに上げる zip を添付する。
+# タグを manifest.json から決めるので、リリースのバージョンと zip の中の version がずれない。
+on:
+  push:
+    branches: [main]
+    paths: [manifest.json]
+  # 失敗したときのやり直しや、まだリリースのないバージョンのリリースを手で作るため
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 続けてマージしたときに同じタグを 2 回作ろうとしないよう、1 つずつ動かす
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      # タグとリリースを作り、zip を添付するため
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+      # version を変えずに manifest.json の別の項目だけを変えたときは、タグがもうあるので何もしない
+      - id: version
+        name: リリースするバージョンを決める
+        run: |
+          version=$(node -p 'require("./manifest.json").version')
+          tag="v$version"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --silent 2>/dev/null; then
+            echo "::notice::$tag はもうあるので、リリースを作りません。"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      # package.js は Node の標準モジュールしか使わないので npm ci は要らない
+      - if: steps.version.outputs.exists == 'false'
+        run: npm run package
+      # zip と同じコミットにタグを付けるため、--target にチェックアウトしたコミットを渡す
+      - if: steps.version.outputs.exists == 'false'
+        name: リリースを作って zip を添付する
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: gh release create "$TAG" dist/command-palette-*.zip --target "$GITHUB_SHA" --title "$TAG" --generate-notes --repo "$GITHUB_REPOSITORY"

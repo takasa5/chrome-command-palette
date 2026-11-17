@@ -15,6 +15,14 @@
 
 バージョンを上げるときは `manifest.json` の `version` を変えてから zip を作る。
 
+### GitHub のリリース
+
+ストアに上げる zip は GitHub のリリースでも管理する。
+
+`manifest.json` の `version` を上げる PR をマージすると、`release` ワークフローが `v<version>` のタグでリリースを作り、`npm run package` で作った zip を添付する。タグもリリースも手で作らない。
+
+`v<version>` のタグがもうあるときは何もしない。失敗したときや、まだリリースのないバージョンのリリースを作るときは、Actions から `release` を手で動かす（`gh workflow run release.yml`）。
+
 ## ストアの掲載情報
 
 **カテゴリ**: 仕事効率化 > ツール
