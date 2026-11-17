@@ -24,6 +24,7 @@ A Chrome extension that brings the feel of Arc's command palette to Chrome. Pres
 | `↑` `↓` / `Ctrl+P` `Ctrl+N` | Move through results |
 | `Enter` | Run |
 | `Shift+Enter` / `Shift+Click` | Move a tab from another window into the current window and open it |
+| `Shift+Delete` | Remove the selected history result from history |
 | `Tab` | On empty input, filter to commands; after a registered keyword, start a site search |
 | `Backspace` | On empty input, go back one step |
 | `Esc` | Close and return to the previous tab |
