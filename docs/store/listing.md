@@ -31,6 +31,8 @@
 
 **言語**: 日本語、英語。ダッシュボードの「ストアの掲載情報」で言語を切り替え、それぞれに下の名前、概要、説明を入れる。名前と言語の一覧は `manifest.json` と `_locales/` から読まれる。
 
+Arc の名前は説明の中で 1 回だけ出し、関係がないことを書き添える。名前、アイコン、画像には入れない（なりすましやキーワードの詰め込みと見られないため）。Edge の説明（[edge.md](edge.md)）にはまだ入れていない。Edge は説明を変えると審査をやり直すので、次に版を上げるときに揃える。
+
 ### 日本語
 
 **名前**: Command Palette
@@ -42,6 +44,8 @@
 **説明**:
 
 > 新しいタブを開くと、コマンドパレットが表示されます。キーボードだけで、ブラウザのよく使う操作をすばやく実行できます。
+>
+> Arc ブラウザのコマンドバーの操作感を、Chrome で使えるようにします（The Browser Company とは関係ありません）。
 >
 > ・開いているタブ、ブックマーク、閲覧履歴をまとめて検索し、Enter で移動
 > ・タブを閉じる、ピン留め、ミュート、別ウィンドウへ移動などのブラウザ操作を、英語でも日本語でも検索して実行
@@ -66,6 +70,8 @@
 **説明**:
 
 > Open a new tab and the command palette appears. Run the browser actions you use most, right from the keyboard.
+>
+> Brings the feel of Arc browser's command bar to Chrome. (Not affiliated with The Browser Company.)
 >
 > • Search open tabs, bookmarks, and history in one place, and press Enter to jump there
 > • Find and run browser actions like closing, pinning, muting, or moving a tab to a new window
