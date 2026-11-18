@@ -25,7 +25,7 @@ test("README と docs/ だけなら docs", () => {
 });
 
 test("コードやテストは LLM に回す", () => {
-  const result = classify([file("commands.js"), file("tests/search.test.js"), file("README.md")]);
+  const result = classify([file("extension/commands.js"), file("tests/search.test.js"), file("README.md")]);
   assert.equal(result.tier, "code");
   assert.deepEqual(result.reasons, []);
 });
@@ -34,9 +34,9 @@ test("CLAUDE.md と skill は LLM に回す", () => {
   assert.equal(classify([file("CLAUDE.md"), file(".claude/skills/e2e/SKILL.md")]).tier, "code");
 });
 
-test(".github/、manifest.json、状態遷移モデルは人間", () => {
-  for (const path of [".github/workflows/test.yml", ".github/merge-gate/gate.js", "manifest.json", "e2e/graph/palette.qnt", ".claude/settings.json"]) {
-    const result = classify([file("commands.js"), file(path)]);
+test(".github/、extension/manifest.json、状態遷移モデルは人間", () => {
+  for (const path of [".github/workflows/test.yml", ".github/merge-gate/gate.js", "extension/manifest.json", "e2e/graph/palette.qnt", ".claude/settings.json"]) {
+    const result = classify([file("extension/commands.js"), file(path)]);
     assert.equal(result.tier, "human", path);
     assert.match(result.reasons[0], /要レビューのファイル/);
   }
@@ -86,9 +86,9 @@ test(`${MAX_LINES} 行を超える変更は人間`, () => {
 });
 
 test("ファイルの分類を返す", () => {
-  assert.deepEqual(classify([file("README.md"), file("manifest.json"), file("a.js")]).files, [
+  assert.deepEqual(classify([file("README.md"), file("extension/manifest.json"), file("a.js")]).files, [
     { path: "README.md", tier: "docs" },
-    { path: "manifest.json", tier: "human" },
+    { path: "extension/manifest.json", tier: "human" },
     { path: "a.js", tier: "code" },
   ]);
 });
@@ -102,10 +102,10 @@ test("parseVerdict は形がおかしい答えを null にする", () => {
 });
 
 test("decide: パスで人間なら LLM の答えに関係なく pending", () => {
-  const paths = classify([file("manifest.json")]);
+  const paths = classify([file("extension/manifest.json")]);
   const result = decide({ paths, verdict: { kind: "test", reason: "x" } });
   assert.equal(result.state, "pending");
-  assert.match(result.description, /^レビューをお願いします: manifest\.json/);
+  assert.match(result.description, /^レビューをお願いします: extension\/manifest\.json/);
 });
 
 test("decide: docs は LLM なしで success", () => {
@@ -126,7 +126,7 @@ test("decide: コードは LLM の種類で決める", () => {
 
 test("LLM の理由はコメントに 1 回だけ書く", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  const paths = classify([file("commands.js")]);
+  const paths = classify([file("extension/commands.js")]);
   const verdict = { kind: "feature", reason: "新しいコマンドを足す" };
   const body = commentBody({ sha, paths, verdict, result: decide({ paths, verdict }) });
   assert.equal(body.split("新しいコマンドを足す").length - 1, 2); // 表示に 1 回、隠したデータに 1 回
@@ -176,17 +176,17 @@ test("コメントに隠した判定を、同じ SHA のときだけ使い回す
 
 test("pending のコメントには承認のしかたを書く", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  const paths = classify([file("manifest.json")]);
+  const paths = classify([file("extension/manifest.json")]);
   const body = commentBody({ sha, paths, verdict: null, result: decide({ paths, verdict: null }) });
   assert.match(body, /`\/approve 0123456789ab` とコメントしてもよい/);
   assert.match(body, /^- \[ \] `\/approve 0123456789ab`$/m);
   assert.match(body, /^レビューをお願いします。理由:$/m);
-  assert.match(body, /\| `manifest\.json` \| 要レビュー \|/);
+  assert.match(body, /\| `extension\/manifest\.json` \| 要レビュー \|/);
 });
 
 test("checkboxApproval: 持ち主がチェックを付けると承認になる", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  const paths = classify([file("manifest.json")]);
+  const paths = classify([file("extension/manifest.json")]);
   const pendingBody = commentBody({ sha, paths, verdict: null, result: decide({ paths, verdict: null }) });
   const checked = pendingBody.replace("- [ ] `/approve", "- [x] `/approve");
   assert.equal(checkboxApproval({ body: pendingBody, sha, owner: "takasa5", editor: "takasa5" }), null);
@@ -201,7 +201,7 @@ test("checkboxApproval: 持ち主がチェックを付けると承認になる",
 
 test("checkboxApproval: 承認したコメントからは、あとの実行でも承認を引き継ぐ", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  const paths = classify([file("manifest.json")]);
+  const paths = classify([file("extension/manifest.json")]);
   const result = { state: "success", description: "@takasa5 が承認した", reasons: [] };
   const body = commentBody({ sha, paths, verdict: null, result, approvedBy: "takasa5", checkedBy: "takasa5" });
   assert.match(body, /^- \[x\] `\/approve 0123456789ab`$/m);
@@ -218,7 +218,7 @@ test("checkboxApproval: 承認したコメントからは、あとの実行で�
 
 test("checkboxApproval: GitHub が改行を CRLF にしても読める", () => {
   const sha = "0123456789abcdef0123456789abcdef01234567";
-  const paths = classify([file("manifest.json")]);
+  const paths = classify([file("extension/manifest.json")]);
   const result = { state: "success", description: "@takasa5 が承認した", reasons: [] };
   const body = commentBody({ sha, paths, verdict: null, result, approvedBy: "takasa5", checkedBy: "takasa5" }).replace(/\n/g, "\r\n");
   assert.equal(checkboxApproval({ body, sha, owner: "takasa5", editor: null }), "takasa5");

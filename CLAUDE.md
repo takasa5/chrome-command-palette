@@ -2,15 +2,16 @@
 
 ## 開発
 
+* 拡張機能の本体（Chrome に読み込むファイル）は `extension/` に置き、ビルドせずにそのまま読み込む。テストや開発用のスクリプトは `extension/` の外に置く
 * 外部サービスにデータを送らない
 * Chrome API に依存しない処理は純粋関数にして、`tests/` にテストを書く
-* 新しい Web API を使うときは、`manifest.json` の `minimum_chrome_version` で動くか確認する
+* 新しい Web API を使うときは、`extension/manifest.json` の `minimum_chrome_version` で動くか確認する
 
 ## 動作確認
 
 `npm test` では画面の動作を確認できないので、UI を変えたら実際に拡張機能を読み込んで確認する。
 
-* Playwright の Chrome for Testing を、`--load-extension` と `--disable-extensions-except` を付けて起動する
+* Playwright の Chrome for Testing を、`--load-extension` と `--disable-extensions-except` に `extension/` を指定して起動する
 * パレットは `chrome-extension://<id>/palette.html?focus` を開く
 
 ## E2E
@@ -39,7 +40,7 @@ README は英語の `README.md` と日本語の `README.ja.md` がある。ど�
 
 README は機能の概要だけを短く書く。機能を足すときも、次の方針で全体が長くならないようにする。
 
-* コマンドを 1 つ足しただけなら書かない。コマンド一覧は `commands.js` で分かる
+* コマンドを 1 つ足しただけなら書かない。コマンド一覧は `extension/commands.js` で分かる
 * 特徴は 1 項目 1〜2 文で、何ができるかだけを書く
 * 例外、条件、上限、内部の仕組みは書かない。設定画面やコードで分かることも書かない
 * キー操作は「使い方」の表に書き、特徴で繰り返さない

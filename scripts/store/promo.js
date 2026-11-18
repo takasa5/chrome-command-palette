@@ -6,7 +6,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..", "..");
-const svg = readFileSync(join(root, "icon.svg"), "utf8");
+const svg = readFileSync(join(root, "extension", "icon.svg"), "utf8");
 const out = join(root, "docs", "store");
 
 // 名前の下の一行は言語ごとに変える。

@@ -16,8 +16,7 @@ const profile = mkdtempSync(join(tmpdir(), "command-palette-demo-"));
 // macOS の Chrome は --lang を無視してシステムの言語で文言を選ぶ。
 // 拡張機能をコピーして、録る言語の _locales だけを残し、それを既定の言語にする。
 const ext = mkdtempSync(join(tmpdir(), "command-palette-demo-ext-"));
-const SKIP = new Set(["node_modules", "scripts", "tests", "e2e", "docs", ".git", ".github", ".claude"]);
-cpSync(root, ext, { recursive: true, filter: (src) => src === root || !SKIP.has(src.slice(root.length + 1).split("/")[0]) });
+cpSync(join(root, "extension"), ext, { recursive: true });
 for (const locale of ["en", "ja"]) if (locale !== lang) rmSync(join(ext, "_locales", locale), { recursive: true });
 const manifest = JSON.parse(readFileSync(join(ext, "manifest.json"), "utf8"));
 writeFileSync(join(ext, "manifest.json"), JSON.stringify({ ...manifest, default_locale: lang }, null, 2));

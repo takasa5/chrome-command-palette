@@ -9,7 +9,7 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import fc from "fast-check";
-import { normalize } from "../../search.js";
+import { normalize } from "../../extension/search.js";
 import { HOST_ORIGIN, launch, saveScreenshot } from "../support/browser.js";
 
 const SITE = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };

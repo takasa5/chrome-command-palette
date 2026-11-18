@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
-import { COMMANDS } from "../commands.js";
-import { DEFAULT_FAVORITES, findFavoriteTab, formatFavorites, parseFavorites, withoutAccountNumber } from "../favorites.js";
-import { rankResults } from "../search.js";
+import { COMMANDS } from "../extension/commands.js";
+import { DEFAULT_FAVORITES, findFavoriteTab, formatFavorites, parseFavorites, withoutAccountNumber } from "../extension/favorites.js";
+import { rankResults } from "../extension/search.js";
 
 const t = translator("ja");
 

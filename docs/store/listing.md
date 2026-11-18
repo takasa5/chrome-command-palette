@@ -7,7 +7,7 @@
 | 項目 | ファイル | 作り方 |
 |---|---|---|
 | パッケージ | `command-palette-<version>.zip` | GitHub のリリース `v<version>` に添付されたものを落とす（下の「GitHub のリリース」） |
-| アイコン（128×128） | `icons/icon-128.png` | `npm run icons`（`icon.svg` から作る） |
+| アイコン（128×128） | `extension/icons/icon-128.png` | `npm run icons`（`extension/icon.svg` から作る） |
 | スクリーンショット（1280×800） | `docs/store/<lang>/screenshot-1.png` 〜 `screenshot-4.png` | `npm run store-assets` |
 | 小さいプロモーション タイル（440×280） | `docs/store/<lang>/promo-small.png` | `npm run store-assets` |
 
@@ -15,13 +15,13 @@
 
 手元で確かめるときは `npm run package` で `dist/` に同じ zip を作れる。ストアに上げるのはリリースの zip にする。
 
-`npm run package` は git で管理しているファイルだけを zip に入れるので、新しいファイルを足したら先に `git add` する。manifest.json や HTML、JS が指すファイルが zip に入らないときは、zip を作らずに止まる。
+`npm run package` は `extension/` の中の git で管理しているファイルだけを zip に入れるので、新しいファイルを足したら先に `git add` する。manifest.json や HTML、JS が指すファイルが zip に入らないときは、zip を作らずに止まる。
 
 ### GitHub のリリース
 
-ストアに上げる zip は GitHub のリリースで管理する。バージョンを上げるときは、`manifest.json` の `version` を変える PR を作る。
+ストアに上げる zip は GitHub のリリースで管理する。バージョンを上げるときは、`extension/manifest.json` の `version` を変える PR を作る。
 
-`manifest.json` の `version` を上げる PR をマージすると、`release` ワークフローが `v<version>` のタグでリリースを作り、`npm run package` で作った zip を添付する。タグもリリースも手で作らない。
+`extension/manifest.json` の `version` を上げる PR をマージすると、`release` ワークフローが `v<version>` のタグでリリースを作り、`npm run package` で作った zip を添付する。タグもリリースも手で作らない。
 
 `v<version>` のタグがもうあるときは何もしない。失敗したときや、まだリリースのないバージョンのリリースを作るときは、Actions から `release` を手で動かす（`gh workflow run release.yml`）。
 
@@ -29,7 +29,7 @@
 
 **カテゴリ**: 仕事効率化 > ツール
 
-**言語**: 日本語、英語。ダッシュボードの「ストアの掲載情報」で言語を切り替え、それぞれに下の名前、概要、説明を入れる。名前と言語の一覧は `manifest.json` と `_locales/` から読まれる。
+**言語**: 日本語、英語。ダッシュボードの「ストアの掲載情報」で言語を切り替え、それぞれに下の名前、概要、説明を入れる。名前と言語の一覧は `extension/manifest.json` と `extension/_locales/` から読まれる。
 
 Arc の名前は説明の中で 1 回だけ出し、関係がないことを書き添える。名前、アイコン、画像には入れない（なりすましやキーワードの詰め込みと見られないため）。Edge の説明（[edge.md](edge.md)）にはまだ入れていない。Edge は説明を変えると審査をやり直すので、次に版を上げるときに揃える。
 

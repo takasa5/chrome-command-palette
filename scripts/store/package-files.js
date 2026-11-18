@@ -1,7 +1,7 @@
 // ストアに上げる zip に入れるファイルを決める。テストや開発用のファイルは入れない。
 
-// 拡張機能が読み込むのは、ルートに置いたページとスクリプト、manifest.json、icons/ の PNG、_locales/ の文言だけ。
-// ルートに開発用のスクリプトを置くとそれも入るので、開発用はルート以外に置く。
+// files は extension/ からの相対パス。拡張機能が読み込むのは、extension/ 直下のページとスクリプト、manifest.json、icons/ の PNG、_locales/ の文言だけ。
+// extension/ 直下に開発用のスクリプトを置くとそれも入るので、開発用は extension/ の外に置く。
 export function selectPackageFiles(files) {
   return files
     .filter(

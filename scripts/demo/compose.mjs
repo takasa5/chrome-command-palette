@@ -15,7 +15,7 @@ rmSync(framesDir, { recursive: true, force: true });
 mkdirSync(framesDir, { recursive: true });
 
 const { favicons, frames } = JSON.parse(readFileSync(join(work, "timeline.json"), "utf8"));
-const logo = `data:image/svg+xml;base64,${readFileSync(join(repo, "icon.svg")).toString("base64")}`;
+const logo = `data:image/svg+xml;base64,${readFileSync(join(repo, "extension", "icon.svg")).toString("base64")}`;
 
 // 押した瞬間と、パレットが開く瞬間だけ数コマ足して動きを付ける。
 const steps = [];

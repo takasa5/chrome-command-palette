@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
-import { buildSearchUrl, formatEngines, parseEngines, pickVisitedPage, siteSearchScope } from "../site-search.js";
+import { buildSearchUrl, formatEngines, parseEngines, pickVisitedPage, siteSearchScope } from "../extension/site-search.js";
 
 const t = translator("ja");
 

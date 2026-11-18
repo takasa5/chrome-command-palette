@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { COMMANDS } from "../commands.js";
+import { COMMANDS } from "../extension/commands.js";
 
 const newWindow = COMMANDS.find((command) => command.id === "new-window");
 
