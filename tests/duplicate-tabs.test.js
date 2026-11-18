@@ -41,3 +41,7 @@ test("シークレットと通常のウィンドウのタブは重複とみな�
 test("読み込み中のタブは pendingUrl で比べ、URL のないタブは無視する", () => {
   assert.deepEqual(ids([tab(1, "https://a.example/"), tab(2, "", { pendingUrl: "https://a.example/" }), tab(3, undefined), tab(4, undefined)]), [2]);
 });
+
+test("別のページへ移る途中のタブは、移り先の URL で比べる", () => {
+  assert.deepEqual(ids([tab(1, "https://a.example/"), tab(2, "https://b.example/", { pendingUrl: "https://a.example/" }), tab(3, "https://b.example/")]), [2]);
+});

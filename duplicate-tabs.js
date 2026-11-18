@@ -1,9 +1,10 @@
 // 重複したタブの判定。Chrome API に依存しない。
 
 // 同じページかどうかは、フラグメント（#...）を除いた URL で比べる。
+// 読み込み中のタブは、移り先の URL（pendingUrl）で比べる。
 // シークレットと通常のウィンドウは別のものとして扱う。
 function pageKey(tab) {
-  const url = tab.url || tab.pendingUrl;
+  const url = tab.pendingUrl || tab.url;
   if (!url) return null;
   return `${tab.incognito ? "incognito" : "normal"} ${url.split("#")[0]}`;
 }
