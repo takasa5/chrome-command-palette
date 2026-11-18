@@ -9,10 +9,6 @@
   <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.ja.png" alt="Microsoft Edge から入手" width="200" /></a>
 </p>
 
-<p align="center">
-  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="https://img.shields.io/badge/dynamic/json?style=flat-square&color=0078D7&label=Edge%20Add-ons&query=%24.version&prefix=v&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fagmjaaiokeicfoddncoeghilmhjcmceh" alt="Edge アドオンの版" /></a>
-</p>
-
 Arc のコマンドパレットの操作感を、Chrome のまま使うための拡張機能。`Cmd+T` でパレットを開き、ブラウザ操作、タブ切り替え、ブックマークと履歴の検索、URL を開く、Web 検索をキーボードで行える。
 
 ![Command Palette のデモ](docs/demo.ja.gif)
