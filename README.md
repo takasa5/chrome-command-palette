@@ -15,13 +15,18 @@ A Chrome extension that brings the feel of Arc's command palette to Chrome. Pres
 
 ## Installation
 
-Install it from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh). When Edge asks about the new tab page change, choose to keep it.
+### Microsoft Edge
 
-To load it from source in Chrome or Edge:
+Install it from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh). If Edge asks about the new tab page change, choose to keep it.
 
-1. Open `chrome://extensions` and turn on "Developer mode" in the top right
-2. Click "Load unpacked" and select this folder
-3. If Chrome asks about the new tab page change, choose to keep it
+### Chrome
+
+It's not on the Chrome Web Store yet, so load it yourself.
+
+1. Download `command-palette-<version>.zip` from the [latest release](https://github.com/takasa5/chrome-command-palette/releases/latest) and unzip it
+2. Open `chrome://extensions` and turn on "Developer mode" in the top right
+3. Click "Load unpacked" and select the unzipped folder
+4. If Chrome asks about the new tab page change, choose to keep it
 
 ## Usage
 

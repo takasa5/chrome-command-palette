@@ -15,13 +15,18 @@ Arc のコマンドパレットの操作感を、Chrome のまま使うための
 
 ## インストール
 
+### Microsoft Edge
+
 [Microsoft Edge アドオン](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh)から入れる。新しいタブページの変更について確認が出たら、変更を維持する。
 
-ソースから Chrome や Edge に読み込むときは、次のようにする。
+### Chrome
 
-1. `chrome://extensions` を開き、右上の「デベロッパー モード」をオンにする
-2. 「パッケージ化されていない拡張機能を読み込む」でこのフォルダを選ぶ
-3. 新しいタブページの変更について確認が出たら、変更を維持する
+Chrome ウェブストアにはまだないので、手で読み込む。
+
+1. [最新のリリース](https://github.com/takasa5/chrome-command-palette/releases/latest)から `command-palette-<version>.zip` を落として展開する
+2. `chrome://extensions` を開き、右上の「デベロッパー モード」をオンにする
+3. 「パッケージ化されていない拡張機能を読み込む」で展開したフォルダを選ぶ
+4. 新しいタブページの変更について確認が出たら、変更を維持する
 
 ## 使い方
 
