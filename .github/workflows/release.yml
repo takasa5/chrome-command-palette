@@ -1,11 +1,11 @@
 name: release
 
-# manifest.json の version を上げて main にマージしたら、v<version> のタグでリリースを作り、ストアに上げる zip を添付する。
-# タグを manifest.json から決めるので、リリースのバージョンと zip の中の version がずれない。
+# extension/manifest.json の version を上げて main にマージしたら、v<version> のタグでリリースを作り、ストアに上げる zip を添付する。
+# タグを extension/manifest.json から決めるので、リリースのバージョンと zip の中の version がずれない。
 on:
   push:
     branches: [main]
-    paths: [manifest.json]
+    paths: [extension/manifest.json]
   # 失敗したときのやり直しや、まだリリースのないバージョンのリリースを手で作るため
   workflow_dispatch:
 
@@ -33,11 +33,11 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
-      # version を変えずに manifest.json の別の項目だけを変えたときは、タグがもうあるので何もしない
+      # version を変えずに extension/manifest.json の別の項目だけを変えたときは、タグがもうあるので何もしない
       - id: version
         name: リリースするバージョンを決める
         run: |
-          version=$(node -p 'require("./manifest.json").version')
+          version=$(node -p 'require("./extension/manifest.json").version')
           tag="v$version"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --silent 2>/dev/null; then

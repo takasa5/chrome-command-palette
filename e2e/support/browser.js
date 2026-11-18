@@ -4,7 +4,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-const ext = resolve(import.meta.dirname, "..", "..");
+const ext = resolve(import.meta.dirname, "..", "..", "extension");
 // E2E_CHANNEL=msedge のように指定すると、Chromium 以外のブラウザでも同じ流れが動くか確かめられる。
 const channel = process.env.E2E_CHANNEL || "chromium";
 // 失敗した画面はブラウザごとに分けて残す。手元で Chromium と Edge を続けて流したとき、同じテストが両方で落ちても上書きしない。
@@ -15,9 +15,8 @@ export const HOST_ORIGIN = "https://host.test";
 
 // activeTab の権限はショートカットを押したときにしか付かず、拡張機能は host_permissions を持たない。
 // 重ねて開けるよう、拡張機能を写して HOST_ORIGIN の host_permissions を足したものを読み込む。
-const SKIP = new Set([".git", ".github", ".claude", "node_modules", "e2e", "tests", "scripts", "docs"]);
 function prepareExtension(dir) {
-  cpSync(ext, dir, { recursive: true, filter: (src) => src === ext || !SKIP.has(src.slice(ext.length + 1).split("/")[0]) });
+  cpSync(ext, dir, { recursive: true });
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
   manifest.host_permissions = [`${HOST_ORIGIN}/*`];
   writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));

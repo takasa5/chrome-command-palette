@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
-import { COMMANDS } from "../commands.js";
-import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, scoreFields, toUrl } from "../search.js";
+import { COMMANDS } from "../extension/commands.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, scoreFields, toUrl } from "../extension/search.js";
 
 const t = translator("ja");
 

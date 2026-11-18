@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { findStaleTabs } from "../stale-tabs.js";
+import { findStaleTabs } from "../extension/stale-tabs.js";
 
 const HOUR = 60 * 60 * 1000;
 const now = 100 * HOUR;

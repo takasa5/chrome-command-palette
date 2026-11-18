@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { canAddToReadingList, rankReadingList } from "../reading-list.js";
+import { canAddToReadingList, rankReadingList } from "../extension/reading-list.js";
 
 test("canAddToReadingList は http と https のページだけを受け付ける", () => {
   assert.equal(canAddToReadingList("https://example.com/"), true);

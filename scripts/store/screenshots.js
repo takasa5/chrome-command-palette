@@ -7,7 +7,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..", "..");
-const logo = `data:image/svg+xml;base64,${readFileSync(join(root, "icon.svg")).toString("base64")}`;
+const extension = join(root, "extension");
+const logo = `data:image/svg+xml;base64,${readFileSync(join(extension, "icon.svg")).toString("base64")}`;
 
 // 台紙は 1280×800。パレットは台紙の窓（1080×588）にちょうど収まるよう、900×490 を 1.2 倍で撮る。
 const VIEWPORT = { width: 900, height: 490 };
@@ -145,8 +146,7 @@ async function capture(lang) {
   // macOS の Chrome は --lang を無視してシステムの言語で文言を選ぶ。
   // 拡張機能をコピーして、撮る言語の _locales だけを残し、それを既定の言語にする。
   const ext = mkdtempSync(join(tmpdir(), "command-palette-store-ext-"));
-  const SKIP = new Set(["node_modules", "scripts", "tests", "e2e", "docs", "dist", ".git", ".github", ".claude"]);
-  cpSync(root, ext, { recursive: true, filter: (src) => src === root || !SKIP.has(src.slice(root.length + 1).split("/")[0]) });
+  cpSync(extension, ext, { recursive: true });
   for (const locale of Object.keys(LANGS)) if (locale !== lang) rmSync(join(ext, "_locales", locale), { recursive: true });
   const manifest = JSON.parse(readFileSync(join(ext, "manifest.json"), "utf8"));
   writeFileSync(join(ext, "manifest.json"), JSON.stringify({ ...manifest, default_locale: lang }, null, 2));

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applyBufferedKeys } from "../overlay.js";
+import { applyBufferedKeys } from "../extension/overlay.js";
 
 test("文字キーをつなげる", () => {
   assert.deepEqual(applyBufferedKeys(["g", "i", "t", " ", "h"]), { text: "git h", submit: false });

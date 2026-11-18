@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
-import { DEFAULT_FAVORITES, parseFavorites } from "../favorites.js";
-import { favoritePreview, formatHours, siteSearchPreview, staleTabsPreview } from "../options-preview.js";
-import { rankResults } from "../search.js";
-import { parseEngines } from "../site-search.js";
-import { DEFAULT_STALE_HOURS } from "../stale-tabs.js";
+import { DEFAULT_FAVORITES, parseFavorites } from "../extension/favorites.js";
+import { favoritePreview, formatHours, siteSearchPreview, staleTabsPreview } from "../extension/options-preview.js";
+import { rankResults } from "../extension/search.js";
+import { parseEngines } from "../extension/site-search.js";
+import { DEFAULT_STALE_HOURS } from "../extension/stale-tabs.js";
 
 const t = translator("ja");
 

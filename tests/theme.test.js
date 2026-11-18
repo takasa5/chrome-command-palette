@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applyTheme, colorScheme, normalizeTheme, themeAttribute } from "../theme.js";
+import { applyTheme, colorScheme, normalizeTheme, themeAttribute } from "../extension/theme.js";
 
 test("知らない値や未設定はシステムに合わせる", () => {
   assert.equal(normalizeTheme(undefined), "system");

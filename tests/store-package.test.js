@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { findMissingFiles, isPackageName, manifestReferences, selectPackageFiles, sourceReferences } from "../scripts/store/package-files.js";
 
-test("selectPackageFiles はルートのページとスクリプト、manifest.json、icons の PNG、_locales の文言だけを選ぶ", () => {
+test("selectPackageFiles は extension/ 直下のページとスクリプト、manifest.json、icons の PNG、_locales の文言だけを選ぶ", () => {
   const files = [
     "palette.js",
     "palette.html",
@@ -13,16 +13,9 @@ test("selectPackageFiles はルートのページとスクリプト、manifest.j
     "_locales/en/messages.json",
     "_locales/ja/messages.json",
     "_locales/README.md",
-    "package.json",
-    "package-lock.json",
     "README.md",
-    "CLAUDE.md",
-    ".gitignore",
-    "tests/search.test.js",
-    "e2e/support/browser.js",
-    "scripts/store/package.js",
-    "docs/logo.svg",
-    "docs/store/screenshot-1.png",
+    "notes/draft.js",
+    "icons/source.svg",
   ];
   assert.deepEqual(selectPackageFiles(files), [
     "_locales/en/messages.json",

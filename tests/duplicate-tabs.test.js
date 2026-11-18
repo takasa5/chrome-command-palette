@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { findDuplicateTabs } from "../duplicate-tabs.js";
+import { findDuplicateTabs } from "../extension/duplicate-tabs.js";
 
 const tab = (id, url, extra = {}) => ({ id, url, active: false, pinned: false, incognito: false, ...extra });
 const ids = (tabs, options) => findDuplicateTabs(tabs, options).map((t) => t.id).sort((a, b) => a - b);

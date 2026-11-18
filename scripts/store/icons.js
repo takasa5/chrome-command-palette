@@ -1,12 +1,12 @@
-// icon.svg から、manifest.json の icons に使う PNG を icons/ に、Edge アドオンのロゴを docs/store/ に書き出す。
+// extension/icon.svg から、manifest.json の icons に使う PNG を extension/icons/ に、Edge アドオンのロゴを docs/store/ に書き出す。
 // ストアは SVG のアイコンを受け付けない。icon.svg を変えたら作り直す。
 import { chromium } from "playwright-core";
 import { mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..", "..");
-const svg = readFileSync(join(root, "icon.svg"), "utf8");
-const icons = join(root, "icons");
+const svg = readFileSync(join(root, "extension", "icon.svg"), "utf8");
+const icons = join(root, "extension", "icons");
 const store = join(root, "docs", "store");
 
 // ストアの 128px は、絵を 96px にして周りに 16px の透明な余白を取る決まりになっている。
