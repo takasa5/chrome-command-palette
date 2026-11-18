@@ -6,7 +6,11 @@
 <p align="center">English | <a href="README.ja.md">日本語</a></p>
 
 <p align="center">
-  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="https://img.shields.io/badge/dynamic/json?style=for-the-badge&logo=microsoftedge&logoColor=white&color=0078D7&label=Microsoft%20Edge%20Add-ons&prefix=v&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fagmjaaiokeicfoddncoeghilmhjcmceh" alt="Get it from Microsoft Edge Add-ons" /></a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.png" alt="Get it from Microsoft Edge" width="200" /></a>
+</p>
+
+<p align="center">
+  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="https://img.shields.io/badge/dynamic/json?style=flat-square&color=0078D7&label=Edge%20Add-ons&query=%24.version&prefix=v&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fagmjaaiokeicfoddncoeghilmhjcmceh" alt="Edge Add-ons version" /></a>
 </p>
 
 A Chrome extension that brings the feel of Arc's command palette to Chrome. Press `Cmd+T` to open the palette and control the browser, switch tabs, search bookmarks and history, open URLs, and search the web from the keyboard.
