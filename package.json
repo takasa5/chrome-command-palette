@@ -1,6 +1,7 @@
 {
   "name": "chrome-command-palette",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "test": "node --test",
