@@ -6,7 +6,7 @@
 <p align="center"><a href="README.md">English</a> | 日本語</p>
 
 <p align="center">
-  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.ja.png" alt="Microsoft Edge から入手" width="200" /></a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.png" alt="Get it from Microsoft Edge" width="200" /></a>
 </p>
 
 Arc のコマンドパレットの操作感を、Chrome のまま使うための拡張機能。`Cmd+T` でパレットを開き、ブラウザ操作、タブ切り替え、ブックマークと履歴の検索、URL を開く、Web 検索をキーボードで行える。
