@@ -5,11 +5,19 @@
 
 <p align="center">English | <a href="README.ja.md">日本語</a></p>
 
+<p align="center">
+  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="https://img.shields.io/badge/dynamic/json?style=for-the-badge&logo=microsoftedge&logoColor=white&color=0078D7&label=Microsoft%20Edge%20Add-ons&prefix=v&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fagmjaaiokeicfoddncoeghilmhjcmceh" alt="Get it from Microsoft Edge Add-ons" /></a>
+</p>
+
 A Chrome extension that brings the feel of Arc's command palette to Chrome. Press `Cmd+T` to open the palette and control the browser, switch tabs, search bookmarks and history, open URLs, and search the web from the keyboard.
 
 ![Command Palette demo](docs/demo.gif)
 
 ## Installation
+
+Install it from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh). When Edge asks about the new tab page change, choose to keep it.
+
+To load it from source in Chrome or Edge:
 
 1. Open `chrome://extensions` and turn on "Developer mode" in the top right
 2. Click "Load unpacked" and select this folder
