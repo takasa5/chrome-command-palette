@@ -2,6 +2,7 @@
 // needsTarget のコマンドは、パレットを開く直前に見ていたタブ（ctx.target）を操作する。
 
 import { t } from "./i18n.js";
+import { findDuplicateTabs } from "./duplicate-tabs.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
 
@@ -119,6 +120,19 @@ export const COMMANDS = [
       const stale = findStaleTabs(tabs, { now: Date.now(), hours, leftAt, keepTabId: ctx.target?.id });
       if (stale.length === 0) throw new Error(t("noStaleTabs", hours));
       await chrome.tabs.remove(stale.map((tab) => tab.id));
+      await ctx.leave();
+    },
+  },
+  {
+    id: "close-duplicate-tabs",
+    title: "Close Duplicate Tabs",
+    ja: "重複したタブを閉じる",
+    keywords: ["dedupe", "cleanup", "same", "重複", "掃除", "整理", "同じタブ"],
+    run: async (ctx) => {
+      const tabs = (await chrome.tabs.query({})).filter((tab) => !ctx.isPalette(tab));
+      const duplicates = findDuplicateTabs(tabs, { keepTabIds: [ctx.self.id, ctx.target?.id] });
+      if (duplicates.length === 0) throw new Error(t("noDuplicateTabs"));
+      await chrome.tabs.remove(duplicates.map((tab) => tab.id));
       await ctx.leave();
     },
   },

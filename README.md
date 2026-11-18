@@ -48,7 +48,7 @@ It's not on the Chrome Web Store yet, so load it yourself.
 
 * **New tab is the palette**: Opening a new tab opens the palette instead of the address bar
 * **30+ browser actions**: Run tab and window actions, zoom, open Chrome's settings pages, and more by name from the palette
-* **Archive stale tabs**: `Archive Stale Tabs` closes tabs you haven't looked at in a while, across all windows
+* **Tab cleanup**: `Archive Stale Tabs` closes tabs you haven't looked at in a while, and `Close Duplicate Tabs` closes tabs with the same URL, across all windows
 * **Site search**: Like Chrome's custom search engines, type a keyword to search that site
 * **Favorites and pins**: Sites you keep open, like Gmail, rank at the top by name or alias, and jump to the open tab if there is one. Chrome's pinned tabs work like Arc's favorites and carry over to new windows
 
