@@ -200,6 +200,9 @@
       }
     }
   },
+  "noDuplicateTabs": {
+    "message": "No duplicate tabs"
+  },
   "optionsTitle": {
     "message": "Command Palette Settings"
   },
@@ -273,6 +276,9 @@
   },
   "command_archive_stale_tabs": {
     "message": "Close tabs you haven't viewed in a while"
+  },
+  "command_close_duplicate_tabs": {
+    "message": "Close tabs with the same URL"
   },
   "command_palette_settings": {
     "message": "Open this extension's settings"

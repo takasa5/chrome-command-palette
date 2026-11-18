@@ -200,6 +200,9 @@
       }
     }
   },
+  "noDuplicateTabs": {
+    "message": "重複したタブはありません"
+  },
   "optionsTitle": {
     "message": "コマンドパレットの設定"
   },
@@ -273,6 +276,9 @@
   },
   "command_archive_stale_tabs": {
     "message": "しばらく見ていないタブを閉じる"
+  },
+  "command_close_duplicate_tabs": {
+    "message": "重複したタブを閉じる"
   },
   "command_palette_settings": {
     "message": "コマンドパレットの設定"
