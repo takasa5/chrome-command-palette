@@ -14,10 +14,6 @@ Arc のコマンドパレットの操作感を、Chrome のまま使うための
 
 ![Command Palette のデモ](docs/demo.ja.gif)
 
-## インストール
-
-[Chrome ウェブストア](https://chromewebstore.google.com/detail/command-palette/jdlhbhfaboadmockabjooddhdcogggln)か[Microsoft Edge アドオン](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh)から入れる。新しいタブページの変更について確認が出たら、変更を維持する。
-
 ## 使い方
 
 | キー | 動作 |

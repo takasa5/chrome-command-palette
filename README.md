@@ -14,10 +14,6 @@ A Chrome extension that brings the feel of Arc's command palette to Chrome. Pres
 
 ![Command Palette demo](docs/demo.gif)
 
-## Installation
-
-Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/command-palette/jdlhbhfaboadmockabjooddhdcogggln) or [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh). If the browser asks about the new tab page change, choose to keep it.
-
 ## Usage
 
 | Key | Action |
