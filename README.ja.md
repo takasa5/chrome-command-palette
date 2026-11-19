@@ -6,27 +6,13 @@
 <p align="center"><a href="README.md">English</a> | 日本語</p>
 
 <p align="center">
-  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.png" alt="Get it from Microsoft Edge" width="200" /></a>
+  <a href="https://chromewebstore.google.com/detail/command-palette/jdlhbhfaboadmockabjooddhdcogggln"><img src="docs/chrome-web-store-badge.png" alt="Available in the Chrome Web Store" height="58" /></a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.png" alt="Get it from Microsoft Edge" height="58" /></a>
 </p>
 
 Arc のコマンドパレットの操作感を、Chrome のまま使うための拡張機能。`Cmd+T` でパレットを開き、ブラウザ操作、タブ切り替え、ブックマークと履歴の検索、URL を開く、Web 検索をキーボードで行える。
 
 ![Command Palette のデモ](docs/demo.ja.gif)
-
-## インストール
-
-### Microsoft Edge
-
-[Microsoft Edge アドオン](https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh)から入れる。新しいタブページの変更について確認が出たら、変更を維持する。
-
-### Chrome
-
-Chrome ウェブストアにはまだないので、手で読み込む。
-
-1. [最新のリリース](https://github.com/takasa5/chrome-command-palette/releases/latest)から `command-palette-<version>.zip` を落として展開する
-2. `chrome://extensions` を開き、右上の「デベロッパー モード」をオンにする
-3. 「パッケージ化されていない拡張機能を読み込む」で展開したフォルダを選ぶ
-4. 新しいタブページの変更について確認が出たら、変更を維持する
 
 ## 使い方
 
