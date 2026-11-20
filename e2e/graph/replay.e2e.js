@@ -16,6 +16,8 @@ const HOST = pageUrl("Host Page", HOST_ORIGIN);
 const HISTORY = pageUrl("Release Notes", "https://docs.example.test");
 const SITE = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };
 const FOLDERS = { Work: { Docs: { Specs: { Guide: pageUrl("Guide", "https://docs.example.test") } } } };
+// グループに入れるときに付ける名前。
+const GROUP = "Work";
 // フォルダに入るときに打つ文字。名前を打つと直下のフォルダが出るので、Docs には親の work で入る。
 const FOLDER_QUERIES = { Docs: "work", Specs: "specs" };
 
@@ -67,9 +69,12 @@ async function resetBrowser() {
   if (heldKey && !heldKey.page.isClosed()) await heldKey.page.keyboard.up(heldKey.key);
   heldKey = null;
   // Playwright がまだ見つけていないタブも閉じるよう、chrome.tabs で片付ける。
+  // グループに入れたタブもグループから外す。
   await browser.sw.evaluate(async (keep) => {
     const tabs = await chrome.tabs.query({});
     await chrome.tabs.remove(tabs.filter((tab) => !keep.includes(tab.url || tab.pendingUrl)).map((tab) => tab.id));
+    const grouped = tabs.filter((tab) => keep.includes(tab.url || tab.pendingUrl) && tab.groupId !== -1).map((tab) => tab.id);
+    if (grouped.length > 0) await chrome.tabs.ungroup(grouped);
   }, [ALPHA, HOST]);
   if (await overlayOpen()) await host.reload();
   await host.bringToFront();
@@ -118,6 +123,7 @@ const ACTIONS = {
     await palette.frame.locator("#breadcrumb", { hasText: `Tab で ${SITE.name} を検索` }).waitFor();
     await palette.keyboard.press("Tab");
   },
+  enterGroupScope: () => pick("group tab", { title: "Group Tab" }),
   exitScope: () => palette.keyboard.press("Backspace"),
   // 押しても何も変わらないこと。画面がモデルの状態（押す前と同じ）のままかを expectState が確かめる。
   ignoredBackspace: () => palette.keyboard.press("Backspace"),
@@ -131,6 +137,20 @@ const ACTIONS = {
     await selected().locator(".title", { hasText: "「playwright」を検索" }).waitFor();
     await closeWith("Enter");
   },
+  // 対象のタブ（新しいタブでも重ねたときも、重ねる先のページ）が、付けた名前のグループに入ることまで確かめる。
+  // パレット自身のタブを入れてしまうと、閉じたときにグループごと消えるので、ここで確かめないと気付けない。
+  groupTab: async () => {
+    await palette.keyboard.type(GROUP);
+    await selected().locator(".title", { hasText: `「${GROUP}」グループを作る` }).waitFor();
+    await closeWith("Enter");
+    await eventually(async () => {
+      const titles = await browser.sw.evaluate(async (url) => {
+        const tabs = await chrome.tabs.query({ url });
+        return Promise.all(tabs.map(async (tab) => (tab.groupId === -1 ? null : (await chrome.tabGroups.get(tab.groupId)).title)));
+      }, HOST);
+      assert.deepEqual(titles, [GROUP], "重ねる先のページが名前を付けたグループに入っていない");
+    });
+  },
 };
 
 // モデルの状態から、画面に出るはずの入力欄と、上のパンくずの表示。開いている間は、いつも入力欄にフォーカスがある。
@@ -138,6 +158,7 @@ function expectedScreen({ folders, scope, query }) {
   let breadcrumb = folders.join(" / ");
   if (scope === "commands") breadcrumb = "コマンド";
   else if (scope === SITE.keyword) breadcrumb = `${SITE.name} を検索`;
+  else if (scope === "group") breadcrumb = "新しいグループの名前";
   else if (query === SITE.keyword) breadcrumb = `Tab で ${SITE.name} を検索`;
   return { query, breadcrumb, focused: true };
 }

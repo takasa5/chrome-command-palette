@@ -6,7 +6,8 @@ module palette {
   var mode: str
   // 入っているブックマークのフォルダ。外側から順に並ぶ
   var folders: List[str]
-  // Tab で入った絞り込み。none: なし / commands: コマンド / gh: サイト内検索
+  // 入っている絞り込み。none: なし / commands: コマンド（Tab） / gh: サイト内検索（キーワード + Tab）
+  // group: 新しいグループの名前（コマンドから入る。リーディングリストも同じ形で、キーワードを持たない）
   var scope: str
   // 入力欄の文字
   var query: str
@@ -59,7 +60,14 @@ module palette {
   // キーワードを打ち、Tab でサイト内検索に入る
   action enterSiteScope = all { atTop, scope' = SITE_KEYWORD, query' = "", mode' = mode, folders' = folders }
 
-  // 入力が空のとき Backspace で絞り込みから出る。キーワードが入力欄に戻る
+  // 「タブをグループに入れる」コマンドを選んで Enter で、グループの名前の入力に入る。
+  // 一番上で打っても、コマンドに絞り込んだ中で打っても入れる
+  action enterGroupScope = all {
+    isOpen, folders == [], (scope == "none" or scope == "commands"),
+    scope' = "group", query' = "", mode' = mode, folders' = folders,
+  }
+
+  // 入力が空のとき Backspace で絞り込みから出る。キーワードが入力欄に戻る（キーワードのない絞り込みなら空のまま）
   action exitScope = all {
     isOpen, scope != "none", query == "",
     scope' = "none", query' = if (scope == SITE_KEYWORD) SITE_KEYWORD else "", mode' = mode, folders' = folders,
@@ -88,12 +96,14 @@ module palette {
   action openBookmark = all { isOpen, scope == "none", folders.length() == FOLDERS.length(), reset }
   // サイト内検索で検索語を打ち、Enter で検索結果を開く
   action runSiteSearch = all { isOpen, scope == SITE_KEYWORD, reset }
+  // グループの名前を打ち、Enter で対象のタブを新しいグループに入れる
+  action groupTab = all { isOpen, scope == "group", reset }
 
   action step = any {
     openNewTab, openOverlay,
-    clearQuery, enterFolder, exitFolder, enterCommandScope, enterSiteScope, exitScope,
+    clearQuery, enterFolder, exitFolder, enterCommandScope, enterSiteScope, enterGroupScope, exitScope,
     ignoredBackspace, ignoredTab,
-    escape, switchTab, openHistory, openBookmark, runSiteSearch,
+    escape, switchTab, openHistory, openBookmark, runSiteSearch, groupTab,
   }
 
   // ---- 不変条件 ----
