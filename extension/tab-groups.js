@@ -48,7 +48,7 @@ async function groupTab(ctx, title) {
 }
 
 export async function ungroupTab(ctx) {
-  if (!isGrouped(ctx.target)) throw new Error(t("tabNotInGroup"));
+  if (!ctx.target || !isGrouped(ctx.target)) throw new Error(t("tabNotInGroup"));
   await chrome.tabs.ungroup(ctx.target.id);
   await ctx.leave();
 }
