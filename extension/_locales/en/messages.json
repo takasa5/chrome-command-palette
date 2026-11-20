@@ -369,5 +369,46 @@
   },
   "command_flags": {
     "message": "Experimental Chrome features"
+  },
+  "kindTabGroup": {
+    "message": "Tab Group"
+  },
+  "groupTabTitle": {
+    "message": "Name the new group"
+  },
+  "groupTabNamed": {
+    "message": "Create group \"$NAME$\"",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "groupTabUnnamed": {
+    "message": "Create a group without a name"
+  },
+  "groupTabHint": {
+    "message": "Moves the current tab into a new group"
+  },
+  "noTabToGroup": {
+    "message": "No tab to group"
+  },
+  "cannotGroupPinnedTab": {
+    "message": "Pinned tabs can't be grouped"
+  },
+  "tabNotInGroup": {
+    "message": "This tab isn't in a group"
+  },
+  "noTabsToGroupByDomain": {
+    "message": "No tabs to group by domain"
+  },
+  "command_group_tab": {
+    "message": "Move the current tab into a new named group"
+  },
+  "command_ungroup_tab": {
+    "message": "Remove the current tab from its group"
+  },
+  "command_group_tabs_by_domain": {
+    "message": "Group tabs in this window by domain"
   }
 }
