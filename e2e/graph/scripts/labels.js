@@ -8,6 +8,7 @@ export const ACTIONS = {
   exitFolder: "Backspace",
   enterCommandScope: "Tab",
   enterSiteScope: "gh + Tab",
+  enterGroupScope: "グループに入れるコマンド + Enter",
   exitScope: "Backspace",
   ignoredBackspace: "Backspace",
   ignoredTab: "Tab",
@@ -16,6 +17,7 @@ export const ACTIONS = {
   openHistory: "履歴を選んで Enter",
   openBookmark: "ブックマークを選んで Enter",
   runSiteSearch: "検索語 + Enter",
+  groupTab: "グループ名 + Enter",
 };
 
 export const MODES = { closed: "閉じている", newTab: "新しいタブ", overlay: "ページに重ねる" };
@@ -26,6 +28,7 @@ export function describeScreen({ folders, scope, query }) {
   if (folders.length > 0) parts.push(`フォルダ ${folders.join(" / ")}`);
   if (scope === "commands") parts.push("コマンドに絞り込み");
   if (scope === "gh") parts.push("サイト内検索 gh");
+  if (scope === "group") parts.push("グループ名の入力");
   parts.push(query ? `入力「${query}」` : "入力なし");
   return parts.join("・");
 }
