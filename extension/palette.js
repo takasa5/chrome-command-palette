@@ -21,6 +21,7 @@ const KIND_LABELS = {
   search: "kindSearch",
   siteSearch: "kindSiteSearch",
   readingList: "kindReadingList",
+  tabGroup: "kindTabGroup",
 };
 
 const input = document.getElementById("query");
@@ -194,7 +195,7 @@ function renderIcon(item) {
   if (item.url && item.kind !== "url" && item.kind !== "siteSearch") return renderFavicon(item.url);
   const span = document.createElement("span");
   span.className = "icon";
-  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", readingList: "📖" }[item.kind];
+  span.textContent = { command: "⌘", folder: "📁", url: "↗", search: "⌕", siteSearch: "⌕", readingList: "📖", tabGroup: "▣" }[item.kind];
   return span;
 }
 
@@ -396,6 +397,7 @@ function runItem(item, { moveHere }) {
     case "folder":
       return enterFolder(item.folder);
     case "readingList":
+    case "tabGroup":
       return item.run(ctx);
     case "search":
       return search(item.text);

@@ -5,6 +5,7 @@ import { t } from "./i18n.js";
 import { findDuplicateTabs } from "./duplicate-tabs.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
+import { groupTabScope, groupTabsByDomain, ungroupTab } from "./tab-groups.js";
 
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   id,
@@ -226,6 +227,29 @@ export const COMMANDS = [
       await chrome.tabs.update(ctx.target.id, { muted: !ctx.target.mutedInfo?.muted });
       await ctx.leave();
     },
+  },
+  {
+    id: "group-tab",
+    title: "Group Tab",
+    ja: "タブをグループに入れる",
+    keywords: ["tab group", "add to group", "グループ", "タブグループ"],
+    needsTarget: true,
+    run: (ctx) => ctx.enterScope(groupTabScope),
+  },
+  {
+    id: "ungroup-tab",
+    title: "Ungroup Tab",
+    ja: "タブをグループから外す",
+    keywords: ["tab group", "remove from group", "グループ", "タブグループ", "解除"],
+    needsTarget: true,
+    run: ungroupTab,
+  },
+  {
+    id: "group-tabs-by-domain",
+    title: "Group Tabs by Domain",
+    ja: "タブをドメインごとにグループにまとめる",
+    keywords: ["tab group", "site", "organize", "グループ", "タブグループ", "サイト", "整理"],
+    run: groupTabsByDomain,
   },
   {
     id: "move-to-window",

@@ -11,7 +11,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "permissions": ["tabs", "history", "bookmarks", "sessions", "search", "favicon", "clipboardWrite", "storage", "scripting", "activeTab", "readingList"],
+  "permissions": ["tabs", "history", "bookmarks", "sessions", "search", "favicon", "clipboardWrite", "storage", "scripting", "activeTab", "readingList", "tabGroups"],
   "commands": {
     "open-palette": {
       "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },

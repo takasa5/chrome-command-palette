@@ -369,5 +369,46 @@
   },
   "command_flags": {
     "message": "試験運用機能"
+  },
+  "kindTabGroup": {
+    "message": "タブグループ"
+  },
+  "groupTabTitle": {
+    "message": "新しいグループの名前"
+  },
+  "groupTabNamed": {
+    "message": "「$NAME$」グループを作る",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "groupTabUnnamed": {
+    "message": "名前なしでグループを作る"
+  },
+  "groupTabHint": {
+    "message": "今のタブを新しいグループに入れる"
+  },
+  "noTabToGroup": {
+    "message": "グループに入れるタブがありません"
+  },
+  "cannotGroupPinnedTab": {
+    "message": "固定したタブはグループに入れられません"
+  },
+  "tabNotInGroup": {
+    "message": "このタブはグループに入っていません"
+  },
+  "noTabsToGroupByDomain": {
+    "message": "ドメインごとにまとめられるタブはありません"
+  },
+  "command_group_tab": {
+    "message": "タブをグループに入れる"
+  },
+  "command_ungroup_tab": {
+    "message": "タブをグループから外す"
+  },
+  "command_group_tabs_by_domain": {
+    "message": "タブをドメインごとにグループにまとめる"
   }
 }
