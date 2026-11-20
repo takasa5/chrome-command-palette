@@ -85,6 +85,16 @@ test(`${MAX_LINES} 行を超える変更は人間`, () => {
   assert.equal(classify([file("a.js", { additions: 300, deletions: 100 })]).tier, "code");
 });
 
+test("モデルから作ったファイルは行数に数えない", () => {
+  const generated = file("e2e/graph/generated/paths.json", { additions: 500, deletions: 300 });
+  const result = classify([generated, file("e2e/graph/replay.e2e.js")]);
+  assert.equal(result.tier, "code");
+  assert.equal(result.lines, 6);
+  assert.deepEqual(result.files[0], { path: "e2e/graph/generated/paths.json", tier: "code" });
+  // 外すのは generated/ の下だけ
+  assert.equal(classify([file("e2e/graph/replay.e2e.js", { additions: 500, deletions: 300 })]).tier, "human");
+});
+
 test("ファイルの分類を返す", () => {
   assert.deepEqual(classify([file("README.md"), file("extension/manifest.json"), file("a.js")]).files, [
     { path: "README.md", tier: "docs" },
