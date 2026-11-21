@@ -14,6 +14,9 @@ export const KINDS = ["docs", "test", "refactor", "fix", "feature", "infra", "ri
 // .claude/settings.json には、Claude が /approve をコメントできないようにする deny ルールがある。
 const HUMAN_PATHS = [/^\.github\//, /^extension\/manifest\.json$/, /^e2e\/graph\/palette\.qnt$/, /^\.claude\/settings\.json$/];
 const DOCS_PATHS = [/^README(\.ja)?\.md$/, /^docs\//];
+// 行数に数えないファイル。モデルから作り直したもので、CI の test ジョブが作り直して差分がないことを確かめている。
+// 作り方を変えるのは palette.qnt（要レビュー）や scripts/ なので、そちらで見る。
+const GENERATED_PATHS = [/^e2e\/graph\/generated\//];
 const DEPENDENCY_KEYS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "bundleDependencies", "overrides"];
 // npm install や npm ci のときに動くスクリプト。
 const INSTALL_SCRIPTS = ["preinstall", "install", "postinstall", "prepare", "preprepare", "postprepare"];
@@ -82,7 +85,9 @@ export function classifyPaths({ files, basePackage, headPackage, baseDirs }) {
     mark(perFile, "package-lock.json");
   }
 
-  const lines = files.reduce((sum, f) => sum + (f.additions ?? 0) + (f.deletions ?? 0), 0);
+  const lines = files
+    .filter((f) => !GENERATED_PATHS.some((r) => r.test(f.filename)))
+    .reduce((sum, f) => sum + (f.additions ?? 0) + (f.deletions ?? 0), 0);
   if (lines > MAX_LINES) reasons.push(`変更が ${lines} 行あり、${MAX_LINES} 行を超える`);
   if (files.length === 0) reasons.push("変わったファイルがない");
 
