@@ -1,4 +1,4 @@
-import { COMMANDS } from "./commands.js";
+import { availableCommands as filterCommands, COMMANDS } from "./commands.js";
 import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, stripUrl } from "./search.js";
@@ -80,6 +80,8 @@ let activeScope = null;
 // キーワードを入力して Tab を押すと入れる、候補の絞り込み先。
 let scopes = [];
 let favorites = [];
+// 設定でオフにできるコマンドの、オンかオフか（enabledBy のキーごと）。
+let commandSettings = {};
 // パレットで候補を選んだ記録。よく選ぶ候補を上に出すのに使う。
 let usage = {};
 const scopeIcons = new WeakMap();
@@ -130,7 +132,12 @@ function otherTabs() {
 
 // 設定画面で編集されたときに追いつけるよう、サイト内検索と一緒に読み直す。
 async function refreshScopes() {
-  [scopes, favorites] = await Promise.all([getEngines().then((engines) => engines.map((engine) => siteSearchScope(engine, t))), getFavorites()]);
+  const settingKeys = COMMANDS.flatMap((command) => command.enabledBy ?? []);
+  [scopes, favorites, commandSettings] = await Promise.all([
+    getEngines().then((engines) => engines.map((engine) => siteSearchScope(engine, t))),
+    getFavorites(),
+    chrome.storage.sync.get(settingKeys),
+  ]);
   // キーワードを打ち終える前に読み込んでおき、ヒントと同時に出せるようにする。
   scopes.forEach(scopeIcon);
 }
@@ -152,7 +159,7 @@ async function rememberUsage(item) {
 }
 
 function availableCommands() {
-  return COMMANDS.filter((command) => !command.needsTarget || ctx.target);
+  return filterCommands(COMMANDS, { hasTarget: Boolean(ctx.target), settings: commandSettings });
 }
 
 // 何も入力せずに Tab を押すと入る。キーワードがないので scopes には入れない。

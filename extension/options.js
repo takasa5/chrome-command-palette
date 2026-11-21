@@ -3,11 +3,14 @@ import { defaultFavorites, formatFavorites, getFavorites, parseFavorites } from 
 import { isJapanese, t } from "./i18n.js";
 import { favoritePreview, formatHours, siteSearchPreview, staleTabsPreview } from "./options-preview.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
-import { getStaleHours } from "./stale-tabs.js";
+import { getStaleSettings } from "./stale-tabs.js";
 import { getTheme, syncTheme } from "./theme.js";
 
 const theme = document.getElementById("theme");
 const input = document.getElementById("stale-hours");
+const staleEnabled = document.getElementById("stale-enabled");
+const stalePinned = document.getElementById("stale-pinned");
+const staleGrouped = document.getElementById("stale-grouped");
 const newWindowPins = document.getElementById("new-window-pins");
 const siteSearch = document.getElementById("site-search");
 const siteSearchErrors = document.getElementById("site-search-errors");
@@ -28,9 +31,11 @@ function drawTheme() {
 
 const TAB_COLORS = ["#378add", "#1d9e75", "#d4537e", "#7f77dd"];
 // 不正な値は保存しないので、図は保存してある値のまま残し、薄くして「まだ効いていない」ことを示す。
+// オフのときは、時間と巻き込む範囲を変えても効かないので、入力欄を無効にし、図も薄くする。
 function drawStaleTabs() {
+  for (const control of [input, stalePinned, staleGrouped]) control.disabled = !staleEnabled.checked;
   const valid = input.valueAsNumber > 0;
-  stalePreview.classList.toggle("sample", !valid);
+  stalePreview.classList.toggle("sample", !valid || !staleEnabled.checked);
   if (!valid) return;
   const { threshold, tabs } = staleTabsPreview(input.valueAsNumber);
   stalePreview.style.setProperty("--x", threshold);
@@ -92,7 +97,11 @@ let savedEnginesJson = JSON.stringify(savedEngines);
 
 const savedTheme = await getTheme();
 if (!themeChosen) theme.value = savedTheme;
-input.value = await getStaleHours();
+const staleSettings = await getStaleSettings();
+staleEnabled.checked = staleSettings.staleTabsEnabled;
+input.value = staleSettings.staleHours;
+stalePinned.checked = staleSettings.staleIncludePinned;
+staleGrouped.checked = staleSettings.staleIncludeGrouped;
 newWindowPins.checked = await getNewWindowPins();
 siteSearch.value = formatEngines(savedEngines);
 favorites.value = formatFavorites(await getFavorites());
@@ -100,6 +109,17 @@ drawTheme();
 drawStaleTabs();
 drawPins();
 drawSiteSearch(savedEngines);
+
+for (const [checkbox, key] of [
+  [staleEnabled, "staleTabsEnabled"],
+  [stalePinned, "staleIncludePinned"],
+  [staleGrouped, "staleIncludeGrouped"],
+]) {
+  checkbox.addEventListener("change", () => {
+    drawStaleTabs();
+    chrome.storage.sync.set({ [key]: checkbox.checked });
+  });
+}
 
 newWindowPins.addEventListener("change", () => {
   drawPins();

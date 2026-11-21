@@ -4,7 +4,7 @@
 import { t } from "./i18n.js";
 import { findDuplicateTabs } from "./duplicate-tabs.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
-import { findStaleTabs, getStaleHours } from "./stale-tabs.js";
+import { findStaleTabs, getStaleSettings } from "./stale-tabs.js";
 import { groupTabScope, groupTabsByDomain, ungroupTab } from "./tab-groups.js";
 
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
@@ -15,6 +15,11 @@ const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   featured,
   run: (ctx) => ctx.navigate(url),
 });
+
+// パレットの候補に出すコマンド。enabledBy のコマンドは、設定（settings）でそのキーが false なら出さない。
+export function availableCommands(commands, { hasTarget, settings = {} }) {
+  return commands.filter((command) => (!command.needsTarget || hasTarget) && (!command.enabledBy || settings[command.enabledBy] !== false));
+}
 
 export async function getNewWindowPins() {
   const { newWindowPins = true } = await chrome.storage.sync.get("newWindowPins");
@@ -116,9 +121,11 @@ export const COMMANDS = [
     title: "Archive Stale Tabs",
     ja: "しばらく見ていないタブを閉じる",
     keywords: ["cleanup", "close", "old", "アーカイブ", "掃除", "整理", "古いタブ", "放置"],
+    enabledBy: "staleTabsEnabled",
     run: async (ctx) => {
-      const [tabs, hours, leftAt] = await Promise.all([chrome.tabs.query({}), getStaleHours(), chrome.storage.session.get(null)]);
-      const stale = findStaleTabs(tabs, { now: Date.now(), hours, leftAt, keepTabId: ctx.target?.id });
+      const [tabs, settings, leftAt] = await Promise.all([chrome.tabs.query({}), getStaleSettings(), chrome.storage.session.get(null)]);
+      const { staleHours: hours, staleIncludePinned: includePinned, staleIncludeGrouped: includeGrouped } = settings;
+      const stale = findStaleTabs(tabs, { now: Date.now(), hours, leftAt, keepTabId: ctx.target?.id, includePinned, includeGrouped });
       if (stale.length === 0) throw new Error(t("noStaleTabs", hours));
       await chrome.tabs.remove(stale.map((tab) => tab.id));
       await ctx.leave();

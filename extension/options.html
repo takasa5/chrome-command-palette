@@ -51,12 +51,15 @@
       </section>
       <section>
         <div class="field">
+          <label class="switch"><input id="stale-enabled" type="checkbox" role="switch" /> <span data-i18n="staleEnabledLabel"></span></label>
           <label for="stale-hours" data-i18n="staleHoursLabel"></label>
           <div class="inline">
             <input id="stale-hours" type="number" min="0" step="any" required aria-describedby="stale-hours-error" />
             <span data-i18n="staleHoursUnit"></span>
           </div>
           <output id="stale-hours-error"></output>
+          <label class="switch sub"><input id="stale-pinned" type="checkbox" role="switch" /> <span data-i18n="staleIncludePinnedLabel"></span></label>
+          <label class="switch sub"><input id="stale-grouped" type="checkbox" role="switch" /> <span data-i18n="staleIncludeGroupedLabel"></span></label>
         </div>
         <div class="preview stale-preview" aria-hidden="true">
           <div class="stale-zone"></div>

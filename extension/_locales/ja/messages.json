@@ -218,6 +218,9 @@
   "themeDark": {
     "message": "ダーク"
   },
+  "staleEnabledLabel": {
+    "message": "Archive Stale Tabs をパレットに出す"
+  },
   "staleHoursLabel": {
     "message": "Archive Stale Tabs で閉じるタブ"
   },
@@ -226,6 +229,12 @@
   },
   "staleHoursInvalid": {
     "message": "0 より大きい数を入力してください"
+  },
+  "staleIncludePinnedLabel": {
+    "message": "固定したタブも閉じる"
+  },
+  "staleIncludeGroupedLabel": {
+    "message": "タブグループに入っているタブも閉じる"
   },
   "newWindowPinsLabel": {
     "message": "New Window で今のウィンドウのピンも開く"
