@@ -218,6 +218,9 @@
   "themeDark": {
     "message": "Dark"
   },
+  "staleEnabledLabel": {
+    "message": "Show Archive Stale Tabs in the palette"
+  },
   "staleHoursLabel": {
     "message": "Archive Stale Tabs closes tabs not viewed for"
   },
@@ -226,6 +229,12 @@
   },
   "staleHoursInvalid": {
     "message": "Enter a number greater than 0"
+  },
+  "staleIncludePinnedLabel": {
+    "message": "Also close pinned tabs"
+  },
+  "staleIncludeGroupedLabel": {
+    "message": "Also close tabs in tab groups"
   },
   "newWindowPinsLabel": {
     "message": "New Window also opens the current window's pinned tabs"

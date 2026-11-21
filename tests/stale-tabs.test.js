@@ -30,3 +30,21 @@ test("長く見ていて離れたばかりのタブは残す", () => {
 test("離れてからしきい値を過ぎたタブは閉じる", () => {
   assert.deepEqual(ids([tab(1, 9)], { leftAt: { 1: now - 7 * HOUR } }), [1]);
 });
+
+test("固定したタブは、設定でオンにしたときだけ閉じる", () => {
+  const tabs = [tab(1, 7, { pinned: true }), tab(2, 7)];
+  assert.deepEqual(ids(tabs, { includePinned: true }), [1, 2]);
+  assert.deepEqual(ids(tabs, { includeGrouped: true }), [2]);
+});
+
+test("グループに入っているタブは、設定でオンにしたときだけ閉じる", () => {
+  const tabs = [tab(1, 7, { groupId: 42 }), tab(2, 7)];
+  assert.deepEqual(ids(tabs, { includeGrouped: true }), [1, 2]);
+  assert.deepEqual(ids(tabs, { includePinned: true }), [2]);
+});
+
+test("巻き込む設定がオンでも、しきい値に届かないタブ、表示中、音が出ているタブは残す", () => {
+  const options = { includePinned: true, includeGrouped: true };
+  assert.deepEqual(ids([tab(1, 5, { pinned: true }), tab(2, 5, { groupId: 42 })], options), []);
+  assert.deepEqual(ids([tab(1, 7, { pinned: true, active: true }), tab(2, 7, { groupId: 42, audible: true })], options), []);
+});
