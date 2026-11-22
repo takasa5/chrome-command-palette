@@ -100,11 +100,11 @@ export const closeTabGroupScope = (windowId) => ({
   },
   search: async (query) => {
     const [groups, tabs] = await Promise.all([chrome.tabGroups.query({ windowId }), chrome.tabs.query({ windowId })]);
-    const listed = listTabGroups(query, groups, tabs);
-    if (listed.length === 0) {
+    // グループがないときだけ知らせる。絞り込んで合うものがないときは、他の絞り込みと同じく何も出さない。
+    if (listTabGroups("", groups, tabs).length === 0) {
       return [{ kind: "tabGroup", key: "tabGroup:none", title: t("noTabGroups"), subtitle: "", run: () => {} }];
     }
-    return listed.map(({ group, tabIds, tabTitles }) => ({
+    return listTabGroups(query, groups, tabs).map(({ group, tabIds, tabTitles }) => ({
       kind: "tabGroup",
       key: `tabGroup:${group.id}`,
       title: group.title || t("unnamedTabGroup"),
