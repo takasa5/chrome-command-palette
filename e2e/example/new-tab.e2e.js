@@ -31,6 +31,22 @@ describe("例ベース", () => {
       assert.equal(active.title, "Alpha Notes");
     });
 
+    // パレットを開いたときのタブ一覧のままだと、閉じたタブを選んで「No tab with id」になる。
+    test("パレットを開いたあとに開いたタブは候補に出て、閉じたタブは候補から消える", async () => {
+      page = await browser.openPalette();
+      await page.keyboard.type("gamma");
+
+      // 拡張機能が開いたタブの最初の読み込みは route に届かず、タイトルがホスト名になるので、URL で探す。
+      const url = pageUrl("Gamma Later", "https://gamma.example.test");
+      const tabId = await browser.sw.evaluate(async (url) => (await chrome.tabs.create({ url, active: false })).id, url);
+      const row = page.locator("#results li", { hasText: "gamma.example.test" }).filter({ has: page.locator(".kind", { hasText: /^タブ$/ }) });
+      await row.waitFor();
+
+      await browser.sw.evaluate((tabId) => chrome.tabs.remove(tabId), tabId);
+      await row.waitFor({ state: "detached" });
+      assert.equal(await page.inputValue("#query"), "gamma");
+    });
+
     test("履歴を選ぶとパレットのタブでそのページを開く", async () => {
       const url = pageUrl("Release Notes", "https://docs.example.test");
       await browser.sw.evaluate((url) => chrome.history.addUrl({ url }), url);
