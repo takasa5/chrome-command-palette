@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { NO_GROUP, groupDomain, planDomainGroups } from "../extension/tab-groups.js";
+import { NO_GROUP, focusAfterClosing, groupDomain, listTabGroups, planDomainGroups } from "../extension/tab-groups.js";
 
 let nextIndex = 0;
 const tab = (id, url, extra = {}) => ({ id, url, index: nextIndex++, pinned: false, groupId: NO_GROUP, ...extra });
@@ -60,4 +60,46 @@ test("読み込み中のタブは移り先の URL で振り分ける", () => {
 test("groupId がないタブはグループに入っていないとみなす", () => {
   const tabs = [tab(1, "https://a.example/", { groupId: undefined }), tab(2, "https://a.example/", { groupId: undefined })];
   assert.deepEqual(planDomainGroups(tabs), [{ title: "a.example", tabIds: [1, 2] }]);
+});
+
+const group = (id, title = "") => ({ id, title });
+
+test("listTabGroups はタブの並びで先に出てくるグループから返し、タブのないグループは出さない", () => {
+  const tabs = [
+    tab(1, "https://a.example/", { index: 0, groupId: 20, title: "A" }),
+    tab(2, "https://b.example/", { index: 1, groupId: 10, title: "B" }),
+    tab(3, "https://c.example/", { index: 2, title: "C" }),
+    tab(4, "https://d.example/", { index: 3, groupId: 20, title: "D" }),
+  ];
+  const listed = listTabGroups("", [group(10, "work"), group(20, "news"), group(30, "empty")], tabs);
+  assert.deepEqual(
+    listed.map(({ group, tabIds, tabTitles }) => ({ id: group.id, tabIds, tabTitles })),
+    [
+      { id: 20, tabIds: [1, 4], tabTitles: ["A", "D"] },
+      { id: 10, tabIds: [2], tabTitles: ["B"] },
+    ],
+  );
+});
+
+test("listTabGroups はグループの名前とタブのタイトルで絞り込む", () => {
+  const tabs = [
+    tab(1, "https://a.example/", { index: 0, groupId: 10, title: "Inbox" }),
+    tab(2, "https://b.example/", { index: 1, groupId: 20, title: "Headlines" }),
+  ];
+  const groups = [group(10, "work"), group(20, "news")];
+  assert.deepEqual(listTabGroups("work", groups, tabs).map(({ group }) => group.id), [10]);
+  assert.deepEqual(listTabGroups("headlines", groups, tabs).map(({ group }) => group.id), [20]);
+  assert.deepEqual(listTabGroups("zzz", groups, tabs), []);
+});
+
+test("focusAfterClosing は残る対象のタブを選び、閉じるなら最後に見ていたタブを選ぶ", () => {
+  const tabs = [
+    { id: 1, lastAccessed: 30 },
+    { id: 2, lastAccessed: 10 },
+    { id: 3, lastAccessed: 20 },
+  ];
+  assert.equal(focusAfterClosing(tabs, [2], 1), 1);
+  assert.equal(focusAfterClosing(tabs, [1], 1), 3);
+  assert.equal(focusAfterClosing(tabs, [1], null), 3);
+  assert.equal(focusAfterClosing(tabs, [1, 2, 3], 1), null);
 });

@@ -5,7 +5,7 @@ import { t } from "./i18n.js";
 import { findDuplicateTabs } from "./duplicate-tabs.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleSettings } from "./stale-tabs.js";
-import { groupTabScope, groupTabsByDomain, ungroupTab } from "./tab-groups.js";
+import { closeCurrentTabGroup, closeTabGroupScope, groupTabScope, groupTabsByDomain, ungroupTab } from "./tab-groups.js";
 
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   id,
@@ -257,6 +257,21 @@ export const COMMANDS = [
     ja: "タブをドメインごとにグループにまとめる",
     keywords: ["tab group", "site", "organize", "グループ", "タブグループ", "サイト", "整理"],
     run: groupTabsByDomain,
+  },
+  {
+    id: "close-tab-group",
+    title: "Close Tab Group",
+    ja: "今のタブグループを閉じる",
+    keywords: ["tab group", "close group", "グループ", "タブグループ", "閉じる"],
+    needsTarget: true,
+    run: closeCurrentTabGroup,
+  },
+  {
+    id: "close-tab-groups",
+    title: "Close Tab Group from List",
+    ja: "一覧からタブグループを閉じる",
+    keywords: ["tab group", "close group", "list", "グループ", "タブグループ", "閉じる", "一覧"],
+    run: (ctx) => ctx.enterScope(closeTabGroupScope(ctx.self.windowId)),
   },
   {
     id: "move-to-window",

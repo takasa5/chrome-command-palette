@@ -422,5 +422,28 @@
   },
   "command_group_tabs_by_domain": {
     "message": "Group tabs in this window by domain"
+  },
+  "closeTabGroupTitle": {
+    "message": "Close a tab group"
+  },
+  "noTabGroups": {
+    "message": "No tab groups in this window"
+  },
+  "unnamedTabGroup": {
+    "message": "Unnamed group"
+  },
+  "tabGroupTabCount": {
+    "message": "$COUNT$ tabs",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "command_close_tab_group": {
+    "message": "Close every tab in the current tab's group"
+  },
+  "command_close_tab_groups": {
+    "message": "Pick a tab group in this window and close its tabs"
   }
 }
