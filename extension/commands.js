@@ -5,7 +5,7 @@ import { t } from "./i18n.js";
 import { findDuplicateTabs } from "./duplicate-tabs.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
 import { findStaleTabs, getStaleSettings } from "./stale-tabs.js";
-import { closeCurrentTabGroup, closeTabGroupScope, groupTabScope, groupTabsByDomain, ungroupTab } from "./tab-groups.js";
+import { closeCurrentTabGroup, closeTabGroupScope, groupTabScope, groupTabsByDomain, isGrouped, ungroupTab } from "./tab-groups.js";
 
 const chromePage = (id, title, ja, keywords, url, featured = false) => ({
   id,
@@ -17,8 +17,14 @@ const chromePage = (id, title, ja, keywords, url, featured = false) => ({
 });
 
 // パレットの候補に出すコマンド。enabledBy のコマンドは、設定（settings）でそのキーが false なら出さない。
-export function availableCommands(commands, { hasTarget, settings = {} }) {
-  return commands.filter((command) => (!command.needsTarget || hasTarget) && (!command.enabledBy || settings[command.enabledBy] !== false));
+// needsGroupedTarget のコマンドは、対象のタブ（target）がグループに入っているときだけ出す。
+export function availableCommands(commands, { target = null, settings = {} }) {
+  return commands.filter(
+    (command) =>
+      (!command.needsTarget || target) &&
+      (!command.needsGroupedTarget || (target && isGrouped(target))) &&
+      (!command.enabledBy || settings[command.enabledBy] !== false),
+  );
 }
 
 export async function getNewWindowPins() {
@@ -249,6 +255,7 @@ export const COMMANDS = [
     ja: "タブをグループから外す",
     keywords: ["tab group", "remove from group", "グループ", "タブグループ", "解除"],
     needsTarget: true,
+    needsGroupedTarget: true,
     run: ungroupTab,
   },
   {
@@ -264,6 +271,7 @@ export const COMMANDS = [
     ja: "今のタブグループを閉じる",
     keywords: ["tab group", "close group", "グループ", "タブグループ", "閉じる"],
     needsTarget: true,
+    needsGroupedTarget: true,
     run: closeCurrentTabGroup,
   },
   {

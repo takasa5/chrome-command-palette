@@ -6,7 +6,8 @@ import { normalize, scoreFields } from "./search.js";
 // chrome.tabGroups.TAB_GROUP_ID_NONE と同じ値。テストでも使えるよう、ここに持つ。
 export const NO_GROUP = -1;
 
-function isGrouped(tab) {
+// コマンドを出すかの判定と、実行するときの確認で同じものを使う。
+export function isGrouped(tab) {
   return tab.groupId !== undefined && tab.groupId !== NO_GROUP;
 }
 
