@@ -279,11 +279,14 @@ function moveSelection(delta) {
   render();
 }
 
-async function update() {
+// keepSelection は、入力ではなくタブの変化で出し直すとき。矢印キーで選んだ行とメッセージを残す。
+async function update({ keepSelection = false } = {}) {
   const query = input.value;
   const seq = ++searchSeq;
-  toast.textContent = "";
-  selectionMoved = false;
+  if (!keepSelection) {
+    toast.textContent = "";
+    selectionMoved = false;
+  }
   renderBreadcrumb();
   if (activeScope) {
     const scoped = await activeScope.search(query);
@@ -304,8 +307,12 @@ async function update() {
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
   const sources = { t, commands: availableCommands(), favorites, tabs: otherTabs(), usage };
-  results = rankResults(query, sources);
-  render();
+  // タブの変化で出し直すときは、ブックマークと履歴がそろうまで前の候補を残す。
+  // 先にコマンドとタブだけで描くと、矢印キーで選んだ履歴やブックマークの行が消え、選択が先頭へ戻る。
+  if (!keepSelection) {
+    results = rankResults(query, sources);
+    render();
+  }
 
   await new Promise((resolve) => setTimeout(resolve, DEBOUNCE_MS));
   if (seq !== searchSeq) return;
@@ -430,6 +437,11 @@ async function execute(item, { moveHere = false } = {}) {
   busy = true;
   try {
     await refreshTabs();
+    // 候補を出し直す前に閉じられたタブは、エラーにせず候補から外す。
+    if (item.kind === "tab" && !allTabs.some((tab) => tab.id === item.tab.id)) {
+      await update({ keepSelection: true });
+      return;
+    }
     await rememberUsage(item);
     await runItem(item, { moveHere });
   } catch (error) {
@@ -502,6 +514,27 @@ async function closeWhenLeft({ tabId, windowId }) {
   await chrome.tabs.remove(self.id).catch(() => {});
 }
 
+// パレットを開いている間に開いたり閉じたりしたタブを、候補に反映する。
+// 読み込み中のタブは何度も変わるので、まとめて読み直す。
+let tabsChangedTimer = null;
+function onTabsChanged() {
+  clearTimeout(tabsChangedTimer);
+  tabsChangedTimer = setTimeout(async () => {
+    await refreshTabs();
+    // タブが候補に出るのは、フォルダや絞り込みに入っていないときだけ。
+    if (!activeScope && folderStack.length === 0) update({ keepSelection: true });
+  }, DEBOUNCE_MS);
+}
+
+function watchTabs() {
+  chrome.tabs.onCreated.addListener(onTabsChanged);
+  chrome.tabs.onRemoved.addListener(onTabsChanged);
+  chrome.tabs.onAttached.addListener(onTabsChanged);
+  chrome.tabs.onUpdated.addListener((_tabId, change) => {
+    if ("title" in change || "url" in change || "pinned" in change) onTabsChanged();
+  });
+}
+
 // background.js が渡した合言葉から、重ねたページのタブを受け取る。合言葉は一度しか使えない。
 async function claimHostTab() {
   const key = `overlay:${overlayToken}`;
@@ -532,8 +565,9 @@ async function init() {
   }
   await Promise.all([refreshTabs(), refreshScopes(), refreshUsage()]);
   chrome.tabs.onActivated.addListener(closeWhenLeft);
+  watchTabs();
   chrome.history.onVisited.addListener(({ url }) => deletedUrls.delete(url));
-  input.addEventListener("input", update);
+  input.addEventListener("input", () => update());
   input.addEventListener("keydown", handleKeydown);
   window.addEventListener("focus", reactivate);
   input.focus();
