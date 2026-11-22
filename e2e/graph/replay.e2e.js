@@ -13,7 +13,9 @@ const paths = JSON.parse(readFileSync(process.env.E2E_PATHS ?? new URL("./genera
 const ALPHA = pageUrl("Alpha Notes");
 // 重ねる先のページ。
 const HOST = pageUrl("Host Page", HOST_ORIGIN);
-const HISTORY = pageUrl("Release Notes", "https://docs.example.test");
+// 履歴から開いたページは、次の経路の前に閉じると「閉じたタブ」の候補になり、履歴の候補には出なくなる。
+// 選ぶたびに、まだ開いていない履歴のページを足し、そのページだけに当たる語で選ぶ。
+let historyCount = 0;
 const SITE = { keyword: "gh", name: "GitHub", url: "https://github.com/search?q=%s" };
 const FOLDERS = { Work: { Docs: { Specs: { Guide: pageUrl("Guide", "https://docs.example.test") } } } };
 // グループに入れるときに付ける名前。
@@ -34,7 +36,7 @@ before(async () => {
   });
   browser.ctx.on("weberror", (error) => errors.push(error.error().message));
   await browser.sw.evaluate(
-    async ({ folders, site, history }) => {
+    async ({ folders, site }) => {
       const add = async (parentId, nodes) => {
         for (const [title, value] of Object.entries(nodes)) {
           if (typeof value === "string") await chrome.bookmarks.create({ parentId, title, url: value });
@@ -43,9 +45,8 @@ before(async () => {
       };
       await add("1", folders);
       await chrome.storage.sync.set({ siteSearchEngines: [site] });
-      await chrome.history.addUrl({ url: history });
     },
-    { folders: FOLDERS, site: SITE, history: HISTORY },
+    { folders: FOLDERS, site: SITE },
   );
   await browser.openPage("Alpha Notes");
   host = await browser.openPage("Host Page", HOST_ORIGIN);
@@ -130,7 +131,11 @@ const ACTIONS = {
   ignoredTab: () => palette.keyboard.press("Tab"),
   escape: () => closeWith("Escape"),
   switchTab: () => pick("alpha", { title: "Alpha Notes", closes: true }),
-  openHistory: () => pick("release", { kind: "履歴", closes: true }),
+  openHistory: async () => {
+    const slug = `release-${String(++historyCount).padStart(4, "0")}`;
+    await browser.sw.evaluate((url) => chrome.history.addUrl({ url }), pageUrl("Release Notes", `https://${slug}.docs.example.test`));
+    await pick(slug, { kind: "履歴", closes: true });
+  },
   openBookmark: () => pick("guide", { title: "Guide", closes: true }),
   runSiteSearch: async () => {
     await palette.keyboard.type("playwright");

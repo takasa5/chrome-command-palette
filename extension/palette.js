@@ -1,7 +1,7 @@
 import { availableCommands as filterCommands, COMMANDS } from "./commands.js";
 import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
-import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, stripUrl } from "./search.js";
+import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
 import { syncTheme } from "./theme.js";
@@ -16,6 +16,7 @@ const KIND_LABELS = {
   tab: "kindTab",
   folder: "kindFolder",
   bookmark: "kindBookmark",
+  closedTab: "kindClosedTab",
   history: "kindHistory",
   url: "kindUrl",
   search: "kindSearch",
@@ -308,14 +309,17 @@ async function update() {
 
   await new Promise((resolve) => setTimeout(resolve, DEBOUNCE_MS));
   if (seq !== searchSeq) return;
-  const [bookmarkTree, history] = await Promise.all([
+  const [bookmarkTree, history, sessions] = await Promise.all([
     chrome.bookmarks.getTree(),
     chrome.history.search({ text: query.trim(), startTime: 0, maxResults: BROWSER_RESULT_LIMIT }),
+    chrome.sessions.getRecentlyClosed(),
   ]);
   if (seq !== searchSeq) return;
   results = rankResults(query, {
     ...sources,
     bookmarks: flattenBookmarks(bookmarkTree),
+    // パレット自身も「閉じたタブ」に記録される。新しいタブで開いても redirect.js で移るので、拡張機能の URL で記録される。
+    closedTabs: recentlyClosedTabs(sessions, ctx.isPalette),
     history: history.filter((page) => !page.url.startsWith(paletteUrl) && !deletedUrls.has(page.url)),
   });
   render();
@@ -386,6 +390,12 @@ async function moveTabHere(tab) {
   await leave(tab.id);
 }
 
+// 閉じたタブは元のウィンドウの位置に戻り、そのタブへ移るので、パレットは閉じるだけにする。
+async function restoreClosedTab(item) {
+  await chrome.sessions.restore(item.sessionId);
+  await leave(null);
+}
+
 async function search(text) {
   await chrome.search.query({ text, tabId: await pageTabId() });
   if (overlay) await closeOverlay();
@@ -401,6 +411,8 @@ function runItem(item, { moveHere }) {
     }
     case "tab":
       return moveHere && isOtherWindowTab(item) ? moveTabHere(item.tab) : openTab(item.tab);
+    case "closedTab":
+      return restoreClosedTab(item);
     case "folder":
       return enterFolder(item.folder);
     case "readingList":

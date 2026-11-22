@@ -8,9 +8,9 @@ const BONUS_PER_DOUBLING = 4;
 const HALF_LIFE_MS = 14 * 24 * 60 * 60 * 1000;
 const MAX_ENTRIES = 500;
 // 入力した語で作る URL（サイト内検索）や、中身が入れ替わるリーディングリストは記録しない。
-const RECORDED_KINDS = new Set(["command", "favorite", "tab", "folder", "bookmark", "history", "url"]);
+const RECORDED_KINDS = new Set(["command", "favorite", "tab", "closedTab", "folder", "bookmark", "history", "url"]);
 
-// 同じページはタブ、ブックマーク、履歴のどれで選んでも同じものとして数える。
+// 同じページはタブ、ブックマーク、最近閉じたタブ、履歴のどれで選んでも同じものとして数える。
 export function usageKey(item) {
   if (!RECORDED_KINDS.has(item?.kind)) return null;
   if (item.kind === "command") return `command:${item.command.id}`;

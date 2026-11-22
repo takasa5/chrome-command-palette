@@ -45,6 +45,9 @@
   "kindBookmark": {
     "message": "Bookmark"
   },
+  "kindClosedTab": {
+    "message": "Closed Tab"
+  },
   "kindHistory": {
     "message": "History"
   },

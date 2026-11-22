@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
 import { COMMANDS } from "../extension/commands.js";
-import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, removeResult, scoreFields, toUrl } from "../extension/search.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, scoreFields, toUrl } from "../extension/search.js";
 
 const t = translator("ja");
 
@@ -216,4 +216,45 @@ test("removeResult は選んでいない行を外しても選択を変えず、�
   const results = ["a", "b", "c"].map((key) => ({ key }));
   assert.deepEqual(removeResult(results, "a", "c"), { results: [{ key: "b" }, { key: "c" }], selectedKey: "c" });
   assert.deepEqual(removeResult(results, "x", "b"), { results, selectedKey: "b" });
+});
+
+test("recentlyClosedTabs は閉じたタブを新しい順に取り出し、ウィンドウと除外するタブと重複した URL を外す", () => {
+  const sessions = [
+    { lastModified: 5, tab: { sessionId: "5", title: "A", url: "https://a.example/" } },
+    { lastModified: 4, window: { sessionId: "4", tabs: [{ sessionId: "41", url: "https://w.example/" }] } },
+    { lastModified: 3, tab: { sessionId: "3", title: "Palette", url: "chrome-extension://id/palette.html" } },
+    { lastModified: 2, tab: { sessionId: "2", title: "A (old)", url: "https://a.example/" } },
+    { lastModified: 1, tab: { sessionId: "1", title: "B", url: "https://b.example/" } },
+  ];
+  const tabs = recentlyClosedTabs(sessions, (tab) => tab.url.startsWith("chrome-extension://"));
+  assert.deepEqual(tabs.map((tab) => tab.sessionId), ["5", "1"]);
+  assert.deepEqual(recentlyClosedTabs(undefined), []);
+});
+
+test("最近閉じたタブをタイトルや URL で引ける", () => {
+  const closedTabs = [{ sessionId: "7", title: "Release notes", url: "https://closed.example/notes" }];
+  const byTitle = rankResults("release", { t, closedTabs }).find((r) => r.kind === "closedTab");
+  assert.equal(byTitle?.sessionId, "7");
+  assert.equal(byTitle.key, "closedTab:7");
+  assert.ok(rankResults("closed.example", { t, closedTabs }).some((r) => r.kind === "closedTab"));
+  assert.ok(!rankResults("zzz", { t, closedTabs }).some((r) => r.kind === "closedTab"));
+});
+
+test("同じ URL はブックマーク > 最近閉じたタブ > 履歴 の順で 1 つになる", () => {
+  const url = "https://example.com/closed";
+  const closedTabs = [{ sessionId: "1", title: "Example", url }];
+  const history = [{ id: "h", title: "Example", url }];
+  const kinds = (sources) => rankResults("example", { t, ...sources }).filter((r) => r.url === url).map((r) => r.kind);
+  assert.deepEqual(kinds({ closedTabs, history }), ["closedTab"]);
+  assert.deepEqual(kinds({ closedTabs, history, bookmarks: [{ id: "b", title: "Example", url }] }), ["bookmark"]);
+  assert.deepEqual(kinds({ closedTabs, tabs: [{ id: 1, title: "Example", url }] }), ["tab"]);
+});
+
+test("最近閉じたタブは、同じように一致する開いているタブより下に出る", () => {
+  const results = rankResults("docs", { t,
+    closedTabs: [{ sessionId: "1", title: "Docs", url: "https://closed.example/" }],
+    tabs: [{ id: 1, title: "Docs", url: "https://open.example/" }],
+  });
+  const kinds = results.filter((r) => r.kind === "tab" || r.kind === "closedTab").map((r) => r.kind);
+  assert.deepEqual(kinds, ["tab", "closedTab"]);
 });

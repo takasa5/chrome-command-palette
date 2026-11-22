@@ -94,5 +94,24 @@ describe("例ベース", () => {
       const active = await browser.activeTab();
       assert.equal(active.url, pageUrl("Closed Page"));
     });
+
+    // 同じページは履歴にもあるが、閉じたタブとして出し、選ぶと sessions.restore で元のタブを戻す。
+    test("最近閉じたタブを検索して Enter で復元する", async () => {
+      const closedPage = await browser.openPage("Recently Closed Notes");
+      await browser.sw.evaluate(async (url) => {
+        const [tab] = await chrome.tabs.query({ url });
+        await chrome.tabs.remove(tab.id);
+      }, closedPage.url());
+
+      page = await browser.openPalette();
+      await page.keyboard.type("recently closed");
+      await page.locator('#results li[aria-selected="true"] .kind', { hasText: "閉じたタブ" }).waitFor();
+      await pressToClose(page, "Enter");
+
+      const active = await browser.activeTab();
+      assert.equal(active.url, pageUrl("Recently Closed Notes"));
+      const titles = (await browser.tabs()).map((tab) => tab.title);
+      assert.ok(!titles.includes("コマンドパレット"));
+    });
   });
 });

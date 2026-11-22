@@ -45,6 +45,9 @@
   "kindBookmark": {
     "message": "ブックマーク"
   },
+  "kindClosedTab": {
+    "message": "閉じたタブ"
+  },
   "kindHistory": {
     "message": "履歴"
   },

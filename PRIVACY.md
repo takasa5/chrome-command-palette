@@ -17,7 +17,7 @@ The extension does not send any data to the developer or to third parties. It do
 | Bookmarks | Show bookmarks that match what you type or a folder name, and bookmark the current page |
 | Reading list | Show it as results, add pages, and mark them as read |
 | Tab group names | Name the groups you create, and find a group with the same name when grouping tabs by domain |
-| Recently closed tabs | Reopen a closed tab |
+| Recently closed tabs | Show closed tabs that match what you type, and reopen a closed tab |
 | Results you pick in the palette | Record how often and when you last picked them, to rank them higher |
 
 ## Data it stores
