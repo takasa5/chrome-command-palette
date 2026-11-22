@@ -15,6 +15,7 @@ test("usageKey は同じページをタブ、ブックマーク、履歴で同�
   assert.equal(usageKey({ kind: "tab", url }), `url:${url}`);
   assert.equal(usageKey({ kind: "bookmark", url }), `url:${url}`);
   assert.equal(usageKey({ kind: "history", url }), `url:${url}`);
+  assert.equal(usageKey({ kind: "closedTab", url }), `url:${url}`);
   assert.equal(usageKey(commandItem(COMMANDS[0], t)), `command:${COMMANDS[0].id}`);
   assert.equal(usageKey({ kind: "folder", folder: { id: "7" } }), "folder:7");
 });

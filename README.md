@@ -10,7 +10,7 @@
   <a href="https://microsoftedge.microsoft.com/addons/detail/agmjaaiokeicfoddncoeghilmhjcmceh"><img src="docs/edge-badge.png" alt="Get it from Microsoft Edge" height="58" /></a>
 </p>
 
-A Chrome extension that brings the feel of Arc's command palette to Chrome. Press `Cmd+T` to open the palette and control the browser, switch tabs, search bookmarks and history, open URLs, and search the web from the keyboard.
+A Chrome extension that brings the feel of Arc's command palette to Chrome. Press `Cmd+T` to open the palette and control the browser, switch tabs, search bookmarks, history, and recently closed tabs, open URLs, and search the web from the keyboard.
 
 ![Command Palette demo](docs/demo.gif)
 

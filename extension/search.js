@@ -3,7 +3,9 @@
 
 import { itemUsageBonus, sortByUsage } from "./usage.js";
 
-const KIND_BONUS = { command: 3, favorite: 3, tab: 2, folder: 2, bookmark: 1, history: 0 };
+const KIND_BONUS = { command: 3, favorite: 3, tab: 2, folder: 2, bookmark: 1, closedTab: 0, history: 0 };
+// 最近閉じたタブは、ほかの候補を押しのけないよう、履歴と同じく点数を下げる。
+const CLOSED_TAB_FACTOR = 0.9;
 const SCORE_URL_ITEM = 85;
 const SCORE_API_FLOOR = 10;
 const MAX_RESULTS = 30;
@@ -180,9 +182,23 @@ export function toUrl(input) {
   return null;
 }
 
-// お気に入り > 開いているタブ > ブックマーク > 履歴 の順で同じ URL を 1 つにまとめる。
+// chrome.sessions.getRecentlyClosed の結果から、候補にする閉じたタブを新しい順に取り出す。
+// ウィンドウごと閉じたものは含めない。同じ URL は一番新しいものだけを残す。exclude が true を返すタブ（パレット自身など）も外す。
+export function recentlyClosedTabs(sessions, exclude = () => false) {
+  const seen = new Set();
+  const tabs = [];
+  for (const session of sessions ?? []) {
+    const tab = session.tab;
+    if (!tab?.url || tab.sessionId == null || exclude(tab) || seen.has(tab.url)) continue;
+    seen.add(tab.url);
+    tabs.push(tab);
+  }
+  return tabs;
+}
+
+// お気に入り > 開いているタブ > ブックマーク > 最近閉じたタブ > 履歴 の順で同じ URL を 1 つにまとめる。
 function dedupeByUrl(entries) {
-  const order = ["favorite", "tab", "bookmark", "history"];
+  const order = ["favorite", "tab", "bookmark", "closedTab", "history"];
   const seen = new Set();
   const kept = new Set();
   for (const kind of order) {
@@ -207,7 +223,7 @@ export function removeResult(results, key, selectedKey) {
 
 // 入力に対して表示する結果を、スコアの高い順に返す。
 // usage はパレットで選んだ記録（usage.js）。よく選ぶ候補ほど、同じくらい一致するほかの候補より上に出す。
-export function rankResults(query, { t, commands = [], favorites = [], tabs = [], bookmarks = [], history = [], usage = {}, now = Date.now() }) {
+export function rankResults(query, { t, commands = [], favorites = [], tabs = [], bookmarks = [], closedTabs = [], history = [], usage = {}, now = Date.now() }) {
   const entries = [];
   for (const command of commands) {
     const score = scoreFields(query, commandFields(command), { fuzzy: true });
@@ -228,6 +244,10 @@ export function rankResults(query, { t, commands = [], favorites = [], tabs = []
       ? bookmarkItem(query, bookmark)
       : folderItem(bookmark, scoreFields(query, [{ text: bookmark.folders.at(-1), weight: 0.8 }]), t);
     if (item.score > 0) entries.push(item);
+  }
+  for (const tab of closedTabs) {
+    const score = scoreFields(query, pageFields(tab)) * CLOSED_TAB_FACTOR;
+    if (score > 0) entries.push({ kind: "closedTab", key: `closedTab:${tab.sessionId}`, title: tab.title || tab.url, subtitle: stripUrl(tab.url), url: tab.url, sessionId: tab.sessionId, score });
   }
   for (const page of history) {
     const score = Math.max(scoreFields(query, pageFields(page)), SCORE_API_FLOOR) * 0.9;
