@@ -10,7 +10,6 @@ import { USAGE_STORAGE_KEY, sortByUsage, usageKey } from "./usage.js";
 const DEBOUNCE_MS = 80;
 const RECENT_TAB_COUNT = 5;
 const BROWSER_RESULT_LIMIT = 30;
-const NEW_TAB_URL = "chrome://newtab/";
 const KIND_LABELS = {
   command: "kindCommand",
   favorite: "kindFavorite",
@@ -319,15 +318,11 @@ async function update() {
   results = rankResults(query, {
     ...sources,
     bookmarks: flattenBookmarks(bookmarkTree),
-    closedTabs: recentlyClosedTabs(sessions, isClosedPalette),
+    // パレット自身も「閉じたタブ」に記録される。新しいタブで開いても redirect.js で移るので、拡張機能の URL で記録される。
+    closedTabs: recentlyClosedTabs(sessions, ctx.isPalette),
     history: history.filter((page) => !page.url.startsWith(paletteUrl) && !deletedUrls.has(page.url)),
   });
   render();
-}
-
-// 閉じたパレットは、拡張機能の URL か、新しいタブとして開いたときの chrome://newtab/ で記録される。
-function isClosedPalette(tab) {
-  return ctx.isPalette(tab) || tab.url.startsWith(NEW_TAB_URL);
 }
 
 function scopeForInput() {
