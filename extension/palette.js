@@ -160,7 +160,7 @@ async function rememberUsage(item) {
 }
 
 function availableCommands() {
-  return filterCommands(COMMANDS, { hasTarget: Boolean(ctx.target), settings: commandSettings });
+  return filterCommands(COMMANDS, { target: ctx.target, settings: commandSettings });
 }
 
 // 何も入力せずに Tab を押すと入る。キーワードがないので scopes には入れない。

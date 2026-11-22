@@ -422,5 +422,28 @@
   },
   "command_group_tabs_by_domain": {
     "message": "タブをドメインごとにグループにまとめる"
+  },
+  "closeTabGroupTitle": {
+    "message": "閉じるタブグループ"
+  },
+  "noTabGroups": {
+    "message": "このウィンドウにタブグループはありません"
+  },
+  "unnamedTabGroup": {
+    "message": "名前なしのグループ"
+  },
+  "tabGroupTabCount": {
+    "message": "$COUNT$ 個のタブ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "command_close_tab_group": {
+    "message": "今のタブグループを閉じる"
+  },
+  "command_close_tab_groups": {
+    "message": "一覧からタブグループを閉じる"
   }
 }
