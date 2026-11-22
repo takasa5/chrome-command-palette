@@ -306,8 +306,12 @@ async function update({ keepSelection = false } = {}) {
   }
   // コマンドとタブは同期で出し、Enter を素早く押しても待たされないようにする。
   const sources = { t, commands: availableCommands(), favorites, tabs: otherTabs(), usage };
-  results = rankResults(query, sources);
-  render();
+  // タブの変化で出し直すときは、ブックマークと履歴がそろうまで前の候補を残す。
+  // 先にコマンドとタブだけで描くと、矢印キーで選んだ履歴やブックマークの行が消え、選択が先頭へ戻る。
+  if (!keepSelection) {
+    results = rankResults(query, sources);
+    render();
+  }
 
   await new Promise((resolve) => setTimeout(resolve, DEBOUNCE_MS));
   if (seq !== searchSeq) return;
