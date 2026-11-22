@@ -6,6 +6,9 @@
 * 外部サービスにデータを送らない
 * Chrome API に依存しない処理は純粋関数にして、`tests/` にテストを書く
 * 新しい Web API を使うときは、`extension/manifest.json` の `minimum_chrome_version` で動くか確認する
+* `chrome.storage` を読んでから書く処理は、background の 1 か所にまとめて順番に実行する。最初の読み出しと `onChanged` を両方使うときは、読み出しを待つ間に届いた新しい値を古い値で上書きしない
+* 「パレットかどうか」のような同じ判定は共通の関数にして使い回す。対になるコマンド（group と ungroup など）は、null の確認や除外の条件が揃っているか見比べる
+* Chrome の挙動（`url` と `pendingUrl` の違い、閉じたタブとして記録される URL など）を推測で書かない。ドキュメントか実際の Chromium で確かめ、決まっていない挙動よりドキュメントにある値（`chrome.runtime.id` など）を使う
 
 ## 動作確認
 
