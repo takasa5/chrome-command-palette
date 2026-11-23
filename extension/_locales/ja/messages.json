@@ -265,6 +265,9 @@
       }
     }
   },
+  "saved": {
+    "message": "保存しました"
+  },
   "command_new_window": {
     "message": "新しいウィンドウ"
   },

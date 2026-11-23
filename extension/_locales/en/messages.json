@@ -265,6 +265,9 @@
       }
     }
   },
+  "saved": {
+    "message": "Saved"
+  },
   "command_new_window": {
     "message": "Open a new window"
   },
