@@ -305,7 +305,7 @@
     "message": "Close this window"
   },
   "command_close_other_windows": {
-    "message": "Close all windows except this one"
+    "message": "Close other browser windows, keeping popups open"
   },
   "command_reload": {
     "message": "Reload the current page"
