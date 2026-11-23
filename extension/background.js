@@ -1,9 +1,10 @@
 import { toggleOverlay } from "./overlay.js";
+import { isPaletteTab, paletteUrlOf } from "./palette-url.js";
 import { colorScheme, getTheme } from "./theme.js";
 import { USAGE_STORAGE_KEY, forgetUrls, recordUsage } from "./usage.js";
 
 // タブや履歴に残るパレットの URL。拡張機能の ID が入る。
-const paletteUrl = `chrome-extension://${chrome.runtime.id}/palette.html`;
+const paletteUrl = paletteUrlOf(chrome.runtime.id);
 // ページに重ねる iframe の URL。use_dynamic_url により、ID の代わりに起動ごとに変わる値が入るので、
 // サイトが palette.html を読み込んで拡張機能を入れているか調べることはできない。
 const embedUrl = chrome.runtime.getURL("palette.html");
@@ -12,7 +13,7 @@ const embedUrl = chrome.runtime.getURL("palette.html");
 // パレットには一度だけ使える合言葉で開いたタブを渡し、他のサイトに埋め込まれたときは動かないようにする。
 chrome.commands.onCommand.addListener(async (command, tab) => {
   if (command !== "open-palette" || !tab?.id) return;
-  if ((tab.url ?? tab.pendingUrl ?? "").startsWith(paletteUrl)) return;
+  if (isPaletteTab(tab, paletteUrl)) return;
   const token = crypto.randomUUID();
   const key = `overlay:${token}`;
   // ページに重ねたパレットは localStorage が分けられることがあるので、テーマは URL で渡す。

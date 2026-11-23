@@ -3,6 +3,7 @@ import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
 import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, stripUrl } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
+import { isPaletteTab, paletteUrlOf } from "./palette-url.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
 import { syncTheme } from "./theme.js";
 import { USAGE_STORAGE_KEY, sortByUsage, usageKey } from "./usage.js";
@@ -29,9 +30,8 @@ const input = document.getElementById("query");
 const list = document.getElementById("results");
 const toast = document.getElementById("toast");
 const breadcrumb = document.getElementById("breadcrumb");
-// タブや履歴に残るパレットの URL。runtime.getURL は use_dynamic_url により起動ごとに変わる値を返し、タブの URL と合わないので使わない。
-// ページに重ねた iframe の中でも拡張機能の ID になるよう、location ではなく runtime.id から作る。
-const paletteUrl = `chrome-extension://${chrome.runtime.id}/palette.html`;
+// タブや履歴に残るパレットの URL。ページに重ねた iframe の中でも拡張機能の ID になるよう、location ではなく runtime.id から作る。
+const paletteUrl = paletteUrlOf(chrome.runtime.id);
 const params = new URLSearchParams(location.search);
 // ページの上に重ねて開いたときは、新規タブではなく、そのページのタブ（hostTabId）の中の iframe で動く。
 const overlayToken = params.get("overlay");
@@ -43,7 +43,7 @@ const ctx = {
   windowTabs: [],
   target: null,
   nextTarget: null,
-  isPalette: (tab) => (tab.url ?? tab.pendingUrl ?? "").startsWith(paletteUrl),
+  isPalette: (tab) => isPaletteTab(tab, paletteUrl),
   navigate,
   pageTabId,
   leave,
