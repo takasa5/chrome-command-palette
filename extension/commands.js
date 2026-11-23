@@ -32,6 +32,11 @@ export async function getNewWindowPins() {
   return newWindowPins;
 }
 
+// パレットのあるウィンドウ以外の、閉じるウィンドウの ID。
+export function otherWindowIds(windows, selfWindowId) {
+  return windows.filter((win) => win.id !== selfWindowId).map((win) => win.id);
+}
+
 async function zoomBy(ctx, factor) {
   const zoom = await chrome.tabs.getZoom(ctx.target.id);
   await chrome.tabs.setZoom(ctx.target.id, zoom * factor);
@@ -163,6 +168,19 @@ export const COMMANDS = [
     ja: "ウィンドウを閉じる",
     keywords: ["quit"],
     run: (ctx) => chrome.windows.remove(ctx.self.windowId),
+  },
+  {
+    id: "close-other-windows",
+    title: "Close Other Windows",
+    ja: "他のウィンドウを閉じる",
+    keywords: ["others", "window", "閉じる"],
+    run: async (ctx) => {
+      // ポップアップや DevTools のウィンドウは残し、通常のウィンドウだけを閉じる。
+      const ids = otherWindowIds(await chrome.windows.getAll({ windowTypes: ["normal"] }), ctx.self.windowId);
+      if (ids.length === 0) throw new Error(t("noOtherWindows"));
+      for (const id of ids) await chrome.windows.remove(id);
+      await ctx.leave();
+    },
   },
   {
     id: "reload",
