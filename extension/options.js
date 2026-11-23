@@ -37,6 +37,7 @@ const savedNotices = Object.fromEntries(
 );
 
 // 保存が終わってから、その項目に「保存しました」を出す。失敗したら出さず、エラーはそのまま呼んだ側に返す。
+// エラーを出す場所がない項目（テーマ、スイッチ）は、呼んだ側で catch してコンソールに出す。
 async function saved(key, write) {
   await write;
   savedNotices[key].notify();
@@ -99,7 +100,7 @@ let themeChosen = false;
 theme.addEventListener("change", () => {
   themeChosen = true;
   drawTheme();
-  saved("theme", chrome.storage.sync.set({ theme: theme.value }));
+  saved("theme", chrome.storage.sync.set({ theme: theme.value })).catch(console.error);
 });
 // 見本を押しても、セレクトで選んだのと同じに扱う。
 for (const swatch of swatches) {
@@ -135,13 +136,13 @@ for (const [checkbox, key] of [
 ]) {
   checkbox.addEventListener("change", () => {
     drawStaleTabs();
-    saved("stale", chrome.storage.sync.set({ [key]: checkbox.checked }));
+    saved("stale", chrome.storage.sync.set({ [key]: checkbox.checked })).catch(console.error);
   });
 }
 
 newWindowPins.addEventListener("change", () => {
   drawPins();
-  saved("pins", chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
+  saved("pins", chrome.storage.sync.set({ newWindowPins: newWindowPins.checked })).catch(console.error);
 });
 
 // 1 つでも直すと初期値ではなく、この一覧を保存して使う。空にすればお気に入りはなくなる。
