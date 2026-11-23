@@ -763,7 +763,9 @@ body:has(> .options) {
   white-space: nowrap;
 }
 
-/* 保存できたときに options.js が数秒だけ文言を入れる。空の間は、上の項目との間隔を取らない。 */
+/* 保存できたときに options.js が数秒だけ文言を入れる。
+   空の間はグリッドから外して、上の項目との間隔を取らない。display: none にすると読み上げの対象から外れ、
+   文言を入れたときにスクリーンリーダーが読まないことがあるので、要素は残す。 */
 .options .saved {
   margin: 0;
   color: var(--muted);
@@ -771,7 +773,7 @@ body:has(> .options) {
 }
 
 .options .saved:empty {
-  margin-top: -10px;
+  position: absolute;
 }
 
 .site-search-preview .mini-input .mini-line {
