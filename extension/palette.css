@@ -763,6 +763,17 @@ body:has(> .options) {
   white-space: nowrap;
 }
 
+/* 保存できたときに options.js が数秒だけ文言を入れる。空の間は、上の項目との間隔を取らない。 */
+.options .saved {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.options .saved:empty {
+  margin-top: -10px;
+}
+
 .site-search-preview .mini-input .mini-line {
   flex: 1;
   margin: 0;

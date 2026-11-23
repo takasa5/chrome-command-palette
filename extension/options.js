@@ -2,6 +2,7 @@ import { getNewWindowPins } from "./commands.js";
 import { defaultFavorites, formatFavorites, getFavorites, parseFavorites } from "./favorites.js";
 import { isJapanese, t } from "./i18n.js";
 import { favoritePreview, formatHours, siteSearchPreview, staleTabsPreview } from "./options-preview.js";
+import { createSavedNotice } from "./saved-notice.js";
 import { formatEngines, getEngines, parseEngines } from "./site-search.js";
 import { getStaleSettings } from "./stale-tabs.js";
 import { getTheme, syncTheme } from "./theme.js";
@@ -23,6 +24,23 @@ const stalePreview = document.querySelector(".stale-preview");
 const pinsPreview = document.querySelector(".pins-preview");
 const favoritesPreview = document.querySelector(".favorites-preview");
 const siteSearchPreviewBox = document.querySelector(".site-search-preview");
+
+// 各項目の「保存しました」。data-saved の値で引く。
+const savedNotices = Object.fromEntries(
+  [...document.querySelectorAll("[data-saved]")].map((element) => [
+    element.dataset.saved,
+    createSavedNotice({
+      show: () => (element.textContent = t("saved")),
+      hide: () => (element.textContent = ""),
+    }),
+  ]),
+);
+
+// 保存が終わってから、その項目に「保存しました」を出す。失敗したら出さず、エラーはそのまま呼んだ側に返す。
+async function saved(key, write) {
+  await write;
+  savedNotices[key].notify();
+}
 
 // 各項目の右の図を、今の設定に合わせて描き直す。保存とは別に、入力のたびに呼ぶ。
 function drawTheme() {
@@ -81,7 +99,7 @@ let themeChosen = false;
 theme.addEventListener("change", () => {
   themeChosen = true;
   drawTheme();
-  chrome.storage.sync.set({ theme: theme.value });
+  saved("theme", chrome.storage.sync.set({ theme: theme.value }));
 });
 // 見本を押しても、セレクトで選んだのと同じに扱う。
 for (const swatch of swatches) {
@@ -117,13 +135,13 @@ for (const [checkbox, key] of [
 ]) {
   checkbox.addEventListener("change", () => {
     drawStaleTabs();
-    chrome.storage.sync.set({ [key]: checkbox.checked });
+    saved("stale", chrome.storage.sync.set({ [key]: checkbox.checked }));
   });
 }
 
 newWindowPins.addEventListener("change", () => {
   drawPins();
-  chrome.storage.sync.set({ newWindowPins: newWindowPins.checked });
+  saved("pins", chrome.storage.sync.set({ newWindowPins: newWindowPins.checked }));
 });
 
 // 1 つでも直すと初期値ではなく、この一覧を保存して使う。空にすればお気に入りはなくなる。
@@ -138,7 +156,7 @@ async function saveFavorites() {
   const json = JSON.stringify(parsed.favorites);
   if (json === savedFavoritesJson) return;
   try {
-    await chrome.storage.sync.set({ favorites: parsed.favorites });
+    await saved("favorites", chrome.storage.sync.set({ favorites: parsed.favorites }));
     savedFavoritesJson = json;
   } catch (error) {
     favoritesErrors.textContent = t("saveFailed", error.message);
@@ -152,8 +170,12 @@ resetFavorites.addEventListener("click", async () => {
   favoritesErrors.textContent = "";
   drawFavorites(defaultFavorites(isJapanese()));
   // 初期値が変わったときに追いつけるよう、保存した一覧を消して初期値に任せる。
-  await chrome.storage.sync.remove("favorites");
-  savedFavoritesJson = JSON.stringify(defaultFavorites(isJapanese()));
+  try {
+    await saved("favorites", chrome.storage.sync.remove("favorites"));
+    savedFavoritesJson = JSON.stringify(defaultFavorites(isJapanese()));
+  } catch (error) {
+    favoritesErrors.textContent = t("saveFailed", error.message);
+  }
 });
 
 siteSearch.addEventListener("input", async () => {
@@ -164,7 +186,7 @@ siteSearch.addEventListener("input", async () => {
   const json = JSON.stringify(engines);
   if (json === savedEnginesJson) return;
   try {
-    await chrome.storage.sync.set({ siteSearchEngines: engines });
+    await saved("site-search", chrome.storage.sync.set({ siteSearchEngines: engines }));
     savedEnginesJson = json;
   } catch (error) {
     siteSearchErrors.textContent = t("saveFailed", error.message);
@@ -180,5 +202,9 @@ input.addEventListener("input", async () => {
   }
   staleHoursError.textContent = "";
   drawStaleTabs();
-  await chrome.storage.sync.set({ staleHours: input.valueAsNumber });
+  try {
+    await saved("stale", chrome.storage.sync.set({ staleHours: input.valueAsNumber }));
+  } catch (error) {
+    staleHoursError.textContent = t("saveFailed", error.message);
+  }
 });

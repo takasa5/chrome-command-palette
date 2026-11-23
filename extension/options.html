@@ -33,6 +33,7 @@
             <option value="light" data-i18n="themeLight"></option>
             <option value="dark" data-i18n="themeDark"></option>
           </select>
+          <p class="saved" role="status" aria-live="polite" data-saved="theme"></p>
         </div>
         <div class="preview theme-preview">
           <button type="button" class="swatch" data-theme-value="system" data-i18n-aria-label="themeSystem">
@@ -60,6 +61,7 @@
           <output id="stale-hours-error"></output>
           <label class="switch sub"><input id="stale-pinned" type="checkbox" role="switch" /> <span data-i18n="staleIncludePinnedLabel"></span></label>
           <label class="switch sub"><input id="stale-grouped" type="checkbox" role="switch" /> <span data-i18n="staleIncludeGroupedLabel"></span></label>
+          <p class="saved" role="status" aria-live="polite" data-saved="stale"></p>
         </div>
         <div class="preview stale-preview" aria-hidden="true">
           <div class="stale-zone"></div>
@@ -73,6 +75,7 @@
       <section>
         <div class="field">
           <label class="switch"><input id="new-window-pins" type="checkbox" role="switch" /> <span data-i18n="newWindowPinsLabel"></span></label>
+          <p class="saved" role="status" aria-live="polite" data-saved="pins"></p>
         </div>
         <div class="preview pins-preview" aria-hidden="true">
           <div class="window">
@@ -93,6 +96,7 @@
           <p id="favorites-note" class="note" data-i18n="favoritesNote"></p>
           <div><button id="reset-favorites" type="button" data-i18n="resetFavorites"></button></div>
           <output id="favorites-errors"></output>
+          <p class="saved" role="status" aria-live="polite" data-saved="favorites"></p>
         </div>
         <div class="preview favorites-preview" aria-hidden="true">
           <div class="mini-input"><svg class="i"><use href="#i-search" /></svg><span class="query"></span><span class="caret"></span></div>
@@ -113,6 +117,7 @@
           ></textarea>
           <p id="site-search-note" class="note" data-i18n="siteSearchNote"></p>
           <output id="site-search-errors"></output>
+          <p class="saved" role="status" aria-live="polite" data-saved="site-search"></p>
         </div>
         <div class="preview site-search-preview" aria-hidden="true">
           <div class="keys"><span class="mini-input keyword"></span><span class="plus">+</span><kbd>Tab ⇥</kbd></div>
