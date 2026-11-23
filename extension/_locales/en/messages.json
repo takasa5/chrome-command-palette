@@ -206,6 +206,9 @@
   "noDuplicateTabs": {
     "message": "No duplicate tabs"
   },
+  "noOtherWindows": {
+    "message": "No other windows"
+  },
   "optionsTitle": {
     "message": "Command Palette Settings"
   },
@@ -300,6 +303,9 @@
   },
   "command_close_window": {
     "message": "Close this window"
+  },
+  "command_close_other_windows": {
+    "message": "Close other browser windows, keeping popups open"
   },
   "command_reload": {
     "message": "Reload the current page"

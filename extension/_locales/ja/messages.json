@@ -206,6 +206,9 @@
   "noDuplicateTabs": {
     "message": "重複したタブはありません"
   },
+  "noOtherWindows": {
+    "message": "他のウィンドウはありません"
+  },
   "optionsTitle": {
     "message": "コマンドパレットの設定"
   },
@@ -300,6 +303,9 @@
   },
   "command_close_window": {
     "message": "ウィンドウを閉じる"
+  },
+  "command_close_other_windows": {
+    "message": "他のウィンドウを閉じる"
   },
   "command_reload": {
     "message": "再読み込み"
