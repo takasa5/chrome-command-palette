@@ -4,6 +4,7 @@
 import { t } from "./i18n.js";
 import { findDuplicateTabs } from "./duplicate-tabs.js";
 import { addToReadingList, markAsRead, readingListScope } from "./reading-list.js";
+import { planDomainSort } from "./sort-tabs.js";
 import { findStaleTabs, getStaleSettings } from "./stale-tabs.js";
 import { closeCurrentTabGroup, closeTabGroupScope, groupTabScope, groupTabsByDomain, isGrouped, ungroupTab } from "./tab-groups.js";
 
@@ -282,6 +283,19 @@ export const COMMANDS = [
     ja: "タブをドメインごとにグループにまとめる",
     keywords: ["tab group", "site", "organize", "グループ", "タブグループ", "サイト", "整理"],
     run: groupTabsByDomain,
+  },
+  {
+    id: "sort-tabs-by-domain",
+    title: "Sort Tabs by Domain",
+    ja: "タブをドメイン順に並べ替える",
+    keywords: ["sort", "order", "site", "organize", "並べ替え", "並び替え", "ソート", "サイト", "整理"],
+    run: async (ctx) => {
+      // ctx.windowTabs にパレットのタブは入らないので、パレットは並べ替えない。閉じるときに消える。
+      const plan = planDomainSort(ctx.windowTabs);
+      if (!plan) throw new Error(t("noTabsToSort"));
+      await chrome.tabs.move(plan.tabIds, { index: plan.index });
+      await ctx.leave();
+    },
   },
   {
     id: "close-tab-group",
