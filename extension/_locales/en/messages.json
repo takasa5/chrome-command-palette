@@ -432,6 +432,12 @@
   "command_group_tabs_by_domain": {
     "message": "Group tabs in this window by domain"
   },
+  "command_sort_tabs_by_domain": {
+    "message": "Sort tabs in this window by domain"
+  },
+  "noTabsToSort": {
+    "message": "No tabs to sort"
+  },
   "closeTabGroupTitle": {
     "message": "Close a tab group"
   },

@@ -432,6 +432,12 @@
   "command_group_tabs_by_domain": {
     "message": "タブをドメインごとにグループにまとめる"
   },
+  "command_sort_tabs_by_domain": {
+    "message": "タブをドメイン順に並べ替える"
+  },
+  "noTabsToSort": {
+    "message": "並べ替えられるタブはありません"
+  },
   "closeTabGroupTitle": {
     "message": "閉じるタブグループ"
   },
