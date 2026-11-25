@@ -1,7 +1,7 @@
 import { availableCommands as filterCommands, COMMANDS } from "./commands.js";
 import { t } from "./i18n.js";
 import { findFavoriteTab, getFavorites } from "./favorites.js";
-import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, stripUrl } from "./search.js";
+import { commandItem, flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, stripUrl, withGroupTitles } from "./search.js";
 import { applyBufferedKeys } from "./overlay.js";
 import { isPaletteTab, paletteUrlOf } from "./palette-url.js";
 import { getEngines, siteSearchScope } from "./site-search.js";
@@ -119,7 +119,9 @@ function currentTab() {
 // 重ねたときは、見ているページが操作の対象になる。
 async function refreshTabs() {
   ctx.self = await currentTab();
-  allTabs = (await chrome.tabs.query({})).filter((tab) => !ctx.isPalette(tab));
+  // タブグループの名前でも検索できるよう、タブに名前を持たせる。
+  const [tabs, groups] = await Promise.all([chrome.tabs.query({}), chrome.tabGroups.query({})]);
+  allTabs = withGroupTitles(tabs, groups).filter((tab) => !ctx.isPalette(tab));
   ctx.windowTabs = allTabs.filter((tab) => tab.windowId === ctx.self.windowId);
   const recent = ctx.windowTabs.filter((tab) => tab.id !== ctx.self.id).sort((a, b) => b.lastAccessed - a.lastAccessed);
   ctx.target = overlay ? ctx.self : (recent[0] ?? null);
@@ -531,8 +533,10 @@ function watchTabs() {
   chrome.tabs.onRemoved.addListener(onTabsChanged);
   chrome.tabs.onAttached.addListener(onTabsChanged);
   chrome.tabs.onUpdated.addListener((_tabId, change) => {
-    if ("title" in change || "url" in change || "pinned" in change) onTabsChanged();
+    if ("title" in change || "url" in change || "pinned" in change || "groupId" in change) onTabsChanged();
   });
+  // グループの名前を変えたときも、グループ名での検索に反映する。
+  chrome.tabGroups.onUpdated.addListener(onTabsChanged);
 }
 
 // background.js が渡した合言葉から、重ねたページのタブを受け取る。合言葉は一度しか使えない。
