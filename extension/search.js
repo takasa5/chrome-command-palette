@@ -102,6 +102,24 @@ function countLinks(folder) {
   return (folder.children ?? []).reduce((count, node) => count + (node.url ? 1 : countLinks(node)), 0);
 }
 
+// タブに、入っているタブグループの名前（groupTitle）を持たせる。名前のないグループや、グループに入っていないタブには付けない。
+export function withGroupTitles(tabs, groups) {
+  const titles = new Map(groups.filter((group) => group.title).map((group) => [group.id, group.title]));
+  return tabs.map((tab) => (titles.has(tab.groupId) ? { ...tab, groupTitle: titles.get(tab.groupId) } : tab));
+}
+
+function groupFields(tab) {
+  return tab.groupTitle ? [{ text: tab.groupTitle, weight: 0.8 }] : [];
+}
+
+// タブグループの名前でも引けるようにする。グループ名で当たった候補は、理由が分かるようにグループ名を併記する。
+function tabItem(query, tab) {
+  const pageScore = scoreFields(query, pageFields(tab));
+  const score = scoreFields(query, [...pageFields(tab), ...groupFields(tab)]);
+  const subtitle = score > pageScore ? `${tab.groupTitle} · ${stripUrl(tab.url)}` : stripUrl(tab.url);
+  return { kind: "tab", key: `tab:${tab.id}`, title: tab.title || tab.url, subtitle, url: tab.url, tab, score };
+}
+
 function bookmarkItem(query, bookmark) {
   const pageScore = scoreFields(query, pageFields(bookmark));
   const score = scoreFields(query, [...pageFields(bookmark), ...folderFields(bookmark)]);
@@ -235,8 +253,8 @@ export function rankResults(query, { t, commands = [], favorites = [], tabs = []
     if (score > 0) entries.push({ kind: "favorite", key: `favorite:${favorite.url}`, title: favorite.title, subtitle: stripUrl(favorite.url), url: favorite.url, favorite, score });
   }
   for (const tab of tabs) {
-    const score = scoreFields(query, pageFields(tab));
-    if (score > 0) entries.push({ kind: "tab", key: `tab:${tab.id}`, title: tab.title || tab.url, subtitle: stripUrl(tab.url), url: tab.url, tab, score });
+    const item = tabItem(query, tab);
+    if (item.score > 0) entries.push(item);
   }
   for (const bookmark of bookmarks) {
     // フォルダの行は、親フォルダの名前で当たったときだけ出す（Top と打つと First, Second が並ぶ）。

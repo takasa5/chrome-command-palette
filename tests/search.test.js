@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { translator } from "./support/i18n.js";
 import { COMMANDS } from "../extension/commands.js";
-import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, scoreFields, toUrl } from "../extension/search.js";
+import { flattenBookmarks, isSameOrigin, normalize, rankCommands, rankFolderContents, rankResults, recentlyClosedTabs, removeResult, scoreFields, toUrl, withGroupTitles } from "../extension/search.js";
 
 const t = translator("ja");
 
@@ -257,4 +257,54 @@ test("最近閉じたタブは、同じように一致する開いているタ�
   });
   const kinds = results.filter((r) => r.kind === "tab" || r.kind === "closedTab").map((r) => r.kind);
   assert.deepEqual(kinds, ["tab", "closedTab"]);
+});
+
+test("withGroupTitles は名前のあるグループに入ったタブにだけグループ名を付ける", () => {
+  const tabs = [
+    { id: 1, groupId: 10 },
+    { id: 2, groupId: 11 },
+    { id: 3, groupId: -1 },
+    { id: 4, groupId: 99 },
+  ];
+  const groups = [
+    { id: 10, title: "仕事" },
+    { id: 11, title: "" },
+  ];
+  assert.deepEqual(
+    withGroupTitles(tabs, groups).map((tab) => tab.groupTitle),
+    ["仕事", undefined, undefined, undefined],
+  );
+});
+
+test("タブグループの名前でタブが引け、グループ名をサブタイトルに併記する", () => {
+  const tabs = [
+    { id: 1, title: "Pull requests", url: "https://github.com/pulls", groupTitle: "仕事" },
+    { id: 2, title: "Weather", url: "https://example.com/weather" },
+  ];
+  const results = rankResults("仕事", { t, tabs }).filter((item) => item.kind === "tab");
+  assert.deepEqual(results.map((item) => [item.tab.id, item.subtitle]), [[1, "仕事 · github.com/pulls"]]);
+});
+
+test("タブのタイトルで当たったときは、グループ名を併記しない", () => {
+  const tabs = [{ id: 1, title: "Pull requests", url: "https://github.com/pulls", groupTitle: "Pull" }];
+  const item = rankResults("pull requests", { t, tabs }).find((entry) => entry.kind === "tab");
+  assert.equal(item.subtitle, "github.com/pulls");
+});
+
+test("グループ名とタイトルを組み合わせてタブを絞り込める", () => {
+  const tabs = [
+    { id: 1, title: "Docs", url: "https://a.example/docs", groupTitle: "仕事" },
+    { id: 2, title: "Docs", url: "https://b.example/docs", groupTitle: "趣味" },
+  ];
+  const results = rankResults("仕事 docs", { t, tabs }).filter((item) => item.kind === "tab");
+  assert.deepEqual(results.map((item) => item.tab.id), [1]);
+});
+
+test("グループ名で当たったタブは、タイトルで当たったタブより下に出る", () => {
+  const tabs = [
+    { id: 1, title: "Mail", url: "https://mail.example/", groupTitle: "Work" },
+    { id: 2, title: "Work log", url: "https://log.example/" },
+  ];
+  const results = rankResults("work", { t, tabs }).filter((item) => item.kind === "tab");
+  assert.deepEqual(results.map((item) => item.tab.id), [2, 1]);
 });
