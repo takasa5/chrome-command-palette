@@ -292,6 +292,9 @@
   "command_close_right_tabs": {
     "message": "右側のタブを閉じる"
   },
+  "command_close_left_tabs": {
+    "message": "左側のタブを閉じる"
+  },
   "command_archive_stale_tabs": {
     "message": "しばらく見ていないタブを閉じる"
   },
