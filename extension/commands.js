@@ -38,6 +38,12 @@ export function otherWindowIds(windows, selfWindowId) {
   return windows.filter((win) => win.id !== selfWindowId).map((win) => win.id);
 }
 
+// 対象のタブ（target）より左側（side が "left"）か右側（"right"）の、固定していないタブの ID。
+export function sideTabIds(windowTabs, target, side) {
+  const isSide = side === "left" ? (tab) => tab.index < target.index : (tab) => tab.index > target.index;
+  return windowTabs.filter((tab) => isSide(tab) && !tab.pinned).map((tab) => tab.id);
+}
+
 async function zoomBy(ctx, factor) {
   const zoom = await chrome.tabs.getZoom(ctx.target.id);
   await chrome.tabs.setZoom(ctx.target.id, zoom * factor);
@@ -121,10 +127,21 @@ export const COMMANDS = [
     id: "close-right-tabs",
     title: "Close Tabs to the Right",
     ja: "右側のタブを閉じる",
-    keywords: ["right"],
+    keywords: ["right", "below", "下"],
     needsTarget: true,
     run: async (ctx) => {
-      await chrome.tabs.remove(ctx.windowTabs.filter((t) => t.index > ctx.target.index && !t.pinned).map((t) => t.id));
+      await chrome.tabs.remove(sideTabIds(ctx.windowTabs, ctx.target, "right"));
+      await ctx.leave();
+    },
+  },
+  {
+    id: "close-left-tabs",
+    title: "Close Tabs to the Left",
+    ja: "左側のタブを閉じる",
+    keywords: ["left", "above", "上"],
+    needsTarget: true,
+    run: async (ctx) => {
+      await chrome.tabs.remove(sideTabIds(ctx.windowTabs, ctx.target, "left"));
       await ctx.leave();
     },
   },

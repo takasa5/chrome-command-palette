@@ -292,6 +292,9 @@
   "command_close_right_tabs": {
     "message": "Close unpinned tabs to the right"
   },
+  "command_close_left_tabs": {
+    "message": "Close unpinned tabs to the left"
+  },
   "command_archive_stale_tabs": {
     "message": "Close tabs you haven't viewed in a while"
   },
