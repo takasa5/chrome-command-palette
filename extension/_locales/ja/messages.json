@@ -295,6 +295,18 @@
   "command_close_left_tabs": {
     "message": "左側のタブを閉じる"
   },
+  "command_move_tab_left": {
+    "message": "タブを左へ移動"
+  },
+  "command_move_tab_right": {
+    "message": "タブを右へ移動"
+  },
+  "command_move_tab_to_start": {
+    "message": "タブを先頭へ移動"
+  },
+  "command_move_tab_to_end": {
+    "message": "タブを末尾へ移動"
+  },
   "command_archive_stale_tabs": {
     "message": "しばらく見ていないタブを閉じる"
   },

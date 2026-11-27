@@ -295,6 +295,18 @@
   "command_close_left_tabs": {
     "message": "Close unpinned tabs to the left"
   },
+  "command_move_tab_left": {
+    "message": "Move this tab one position to the left"
+  },
+  "command_move_tab_right": {
+    "message": "Move this tab one position to the right"
+  },
+  "command_move_tab_to_start": {
+    "message": "Move this tab to the start of the window"
+  },
+  "command_move_tab_to_end": {
+    "message": "Move this tab to the end of the window"
+  },
   "command_archive_stale_tabs": {
     "message": "Close tabs you haven't viewed in a while"
   },

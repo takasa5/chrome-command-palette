@@ -44,6 +44,25 @@ export function sideTabIds(windowTabs, target, side) {
   return windowTabs.filter((tab) => isSide(tab) && !tab.pinned).map((tab) => tab.id);
 }
 
+// 対象のタブ（target）を動かす先の index（chrome.tabs.move に渡す値）。動かせないときは null。
+// where は "left"（1 つ左）、"right"（1 つ右）、"start"（先頭）、"end"（末尾）。
+// 固定したタブは固定したタブの中で、それ以外はそれ以外の中で動かす。
+// windowTabs にパレットのタブは入らないので、隣のタブの index を使い、パレットを挟んでいても 1 つずつ動く。
+export function tabMoveIndex(windowTabs, target, where) {
+  const area = windowTabs.filter((tab) => tab.pinned === target.pinned).sort((a, b) => a.index - b.index);
+  const at = area.findIndex((tab) => tab.id === target.id);
+  if (at === -1) return null;
+  const to = { left: at - 1, right: at + 1, start: 0, end: area.length - 1 }[where];
+  if (to === undefined || to < 0 || to >= area.length || to === at) return null;
+  return area[to].index;
+}
+
+const moveTab = (where) => async (ctx) => {
+  const index = tabMoveIndex(ctx.windowTabs, ctx.target, where);
+  if (index !== null) await chrome.tabs.move(ctx.target.id, { index });
+  await ctx.leave();
+};
+
 async function zoomBy(ctx, factor) {
   const zoom = await chrome.tabs.getZoom(ctx.target.id);
   await chrome.tabs.setZoom(ctx.target.id, zoom * factor);
@@ -329,6 +348,38 @@ export const COMMANDS = [
     ja: "一覧からタブグループを閉じる",
     keywords: ["tab group", "close group", "list", "グループ", "タブグループ", "閉じる", "一覧"],
     run: (ctx) => ctx.enterScope(closeTabGroupScope(ctx.self.windowId)),
+  },
+  {
+    id: "move-tab-left",
+    title: "Move Tab Left",
+    ja: "タブを左へ移動",
+    keywords: ["move", "reorder", "above", "up", "移動", "並べ替え", "上"],
+    needsTarget: true,
+    run: moveTab("left"),
+  },
+  {
+    id: "move-tab-right",
+    title: "Move Tab Right",
+    ja: "タブを右へ移動",
+    keywords: ["move", "reorder", "below", "down", "移動", "並べ替え", "下"],
+    needsTarget: true,
+    run: moveTab("right"),
+  },
+  {
+    id: "move-tab-to-start",
+    title: "Move Tab to Start",
+    ja: "タブを先頭へ移動",
+    keywords: ["move", "reorder", "first", "left", "top", "移動", "並べ替え", "左端", "上端", "最初"],
+    needsTarget: true,
+    run: moveTab("start"),
+  },
+  {
+    id: "move-tab-to-end",
+    title: "Move Tab to End",
+    ja: "タブを末尾へ移動",
+    keywords: ["move", "reorder", "last", "right", "bottom", "移動", "並べ替え", "右端", "下端", "最後"],
+    needsTarget: true,
+    run: moveTab("end"),
   },
   {
     id: "move-to-window",
