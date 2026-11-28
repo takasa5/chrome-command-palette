@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@informalsystems/quint": "0.33.1",
-    "fast-check": "4.10.2",
+    "fast-check": "4.10.3",
     "playwright-core": "1.65.1"
   }
 }
