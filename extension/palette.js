@@ -551,7 +551,9 @@ async function claimHostTab() {
 async function takeBufferedKeys() {
   const keys = await chrome.tabs.sendMessage(hostTabId, { type: "palette-ready" }, { frameId: 0 });
   const { text, submit } = applyBufferedKeys(keys ?? []);
-  input.value = text;
+  // ページはキーを返す前にパレットへフォーカスを移すので、返事を待つ間に打った文字が入力欄に入っていることがある。
+  // ためていたキーはそれより先に打ったものなので、前に付ける。
+  input.value = text + input.value;
   update();
   if (submit) execute(selectedItem());
 }
