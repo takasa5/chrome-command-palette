@@ -8,6 +8,6 @@
     "record:ja": "node capture.mjs ja && node compose.mjs ja"
   },
   "devDependencies": {
-    "playwright-core": "1.65.0"
+    "playwright-core": "1.65.1"
   }
 }
